@@ -2,6 +2,7 @@ package com.messdiener.cms.v3.web.controller;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.person.data.connection.PersonConnection;
+import com.messdiener.cms.v3.app.entities.privacy.PrivacyPolicy;
 import com.messdiener.cms.v3.app.entities.user.Permission;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
@@ -265,6 +266,19 @@ public class PersonalController {
         Cache.getUserService().createUserInSecurity();
 
         return new RedirectView("/personal?q=profil&id=" + person.getId());
+    }
+
+    @GetMapping("/person/privacyPolicy")
+    public String privacyPolicy(HttpSession httpSession, Model model) throws SQLException {
+        Person user = SecurityHelper.getPerson();
+        SecurityHelper.addPersonToSession(httpSession);
+
+        if (!user.hasPermission("mp_module_personal"))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
+
+
+        model.addAttribute("privacyPolicies", Cache.getPrivacyService().getAll());
+        return "person/privacyOverwiew";
     }
 
 }

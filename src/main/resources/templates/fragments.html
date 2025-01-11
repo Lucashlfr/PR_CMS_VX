@@ -155,6 +155,7 @@
 
                 <div th:if="${session.sessionUser.hasPermission('mp_module_personal')}">
                     <a class="nav-link" href="/personal"><div class="nav-link-icon"><i data-feather="user"></i></div>Personen</a>
+                    <a class="nav-link" href="/person/privacyPolicy"><div class="nav-link-icon"><i data-feather="user"></i></div>Datenschutz</a>
                 </div>
 
                 <div th:if="${session.sessionUser.hasPermission('mp_module_events')}">

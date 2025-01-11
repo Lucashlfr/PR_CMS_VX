@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content">
+                        <div class="row align-items-center justify-content-between pt-3">
+                            <div class="col-auto mb-3">
+                                <h1 class="page-header-title">
+                                    <div class="page-header-icon"><i data-feather="users"></i></div>
+                                    Datenschutz Formulare
+                                </h1>
+                            </div>
+                            <div class="col-12 col-xl-auto mb-3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+
+            <div class="container-fluid px-4">
+
+                <div class="card" th:each="entry : ${privacyPolicies}">
+                    <div class="card-header" th:text="${entry.getFirstname()} + ' ' + ${entry.getLastname()}"></div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td>Adresse</td>
+                                <td th:text="${entry.getStreet()} + ' ' + ${entry.getNumber()} + ${entry.getPlz()} + ' '+  ${entry.getCity()}"></td>
+                            </tr>
+                            <tr>
+                                <td>Einwilligung</td>
+                                <td>
+                                    <span th:if="${entry.isCheck1()}" class="mdi mdi-check text-success">Internet-Präsentationen der Pfarrei / Gruppe verwendet</span>
+                                    <br th:if="${entry.isCheck1()}">
+                                    <span th:if="${entry.isCheck2()}" class="mdi mdi-check text-success">an andere Eltern - auch in der Form digitaler Speichermedien - weitergegeben werden dürfen,</span>
+                                    <br th:if="${entry.isCheck2()}">
+                                    <span th:if="${entry.isCheck3()}" class="mdi mdi-check text-success"> in Mitteilungen an die Mitglieder der katholischen Kirche wie z. B. dem Pfarrbrief wiedergegeben werden dürfen </span>
+                                    <br th:if="${entry.isCheck3()}">
+                                    <span th:if="${entry.isCheck4()}" class="mdi mdi-check text-success">an öffentliche Publikationsorgane zum Zwecke der Veröffentlichung weitergegeben werden dürfen.</span>
+                                    <br th:if="${entry.isCheck4()}">
+                                    <span th:if="${entry.isCheck5()}" class="mdi mdi-check text-success">Hiermit willigen wir / willige ich ein, der Name, die Telefonnummer und die Emailadresse des Ministranten an die anderen Ministranten und deren Leiter für dienstliche Absprachen weitergegeben werden dürfen.</span>
+                                    <br th:if="${entry.isCheck5()}">
+                                    <span th:if="${entry.isCheck6()}" class="mdi mdi-check text-success">Hiermit willigen wir / willige ich ein, der Name des Ministranten in Veröffentlichungen der Einrichtung genannt werden darf.</span>
+                                    <br th:if="${entry.isCheck6()}">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Unterschrift</td>
+                                <td>
+                                    <img th:src="${entry.getSignature()}" alt="...">
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+</div>

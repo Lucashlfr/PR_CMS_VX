@@ -51,6 +51,9 @@ public class Cache {
     @Getter
     private static WorkflowService workflowService;
 
+    @Getter
+    private static PrivacyService privacyService;
+
     @Getter @Setter
     private static InMemoryUserDetailsManager userDetailsManager;
 
@@ -80,6 +83,7 @@ public class Cache {
         Cache.permissionService = new PermissionService(databaseService);
         Cache.configurationService = new ConfigurationService(databaseService);
         Cache.workflowService = new WorkflowService(databaseService);
+        Cache.privacyService = new PrivacyService(databaseService);
     }
 
     public void start() {
