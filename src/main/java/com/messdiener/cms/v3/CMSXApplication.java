@@ -14,5 +14,6 @@ public class CMSXApplication {
 
         Cache.getPersonService().updateUsers();
         Cache.getUserService().createUserInSecurity();
+        System.out.println("Test");
     }
 }
