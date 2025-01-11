@@ -1,6 +1,7 @@
 pipeline {
     agent any
     environment {
+        GIT_HOME = '/usr/bin/git' // Beispiel für den Git-Pfad
         DEPLOY_PATH = '/opt/cms_vx'  // Zielverzeichnis auf deinem Server
         SERVICE_NAME = 'PR_CMS.service'      // Der Name des Systemdienstes
     }
