@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                <div class="container px-4">
+                    <div class="page-header-content">
+                        <div class="row align-items-center justify-content-between pt-3">
+                            <div class="col-auto mb-3">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon"><i data-feather="calendar"></i></span>
+                                    Gottesdienst <span class="mdi mdi-arrow-right"></span><span>Bearbeiten</span>
+                                </h1>
+                            </div>
+                            <div class="col-12 col-xl-auto mb-3">
+                                <a class="btn btn-sm btn-light text-primary" href="javascript:void(0);"
+                                   data-bs-toggle="modal" data-bs-target="#create">
+                                    <i class="me-1" data-feather="edit"></i>
+                                    Bearbeiten
+                                </a>
+
+                                <a class="btn btn-sm btn-light text-primary" data-bs-toggle="modal"
+                                   data-bs-target="#delete">
+                                    <i class="me-1" data-feather="trash"></i>
+                                    Löschen
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container px-4 mt-4">
+                <div class="card mb-2">
+                    <div class="card-header">Stammdaten</div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <tbody>
+
+                            <tr>
+                                <td>Titel</td>
+                                <td th:text="${targetEvent.getDescription()}"></td>
+                            </tr>
+                            <tr>
+                                <td>Info</td>
+                                <td th:text="${targetEvent.getInfo()}"></td>
+                            </tr>
+                            <tr>
+                                <td>Termin</td>
+                                <td th:text="${targetEvent.getTime()}"></td>
+                            </tr>
+                            <tr>
+                                <td>Rückmeldungen</td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" th:style="'width:' + ${targetEvent.getPercentagesRegister(1)} +'%'">
+                                        </div>
+                                        <div class="progress-bar bg-warning" th:style="'width:' + ${targetEvent.getPercentagesRegister(2)} +'%'">
+                                        </div>
+                                        <div class="progress-bar bg-danger" th:style="'width:' + ${targetEvent.getPercentagesRegister(3)} +'%'">
+                                        </div>
+                                    </div>
+                                    <span class="mdi mdi-circle text-success"></span>
+                                    <span th:text="'Eingeteilt: ' + ${targetEvent.getScheduledPersons().size()} + ' | '"></span>
+                                    <span class="mdi mdi-circle text-warning"></span>
+                                    <span th:text="'Verfügbare: ' + ${targetEvent.getRegisteredPersons().size()} + ' | '"></span>
+                                    <span class="mdi mdi-circle text-red"></span>
+                                    <span th:text="'Keine Rückmeldung: ' + ${targetEvent.getOtherPersons()}"></span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Activity Status</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Zelebrant</td>
+                                <td></td>
+                            </tr>
+
+                            <tr>
+                                <td>Organist</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Angemeldete Messdiener</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Eingeteilte Messdiener</td>
+                                <td th:text="${targetEvent.getScheduledPersonsInfo()}"></td>
+                            </tr>
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+
+<!-- The Modal -->
+<form th:method="post" th:action="@{/organisation/save/worship}">
+
+    <div class="modal fade" id="create">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Termin bearbeiten</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-floating mb-2 mt-3">
+                                <input type="text" class="form-control" id="description" placeholder="Enter description"
+                                       name="description" required th:value="${targetEvent.getDescription()}">
+                                <label for="description">Titel</label>
+                            </div>
+
+                            <div class="form-floating mb-2">
+                                <select type="text" class="form-select" id="bz" name="info">
+
+                                    <optgroup label="Gottesdienste">
+                                        <option value="Werktagsmesse"
+                                                th:selected="${targetEvent.getInfo().equals('Werktagsmesse')}">
+                                            Werktagsmesse
+                                        </option>
+                                        <option value="Vorabendmesse"
+                                                th:selected="${targetEvent.getInfo().equals('Vorabendmesse')}">
+                                            Vorabendmesse
+                                        </option>
+                                        <option value="Gottesdienst"
+                                                th:selected="${targetEvent.getInfo().equals('Gottesdienst')}">
+                                            Gottesdienst
+                                        </option>
+                                        <option value="Hochamt"
+                                                th:selected="${targetEvent.getInfo().equals('Hochamt')}">Hochamt
+                                            (Weihrauch, etc.)
+                                        </option>
+                                    </optgroup>
+                                    <optgroup label="Sonstiges">
+                                        <option value="Taufe" th:selected="${targetEvent.getInfo().equals('Taufe')}">
+                                            Taufe
+                                        </option>
+                                        <option value="Hochzeit"
+                                                th:selected="${targetEvent.getInfo().equals('Hochzeit')}">Hochzeit
+                                        </option>
+                                        <option value="Beerdigung"
+                                                th:selected="${targetEvent.getInfo().equals('Beerdigung')}">Beerdigung
+                                        </option>
+                                        <option value="Wortgottesdienst"
+                                                th:selected="${targetEvent.getInfo().equals('Wortgottesdienst')}">
+                                            Wortgottesdienst
+                                        </option>
+                                    </optgroup>
+                                    <optgroup label="Ohne Messdiener">
+                                        <option value="Ohne Messdiener"
+                                                th:selected="${targetEvent.getInfo().equals('Ohne Messdiener')}">Ohne
+                                            Messdiener
+                                        </option>
+                                    </optgroup>
+                                </select>
+                                <label for="bz">Bezeichnung</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+
+                            <div class="form-floating mb-2 mt-3">
+                                <input type="datetime-local" class="form-control" id="startDate"
+                                       placeholder="Enter email" name="startDate"
+                                       th:value="${targetEvent.getStartDate().getEnglishDayDate()}" required>
+                                <label for="startDate">Start-Datum</label>
+                            </div>
+                            <div class="form-floating mb-2">
+                                <input type="datetime-local" class="form-control" id="endDate" placeholder="Enter email"
+                                       name="endDate" th:value="${targetEvent.getEndDate().getEnglishDayDate()}"
+                                       required>
+                                <label for="endDate">End-Datum</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" id="flexCheckDefault" type="checkbox" value="true"
+                                       name="openEnd" th:selected="${targetEvent.isOpenEnd()}">
+                                <label class="form-check-label" for="flexCheckDefault">Open End</label>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <label>
+        <input name="id" size="0" hidden th:value="${targetEvent.getId()}" readonly="readonly">
+    </label>
+</form>
+
+
+<div class="modal fade" id="delete">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Termin löschen</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                Bist du sicher, dass du diesen Gottesdienst löschen möchtest?
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <a type="button" class="btn btn-danger" th:href="'/organisation/delete?id=' + ${targetEvent.getId()}">Löschen</a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<div th:insert="~{fragments :: script}"></div>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/script/main.js}"></script>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+</body>
+</html>

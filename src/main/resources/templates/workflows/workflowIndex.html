@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+
+        <main>
+            <header class="page-header page-header-dark pb-15 bg-img-cover"
+                    style="background-image: url('https://messdiener-knittelsheim.de/wp-content/uploads/2025/01/Handabdruck-scannen-scaled.jpg')">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <h1 class="page-header-title mt-4"
+                            th:text="'CMS Workflows'">
+                        </h1>
+                        <div class="page-header-subtitle">Bei Fragen wende dich gerne direkt an Lucas!
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-xl px-4 mt-n10">
+                <div class="row">
+                    <div class="col-xl-4 mb-4" th:each="workflow : ${workflows}">
+                        <!-- Dashboard example card 1-->
+                        <a class="card lift h-100" th:href="'/workflows?q=edit&id=' + ${workflow.getWorkflowId()}" th:if="${workflow.getWorkflowType().toString().equals('SCHEDULER')}">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <i class="feather-xl text-orange mb-3" data-feather="anchor"></i>
+                                        <h3 class="text-orange">Dienstplan-Abfrage</h3>
+                                    </div>
+                                    <img th:src="@{/dist/assets/img/illustrations/Schedule-pana.svg}" alt="..."
+                                         style="width: 8rem"/>
+                                </div>
+                            </div>
+                        </a>
+
+                        <!-- Dashboard example card 2-->
+                        <a class="card lift h-100"  th:href="'/workflows?q=edit&id=' + ${workflow.getWorkflowId()}"  th:if="${workflow.getWorkflowType().toString().equals('DATA')}">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <i class="feather-xl text-green mb-3" data-feather="users"></i>
+                                        <h3 class="text-green">Daten-Check</h3>
+                                    </div>
+                                    <img th:src="@{/dist/assets/img/illustrations/team_work-bro.svg}" alt="..."
+                                         style="width: 8rem"/>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a class="card lift h-100"  th:href="'/workflows?q=edit&id=' + ${workflow.getWorkflowId()}" th:if="${workflow.getWorkflowType().toString().equals('PRIVACY_POLICY')}">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <i class="feather-xl text-secondary mb-3" data-feather="activity"></i>
+                                        <h3 class="text-purple">Datenschutz Formular</h3>
+                                    </div>
+                                    <img th:src="@{/dist/assets/img/illustrations/survey-amico.svg}" alt="..."
+                                         style="width: 8rem"/>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a class="card lift h-100"  th:href="'/workflows?q=edit&id=' + ${workflow.getWorkflowId()}"  th:if="${workflow.getWorkflowType().toString().equals('NULL')}">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <i class="feather-xl text-secondary mb-3" data-feather="activity"></i>
+                                        <h3 class="text-purple">Rechnung genemigen</h3>
+                                    </div>
+                                    <img th:src="@{/dist/assets/img/illustrations/survey-amico.svg}" alt="..."
+                                         style="width: 8rem"/>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="">
+
+                <div class="row mt-4">
+                    <div class="col-xl-4 mb-4">
+
+                        <a class="card lift h-100" href="javascript:void(0);"
+                           data-bs-toggle="modal" data-bs-target="#create">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <i class="feather-xl text-yellow mb-3" data-feather="activity"></i>
+                                        <h3 class="text-yellow">Workflow erstellen</h3>
+                                    </div>
+                                    <img th:src="@{/dist/assets/img/illustrations/data_extraction-cuate.svg}" alt="..."
+                                         style="width: 8rem"/>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-xl-4 mb-4">
+
+                        <a class="card lift h-100" href="/pulseCheck" th:if="${user.hasPermission('ADMIN')}">
+                            <div class="card-body d-flex justify-content-center flex-column">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="me-3">
+                                        <i class="feather-xl text-secondary mb-3" data-feather="activity"></i>
+                                        <h3 class="text-purple">Aktive Workflows</h3>
+                                    </div>
+                                    <img th:src="@{/dist/assets/img/illustrations/survey-amico.svg}" alt="..."
+                                         style="width: 8rem"/>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+
+    <div class="modal fade" id="create">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Workflow erstellen</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="list-group list-group-flush">
+                        <a class="list-group-item list-group-item-action" href="/workflows?q=createScheduler" th:if="${user.hasPermission('ADMIN')}">
+                            <span class="mdi mdi-calendar fw-bold text-blue me-2"></span>
+                            Dienstplan
+                        </a>
+                        <a class="list-group-item list-group-item-action"  href="/workflows?q=createData" th:if="${user.hasPermission('ADMIN')}">
+                            <span class="mdi mdi-calendar fw-bold text-blue me-2"></span>
+                            Daten überprüfen
+                        </a>
+                        <a class="list-group-item list-group-item-action" href="/workflows?q=createPrivacy_policy" th:if="${user.hasPermission('ADMIN')}">
+                            <span class="mdi mdi-calendar fw-bold text-blue me-2"></span>
+                            Datenschutzformular
+                        </a>
+                        <a class="list-group-item list-group-item-action" href="#!" th:if="${user.hasPermission('ADMIN')}">
+                            <span class="mdi mdi-calendar fw-bold text-blue me-2"></span>
+                            Rechnung einreichen
+                        </a>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<div th:insert="~{fragments :: script}"></div>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/script/main.js}"></script>
+</body>
+</html>

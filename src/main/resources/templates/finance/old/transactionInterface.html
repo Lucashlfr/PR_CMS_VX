@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="fragments :: html_head"></head>
+<body class="nav-fixed">
+<nav th:insert="fragments :: topnav"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="fragments :: sidebar"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark pb-10"  style="background-color: #3A557C!important;">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <div class="page-header-icon"><i data-feather="arrow-right-circle"></i></div>
+                                    <span th:text="'Auslagen erfassen / ' + ${entry.getCashRegisterType().getText()}"></span>
+                                </h1>
+                                <div class="page-header-subtitle">Bitte erstelle deine Abrechnung</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-xl px-4 mt-n10">
+                <!-- Wizard card example with navigation-->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <div class="m-3">
+                                <form th:method="post" th:action="@{/finance/save}" enctype="multipart/form-data">
+                                    <span>Belegart</span><br>
+                                    <div class="mb-3 d-flex">
+                                        <input type="radio" class="btn-check" name="documentType" id="documentType1" required  th:readonly="${entry.isEditableByCreator()}"
+                                               autocomplete="EXPENSE" value="EXPENSE" th:checked="${entry.getDocumentType().toString().equals('EXPENSE')}">
+                                        <label class="btn btn-outline-danger btn-block flex-fill m-1" for="documentType1">Ausgabe</label>
+
+                                        <input type="radio" class="btn-check" name="documentType" id="documentType2" th:readonly="${entry.isEditableByCreator()}"
+                                               autocomplete="REVENUE" value="REVENUE" th:checked="${entry.getDocumentType().toString().equals('REVENUE')}">
+                                        <label class="btn btn-outline-success flex-fill m-1" for="documentType2">Einnahme</label>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-xl-6 col-12">
+                                            <div class="form-floating mb-3">
+                                                <input type="date" class="form-control" id="blD" placeholder=""
+                                                       name="blD" th:value="${entry.getDocumentDate().getEnglishDate()}">
+                                                <label for="blD">Beleg-Datum</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6 col-12">
+                                            <div class="form-floating mb-3">
+                                                <select class="form-select" id="sel1" name="blC">
+                                                    <option></option>
+                                                    <option th:value="'000 - KEINE'" th:text="'000 - KEINE'" th:selected="${entry.getCostCenter().equals('000 - KEINE')}"></option>
+                                                    <option th:value="'001 - Leitungsteam'" th:text="'001 - Leitungsteam'" th:selected="${entry.getCostCenter().equals('001 - Leitungsteam')}"></option>
+                                                    <option th:value="'002 - Pfarrei'" th:text="'002 - Pfarrei'" th:selected="${entry.getCostCenter().equals('002 - Pfarrei')}"></option>
+                                                    <option th:value="'003 - Aktionen'" th:text="'003 - Aktionen'" th:selected="${entry.getCostCenter().equals('003 - Aktionen')}"></option>
+                                                    <option th:value="'004 - Spenden'" th:text="'004 - Spenden'" th:selected="${entry.getCostCenter().equals('004 - Spenden')}"></option>
+                                                    <option th:value="'005 - Teilnahme Gebüren'" th:text="'005 - Teilnahme Gebüren'"  th:selected="${entry.getCostCenter().equals('005 - Teilnahme Gebüren')}"></option>
+                                                </select>
+                                                <label for="sel1" class="form-label">Kostenstelle</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="blB" placeholder="" name="blB" th:value="${entry.getDescription()}" required>
+                                        <label for="blB">Beschreibung</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="blV" placeholder="" name="blV" th:value="${entry.getValueString()}" pattern="\d+\.\d{2}" title="Bitte gebe den Betrag getrennt durch einen Punkt an.">
+                                        <label for="blV">Betrag</label>
+                                    </div>
+
+                                    <input name="id" th:value="${entry.getId()}" class="d-none">
+                                    <input name="t" th:value="${entry.getCashRegisterType().toString()}" class="d-none">
+                                    <input type="file" class="form-control" id="name" placeholder="Enter email" name="file">
+                                    <hr class="my-4" />
+                                    <div class="d-flex">
+
+                                        <button type="submit" class="btn btn-primary btn-block flex-fill m-1">Speichern</button>
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="fragments :: footer"></footer>
+    </div>
+</div>
+<div th:insert="fragments :: script"></div>
+</body>
+
+</html>

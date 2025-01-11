@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Output</title>
+</head>
+<body>
+
+<section th:if="${img.equals('KW25')}">
+    <img th:src="@{/dist/assets/img/KW/KW25.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW26')}">
+    <img th:src="@{/dist/assets/img/KW/KW26.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW27')}">
+    <img th:src="@{/dist/assets/img/KW/KW27.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW28')}">
+    <img th:src="@{/dist/assets/img/KW/KW28.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW29')}">
+    <img th:src="@{/dist/assets/img/KW/KW29.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW30')}">
+    <img th:src="@{/dist/assets/img/KW/KW30.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW31')}">
+    <img th:src="@{/dist/assets/img/KW/KW31.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW32')}">
+    <img th:src="@{/dist/assets/img/KW/KW32.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW33')}">
+    <img th:src="@{/dist/assets/img/KW/KW33.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW34')}">
+    <img th:src="@{/dist/assets/img/KW/KW34.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW35')}">
+    <img th:src="@{/dist/assets/img/KW/KW35.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW36')}">
+    <img th:src="@{/dist/assets/img/KW/KW36.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW37')}">
+    <img th:src="@{/dist/assets/img/KW/KW37.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW38')}">
+    <img th:src="@{/dist/assets/img/KW/KW38.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW39')}">
+    <img th:src="@{/dist/assets/img/KW/KW39.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW40')}">
+    <img th:src="@{/dist/assets/img/KW/KW40.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW41')}">
+    <img th:src="@{/dist/assets/img/KW/KW41.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW42')}">
+    <img th:src="@{/dist/assets/img/KW/KW42.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW43')}">
+    <img th:src="@{/dist/assets/img/KW/KW43.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW44')}">
+    <img th:src="@{/dist/assets/img/KW/KW44.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW45')}">
+    <img th:src="@{/dist/assets/img/KW/KW45.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW46')}">
+    <img th:src="@{/dist/assets/img/KW/KW46.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW47')}">
+    <img th:src="@{/dist/assets/img/KW/KW47.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW48')}">
+    <img th:src="@{/dist/assets/img/KW/KW48.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW49')}">
+    <img th:src="@{/dist/assets/img/KW/KW49.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW50')}">
+    <img th:src="@{/dist/assets/img/KW/KW50.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW51')}">
+    <img th:src="@{/dist/assets/img/KW/KW51.png}" alt="..."/>
+</section>
+
+<section th:if="${img.equals('KW52')}">
+    <img th:src="@{/dist/assets/img/KW/KW52.png}" alt="..."/>
+</section>
+<br>
+<span>Hey zusammen, hier euer Weekly Update ☀🌅</span><br><br>
+<span>🕓Gottesdienste:</span><br>
+<section th:each="w:${worships}">
+    <span th:text="${w.getDate().getGermanLongDate()}"></span><br>
+    <span th:text="${w.getPersons()}"></span><br><br>
+
+</section>
+
+<span>Euch eine Gute Woche,</span><br>
+<span>Euere Teamer</span>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                <div class="container px-4">
+                    <div class="page-header-content">
+                        <div class="row align-items-center justify-content-between pt-3">
+                            <div class="col-auto mb-3">
+                                <h1 class="page-header-title">
+                                    <div class="page-header-icon"><i data-feather="users"></i></div>
+                                    Personal
+                                    <span class="mdi mdi-arrow-right"></span>
+                                    <span class="mdi mdi-account text-blue"></span>
+                                    <span>Stammdaten</span>
+                                </h1>
+                            </div>
+                            <div class="col-12 col-xl-auto mb-3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+
+            <div class="container px-4">
+                <nav class="nav nav-borders d-flex justify-content-center">
+                    <a class="nav-link" th:href="'/personal?q=profil&s=1&id=' + ${person.getId()}">Stammdaten</a>
+                    <a class="nav-link" th:href="'/personal?q=profil&s=2&id=' + ${person.getId()}">Connections</a>
+                    <a class="nav-link " th:href="'/personal?q=profil&s=3&id=' + ${person.getId()}">Gottesdienste</a>
+                    <a class="nav-link active ms-0 " th:href="'/personal?q=profil&s=4&id=' + ${person.getId()}">Historie</a>
+                    <a class="nav-link" th:href="'/personal?q=profil&s=5&id=' + ${person.getId()}">Dateien</a>
+                    <a class="nav-link" th:href="'/personal?q=profil&s=6&id=' + ${person.getId()}">Benutzer</a>
+                    <a class="nav-link" th:href="'/personal?q=profil&s=7&id=' + ${person.getId()}">Workflows</a>
+                </nav>
+                <hr class="mt-0 mb-4"/>
+
+                <!-- Icon Card Example -->
+                <div class="card card-icon mb-4">
+                    <div class="row no-gutters">
+                        <div class="col-auto card-icon-aside">
+                            <img class="img-account-profile rounded-circle m-4"
+                                 th:src="${person.getImgAdress()}" alt=""
+                                 style="max-width: 80px; max-height: 80px">
+                        </div>
+                        <div class="col">
+                            <div class="card-body h-100 p-0">
+                                <div class="d-flex align-items-center h-100">
+                                    <div class=" p-3">
+                                        <div class="d-flex align-items-center">
+                                            <h1 style="line-height: 0!important;"
+                                                th:text="${person.getReadName()}"></h1>
+                                            <span style="margin-right: 10px"></span>
+                                            <h2 class="badge rounded-pill bg-success" th:if="${person.isActive()}">
+                                                Aktiv</h2>
+                                            <h2 class="badge rounded-pill bg-danger" th:unless="${person.isActive()}">
+                                                Nicht Aktiv</h2>
+                                        </div>
+
+                                        <div class="d-flex align-items-center p-0">
+                                        <span class="mdi mdi-bag-suitcase "> <span
+                                                th:text="${person.getType()}"></span></span>
+                                            <span style="margin-right: 10px"></span>
+                                            <span class="mdi mdi-account-group "> <span
+                                                    th:text="${person.getTenant().getName()}"></span></span>
+                                        </div>
+
+                                        <p th:unless="${person.isActive()}" th:text="${person.getActivityNote()}"
+                                           class="text-danger"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card card-header-actions">
+                    <div class="card-header">
+                        Stammdaten
+                        <a class="btn btn-sm btn-light text-primary" href="javascript:void(0);"
+                           data-bs-toggle="modal" data-bs-target="#create">
+                            <i class="me-1" data-feather="edit"></i>
+                            Person bearbeiten
+                        </a>
+                    </div>
+                    <div class="card-body">
+                    </div>
+                </div>
+
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>

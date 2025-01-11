@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="fragments :: html_head"></head>
+<body class="nav-fixed">
+<nav th:insert="fragments :: topnav"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="fragments :: sidebar"></div>
+    <div id="layoutSidenav_content">
+        <main class="h-100 bg-white">
+
+            <nav class="navbar navbar-light bg-light px-1 ">
+
+                <div class="d-flex">
+                    <a class="btn btn-outline-white border-light d-block text-black" th:href="'/personal?q=profil&id=' + ${person.getId()}">
+                        <i data-feather="arrow-left" class="mb-2 text-primary"
+                           style="width: 22px!important;height: 22px!important;"></i><br>
+                        <span>Zurück</span>
+                    </a>
+                </div>
+            </nav>
+
+
+            <div class="container px-4 h-100 mt-3">
+
+                <div class="card shadow-none mb-3">
+
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-xl-1 d-xl-block d-none">
+                                <div class="d-flex justify-content-center h-100 w-100 text-center">
+                                    <img class="img-account-profile rounded-circle m-4"
+                                         th:src="${person.getImgAdress()}" alt=""
+                                         style="max-width: 80px; max-height: 80px">
+                                </div>
+                            </div>
+                            <div class="col-xl-10 col-12">
+                                <div class=" p-3">
+                                    <div class="d-flex align-items-center">
+                                        <h1 style="line-height: 0!important;" th:text="${person.getReadName()}"></h1>
+                                        <span style="margin-right: 10px"></span>
+                                        <h2 class="badge rounded-pill bg-success" th:if="${person.isActive()}">
+                                            Aktiv</h2>
+                                        <h2 class="badge rounded-pill bg-danger" th:unless="${person.isActive()}">
+                                            Nicht Aktiv</h2>
+                                    </div>
+
+                                    <div class="d-flex align-items-center p-0">
+                                        <span class="mdi mdi-bag-suitcase "> <span
+                                                th:text="${person.getType()}"></span></span>
+                                        <span style="margin-right: 10px"></span>
+                                        <span class="mdi mdi-account-group "> <span
+                                                th:text="${person.getTenant().getName()}"></span></span>
+                                    </div>
+
+                                    <p th:unless="${person.isActive()}" th:text="${person.getActiveNote()}"
+                                       class="text-danger"></p>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-none mb-3" th:if="${mappedPermissions.size() > 0}">
+                    <div class="card-header" th:text="'Berechtigungen von '+${person.getName()}"></div>
+                    <div class="card-body">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Bezeichnung</th>
+                                <th>Beschreibung</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="p:${mappedPermissions}">
+                                <td th:text="${p.getName()}"></td>
+                                <td th:text="${p.getDescription()}"></td>
+                                <td>
+                                    <a th:href="'/personal/permissions/remove?id=' + ${person.getId()} + '&p=' + ${p.getName()}" class="btn btn-sm btn-danger mdi mdi-lock-remove"></a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card shadow-none mb-3" th:if="${permissions.size() > 0}">
+                    <div class="card-header" th:text="${person.getName()} + ' Berechtigungen zuweißen'"></div>
+                    <div class="card-body">
+                        <form action="#" th:action="@{/personal/permission}" th:object="${permissionsForm}"
+                              method="post">
+                            <input class="d-none invisible" th:value="${person.getId()}" name="id" readonly>
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th style="width: 50px"></th>
+                                    <th>Bezeichnung</th>
+                                    <th>Beschreibung</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="p:${permissions}">
+                                    <td>
+                                        <input class="" type="checkbox"
+                                               th:field="*{selectedPermissions}" th:value="${p.getName()}"
+                                               checked="checked">
+                                    </td>
+                                    <td th:text="${p.getName()}"></td>
+                                    <td th:text="${p.getDescription()}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <button type="submit" class="btn btn-primary">Speichern</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <footer th:insert="fragments :: footer"></footer>
+    </div>
+</div>
+<div th:insert="fragments :: script"></div>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/script/main.js}"></script>
+</body>
+</html>

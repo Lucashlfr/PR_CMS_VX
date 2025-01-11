@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark pb-15 bg-img-cover"
+                    style="background-image: url('https://messdiener-knittelsheim.de/wp-content/uploads/2025/01/Handabdruck-scannen-scaled.jpg')">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <h1 class="page-header-title mt-4"
+                            th:text="'CMS Workflows'">
+                        </h1>
+                        <div class="page-header-subtitle">Bei Fragen wende dich gerne direkt an Lucas!
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div id="container-xl px-4 mt-n10">
+                <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+                <style type="text/css">
+                    .m-signature-pad--body canvas {
+                        position: relative;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 250px;
+                        border: 1px solid #CCCCCC;
+                    }
+                </style>
+
+                <form class="was-validated" th:action="@{/workflow/privacy/submit}" th:method="post"
+                      onSubmit="return submitForm();"
+                      enctype="multipart/form-data" target="_self">
+                    <input type="text" class="d-none" readonly name="id" th:value="${workflow.getWorkflowId()}"/>
+                    <!-- Main page content-->
+                    <div class="container mt-5 d-none" id="load">
+
+                        <div class="card">
+
+                            <div class="card-body">
+
+                                <div class="text-center">
+
+                                    <div class="spinner-border text-primary mb-3" role="status"
+                                         style="width: 150px; height: 150px">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+
+                                    <h1>Bitte warten - Deine Daten werden gespeichert...</h1>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="container mt-5" id="content">
+                        <div class="card">
+                            <div class="card-body p-5">
+                                <div class="row align-items-center justify-content-between">
+                                    <div class="col">
+                                        <h1 style="font-size: 35px" class="text-danger">Datenschutz
+                                            Rezertifizierung</h1>
+                                        <h4 class="lead mb-4">Bitte wende dich bei Fragen direkt an Lucas!</h4>
+                                        <p>Sehr geehrte Kinder und Jugendliche,<br>sehr geehrte Eltern,</p>
+                                        <p>im Rahmen unserer Aktivitäten (Veranstaltungen, Freizeiten usw.) werden Fotos
+                                            der beteiligten Kinder gemacht. Beispielsweise werden anlässlich einer
+                                            Freizeit Einzel- und Gruppenaufnahmen angefertigt. Um unsere Tätigkeiten
+                                            auch nach außen hin zu kommunizieren, sollen gelegentlich auch Fotos in
+                                            Medien, wie Tageszeitungen und auf unserer Internetseite veröffentlicht
+                                            werden.</p>
+
+                                    </div>
+                                    <div class="col-xl-3 d-none d-lg-block mt-xxl-n4 text-center"><img
+                                            class="img-fluid px-xl-4 mt-xxl-n5" style="max-width: 400px!important;"
+                                            th:src="@{/dist/assets/img/illustrations/Security-rafiki.svg}"/>
+                                    </div>
+                                    <p>Wie bei jeder Internetseite sind die Inhalte jedoch weltweit zu empfangen und zu
+                                        lesen. Sie können auch kopiert, dupliziert und in anderer Weise verarbeitet
+                                        werden, ohne dass der Veranstalter als Betreiber der Internetseite die
+                                        Möglichkeit besitzt, hierauf Einfluss zu nehmen. Daten bleiben auch durch die
+                                        Speicherung in Suchmaschinen und anderen datensammelnden Internetangeboten, auch
+                                        nach der Löschung auf unserer Seite, jahrzehntelang erhalten und sind immer
+                                        wieder abrufbar. Mit diesem Schreiben möchten wir eine grundsätzliche Klärung
+                                        herbeiführen, ob Sie mit dem Anfertigen und Veröffentlichen von Fotos Ihres
+                                        Kindes einverstanden sind. Bitte füllen Sie nachfolgende Einwilligung aus; Ihrem
+                                        Kind entstehen keinerlei Nachteile, wenn Sie mit der Veröffentlichung von Fotos
+                                        Ihres Kindes insgesamt oder teilweise nicht einverstanden sind.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="card card-collapsable mb-4">
+
+                            <a class="card-header" href="#collapseCardExample" data-bs-toggle="collapse" role="button"
+                               aria-expanded="true" aria-controls="collapseCardExample">
+                                Informationen zur Erhebung von personenbezogenen Daten gemäß § 14, 15 KDG
+                                <div class="card-collapsable-arrow">
+                                    <i data-feather="chevron-down"></i>
+                                </div>
+                            </a>
+                            <div class="collapse" id="collapseCardExample">
+                                <div class="card-body">
+                                    <p>Die Katholische Kirchengemeinde Hl. Hildegard von Bingen (Bellheim) unterliegt
+                                        den Datenschutzbestimmungen der Katholischen Kirche, insbesondere dem Gesetz
+                                        über den Kirchlichen Datenschutz (KDG), das die EU-DSGVO für den Bereich der
+                                        Katholischen Kirche in Deutschland anwendet.</p>
+                                    <p>In dieser Datenschutzerklärung informieren wir Sie über die Verwendung
+                                        personenbezogener Daten im Zusammenhang mit der Anmeldung Ihres Kindes zur
+                                        Ministrantengruppe. Wir verpflichten uns, die Privatsphäre zu schützen und
+                                        personenbezogene Daten nach Maßgabe des KDG zu behandeln und zu verwenden.</p>
+                                    <b>Verantwortliche Stelle</b>
+                                    <p>Die verantwortliche Stelle für die Datenverarbeitung ist: Katholische
+                                        Kirchengemeinde Hl.
+                                        Hildegard von Bingen (Bellheim)<br>
+                                        Hintere Straße 1<br>
+                                        76756 Bellheim<br>
+                                        Tel.: 07272 - 97 30 50<br>
+                                        E-Mail: Pfarramt.Bellheim@Bistum-Speyer.de<br>
+                                        <b>Verantwortlicher Pfarrer:</b> Thomas Buchert</p>
+                                    <p>
+
+                                        <b>Datenschutzbeauftragter</b><br>
+                                        Bei Fragen stehen Ihnen der Verantwortliche sowie der betriebliche
+                                        Datenschutzbeauftragte jederzeit zur Verfügung:<br>
+                                        Betriebliche Datenschutzstelle im Bistum Speyer<br>
+                                        René Pfeiffer, Betrieblicher Datenschutzbeauftragter<br>
+                                        Kleine Pfaffengasse 16, 67346 Speyer<br>
+                                        Tel.: 06232 / 102-240<br>
+                                        E-Mail: datenschutz@bistum-speyer.de<br>
+                                    </p>
+                                    <p>
+
+                                        <b>Wofür nutzen wir Ihre personenbezogenen Daten (nachfolgend nur noch „Daten“
+                                            genannt)?</b><br>
+                                        Wir benötigen Ihre Daten zur Planung und Durchführung des Ministrantendienstes.
+                                        Dabei
+                                        verarbeiten (Erstellung einer Ministrantenliste, Dienstpläne, usw.) wir diese
+                                        auf der
+                                        Basis eines Vertragsabschlusses durch die verbindliche Anmeldung zur
+                                        Ministrantengruppe.
+                                        Die Daten werden ausschließlich für die genannten Zwecke verwendet.
+                                        Die Fotos und/oder Videos dienen ausschließlich der Öffentlichkeitsarbeit der
+                                        Pfarrei
+                                        und Messdiener.
+
+                                    </p>
+                                    <p>
+                                        <b>Welche Daten werden erfasst?</b><br>
+                                        Folgende Daten werden benötigt und über die Anmeldung direkt bei Ihnen erhoben:
+                                        Name,
+                                        Vorname, Adresse, Telefonnummer, Mailadresse, Geburtsdatum. Daten von
+                                        Minderjährigen,
+                                        werden nur verarbeitet, wenn die Erziehungsberechtigten per Unterschrift auf der
+                                        Anmeldung eingewilligt haben.
+                                        Die Verarbeitung von Fotos und/oder Videos (Erhebung, Speicherung und Weitergabe
+                                        an
+                                        Dritte (siehe unter 5.) erfolgt aufgrund ausdrücklicher Einwilligung des/der
+                                        Personensorgeberechtigten bzw. des/der Betroffenen, mithin gemäß § 6 Abs. 1
+                                        lit. b KDG.
+                                    </p>
+                                    <p>
+                                        <b>Wie lange werden Ihre Daten gespeichert?</b><br>
+                                        Die erhobenen Daten werden für die Verwaltung und Organisation der
+                                        Ministrantengruppe
+                                        gespeichert. Nach Austritt aus der Gruppe werden die Daten entsprechend der
+                                        gesetzlichen
+                                        Grundlagen, längstens nach zwei Jahren gelöscht.
+                                        Fotos und/oder Videos, welche für die Zwecke der Öffentlichkeitsarbeit der
+                                        Pfarrei
+                                        gemacht werden, werden vorbehaltlich eines Widerrufs der Einwilligung der/des
+                                        Betroffenen auf unbestimmte Zeit zweckgebunden gespeichert.
+                                    </p>
+                                    <p>
+                                        <b>Welche Rechte haben Sie, was Ihre bei uns gespeicherten Daten
+                                            betrifft?</b><br>
+                                        Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen jederzeit das Recht
+                                        auf
+                                        unentgeltliche Auskunft über Ihre gespeicherten personenbezogenen Daten und
+                                        ggf. ein
+                                        Recht auf Berichtigung, Sperrung oder Löschung dieser Daten. Außerdem haben Sie
+                                        ein
+                                        Beschwerderecht bei der zuständigen Aufsichtsbehörde.
+                                        Für die Datenschutzaufsicht ist nach § 45 Abs. 1 KDG der
+                                        Diözesandatenschutzbeauftragte
+                                        des Bistums Speyer zuständig:
+                                    </p>
+                                    <p>
+                                        <b>Katholisches Datenschutzzentrum Frankfurt/M</b><br>
+                                        Haus am Dom, Domplatz 3, 60311 Frankfurt<br>
+                                        Tel.: 069 / 8008718800<br>
+                                        E-Mail: info@kdsz-ffm.de<br>
+                                    </p>
+                                    <small><b>Hinweis zur Einsicht der Gesetzestexte:</b><br>
+                                        Das Gesetz über den Kirchlichen Datenschutz (OVB Nr. 3/2018) sowie die
+                                        Durchführungsverordnung zum Gesetz (OVB Nr. 8/2018) kann jederzeit auf der
+                                        Homepage der
+                                        Diözese Speyer (www.bistum-speyer.de) unter: Mitarbeit / Rechtliche
+                                        Informationen /
+                                        Oberhirtliches Verordnungsblatt (OVB) eingesehen werden.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                Einwilligungen
+                            </div>
+                            <div class="card-body">
+                                Hiermit willigen wir / willige ich ein, dass Fotoaufnahmen, die die KiGem/Pfarrei oder
+                                eines
+                                ihrer Mitglieder bei Veranstaltungen erstellt und auf denen der Ministrant bzw. die
+                                Eltern
+                                selbst abgebildet sind, für
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check1" name="option1"
+                                           value="something">
+                                    <label class="form-check-label">Internet-Präsentationen der Pfarrei / Gruppe
+                                        verwendet</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check2" name="option2"
+                                           value="something">
+                                    <label class="form-check-label">an andere Eltern - auch in der Form digitaler
+                                        Speichermedien
+                                        - weitergegeben werden dürfen,</label>
+                                </div>
+
+                                <br>
+                                Hiermit willigen wir / willige ich ein, dass Fotoaufnahmen, die die KiGem/Pfarrei oder
+                                eines
+                                ihrer Mitglieder bei Veranstaltungen erstellt und auf denen der Ministrant bzw. die
+                                Eltern
+                                selbst abgebildet sind,
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check3" name="option3"
+                                           value="something">
+                                    <label class="form-check-label">in Mitteilungen an die Mitglieder der katholischen
+                                        Kirche
+                                        wie z. B. dem Pfarrbrief wiedergegeben werden dürfen</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check4" name="option4"
+                                           value="something">
+                                    <label class="form-check-label">an öffentliche Publikationsorgane zum Zwecke der
+                                        Veröffentlichung weitergegeben werden dürfen.</label>
+                                </div>
+                                <br>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check5" name="option5"
+                                           value="something">
+                                    <label class="form-check-label">Hiermit willigen wir / willige ich ein, der Name,
+                                        die
+                                        Telefonnummer und die Emailadresse des Ministranten an die anderen Ministranten
+                                        und
+                                        deren Leiter für dienstliche Absprachen weitergegeben werden dürfen.</label>
+                                </div>
+
+                                <br>
+
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check6" name="option6"
+                                           value="something">
+                                    <label class="form-check-label">Hiermit willigen wir / willige ich ein, der Name des
+                                        Ministranten in Veröffentlichungen der Einrichtung genannt werden darf.</label>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                Hinweise
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    Die Einwilligung zur Veröffentlichung der Daten erfolgt freiwillig und kann
+                                    gegenüber der
+                                    KiGem/Pfarrei je-derzeit, mit Wirkung für die Zukunft, widerrufen werden. Den
+                                    schriftlichen
+                                    Widerruf übersenden Sie bitte an das Kath. Pfarramt Hl. Hildegard von Bingen in
+                                    Bellheim.
+                                    Bei Druckwerken ist die Einwilligung nicht mehr widerruflich, sobald der
+                                    Druckauftrag
+                                    erteilt ist; Gleiches gilt auch für bereits weitergegebene Fotos (auch in digitaler
+                                    Form).
+                                    Wird die Einwilligung nicht widerrufen, gilt sie zeitlich unbeschränkt, d.h. auch
+                                    über die
+                                    Beendigung der Zugehörigkeit zur Ministrantengruppe hinaus.
+                                    Bei Veröffentlichung eines Gruppenfotos führt der spätere Widerruf einer einzelnen
+                                    Person
+                                    grundsätzlich nicht dazu, dass das Bild entfernt werden muss.
+                                    Uns/mir wurde erläutert, dass die Erklärung unseres Einverständnisses völlig
+                                    freiwillig ist.
+                                    Die Aufnahme unseres Kindes in die Ministrantengruppe bzw. sein Verbleiben in
+                                    dieser ist
+                                    von dem Einverständnis nicht abhängig.
+                                </p>
+                                <br>
+
+                                <b>Datenschutzhinweis</b>
+                                <p>Uns / mir ist bekannt, dass die im Rahmen des Ministrantendienstes empfangenen
+                                    personenbezogenen Daten (z. B. Adresslisten von anderen Ministranten, Dienstpläne
+                                    usw.)
+                                    ausschließlich zur Erfüllung des Ministrantendienstes verwendet werden dürfen. Die
+                                    empfangenen Daten dürfen keinesfalls Dritten weitergegeben oder zugänglich gemacht
+                                    werden
+                                    und sind nach Beendigung des Ministrantendienstes zu vernichten. Als
+                                    Personensorgeberechtigte(r) leite(n) wir / ich unsere Kinder zum sorgsamen Umgang
+                                    mit den
+                                    personenbezogenen Daten an.</p>
+
+                            </div>
+                        </div>
+
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                Unterschrift
+                            </div>
+                            <div class="card-body">
+                                <b>Sofern das Personensorgerecht nur einer Person zusteht:</b>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check7" name="option7"
+                                           value="something">
+                                    <label class="form-check-label">Ich versichere, dass ich alleiniger
+                                        Personensorgeberechtigter bin.</label>
+                                </div>
+                                <br>
+                                <h1 class="text-center text-danger">Hier unterschreiben:</h1>
+                                <div id="signature-pad" class="m-signature-pad">
+                                    <div class="m-signature-pad--body">
+                                        <canvas class="bg-danger-soft"></canvas>
+                                        <input type="hidden" name="signature" id="signature" value="">
+                                    </div>
+                                </div>
+                                <script>
+                                    var wrapper = document.getElementById("signature-pad"),
+                                        canvas = wrapper.querySelector("canvas"),
+                                        signaturePad;
+
+                                    var signaturePad = new SignaturePad(canvas);
+                                    signaturePad.minWidth = 1; //minimale Breite des Stiftes
+                                    signaturePad.maxWidth = 5; //maximale Breite des Stiftes
+                                    signaturePad.penColor = "#000000"; //Stiftfarbe
+                                    signaturePad.backgroundColor = "#fff2cc"; //Hintergrundfarbe
+
+                                    signaturePad.addEventListener("beginStroke", () => {
+                                        console.log("Signature started");
+                                    }, {once: true});
+
+                                    function resizeCanvas() {
+                                        var oldContent = signaturePad.toData();
+                                        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+                                        canvas.width = canvas.offsetWidth * ratio;
+                                        canvas.height = canvas.offsetHeight * ratio;
+                                        canvas.getContext("2d").scale(ratio, ratio);
+                                        signaturePad.clear();
+                                        signaturePad.fromData(oldContent);
+                                    }
+
+                                    window.onresize = resizeCanvas;
+                                    resizeCanvas();
+
+                                    function submitForm() {
+                                        if (!signaturePad.isEmpty()) {
+                                            save();
+                                            document.getElementById('signature').value = signaturePad.toDataURL();
+                                            return true;
+                                        } else {
+                                            alert("Please provide a signature first.");
+                                            return false;
+                                        }
+
+                                    }
+
+
+                                    function save() {
+                                        document.getElementById('content').classList.add('d-none');
+                                        document.getElementById('load').classList.remove('d-none');
+                                    }
+
+                                </script>
+                                <b>Wichtig: Sofern der/die Messdiener/in über 16 ist, muss er/sie hier
+                                    unterschreiben!</b>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+
+                            <button class="btn btn-primary btn-block btn-xl" type="submit">Speichern</button>
+
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+</html>

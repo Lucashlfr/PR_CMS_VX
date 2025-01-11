@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="fragments :: html_head"></head>
+<body class="nav-fixed">
+<nav th:insert="fragments :: topnav"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="fragments :: sidebar"></div>
+    <div id="layoutSidenav_content">
+        <main class="h-75">
+            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                <div class="container px-4">
+                    <div class="page-header-content">
+                        <div class="row align-items-center justify-content-between pt-3">
+                            <div class="col-auto mb-3">
+                                <h1 class="page-header-title">
+                                    <div class="page-header-icon"><i data-feather="file"></i></div>
+                                    <span th:text="'Übersicht zu ' + ${type.getText()}"></span>
+                                </h1>
+                            </div>
+                            <div class="col-12 col-xl-auto mb-3">
+                                <a class="btn btn-sm btn-light text-dark" href="/finance">
+                                    <span class="me-1 mdi mdi-arrow-left"></span>
+                                    Zurück
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container px-4">
+
+                <div class="card shadow-none mb-3">
+                    <div class="card-body">
+                        <canvas id="myAreaChart" width="600" height="100"></canvas>
+                        <p id="xIndex" class="d-none" th:text="${dates}" th:value="${dates}"></p>
+                        <p id="yIndex" class="d-none" th:text="${cashData}" th:value="${cashData}"></p>
+
+                    </div>
+                </div>
+
+                <div class="card shadow-none">
+                    <div class="card-body text-center" id="load">
+                                <span class="spinner-border card-img"
+                                      style="min-height: 200px; min-width: 200px;"></span>
+                    </div>
+                    <div class="card-body d-none" id="content" style="overflow-y: scroll">
+
+                        <h1 th:text="'Summe: ' + ${summ} + ' EURO'"></h1>
+
+                        <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
+                            <thead>
+                            <tr>
+                                <th></th>
+                                <th>Bezeichnung</th>
+                                <th>Beschreibung</th>
+                                <th>Datum</th>
+                                <th>Wert</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="t:${transactions}">
+                                <td th:text="${t.getDocumentDate().toLong()}"></td>
+                                <td>
+                                    <a th:text="${t.getDescription()} + ' (' + ${t.getCostCenter()} + ')'" th:href="'/finance?q=info&id=' + ${t.getId()}"></a>
+                                </td>
+                                <td th:text="${t.getCreatorUser().getReadName()}"></td>
+                                <td th:text="${t.getDocumentDate().getGermanLongDate()}"></td>
+                                <td>
+
+                                    <span th:if="${t.getDocumentType().toString().equals('EXPENSE')}" class="text-danger" th:text="'- ' + ${t.getValue()} + ' €'"></span>
+                                    <span th:if="${t.getDocumentType().toString().equals('REVENUE')}" class="text-success" th:text="${t.getValue()} + '€'"></span>
+
+                                </td>
+                                <td>
+                                    <a class="btn btn-sm btn-light text-dark" th:href="'/finance/report?id=' + ${t.getId()}">
+                                        <span class="me-1 mdi mdi-reload"></span>
+                                        Report
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </di>
+                </div>
+
+            </div>
+        </main>
+        <footer th:insert="fragments :: footer"></footer>
+    </div>
+</div>
+<div th:insert="fragments :: script"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
+<script>
+
+
+    // Set new default font family and font color to mimic Bootstrap's default styling
+    (Chart.defaults.global.defaultFontFamily = "Metropolis"),
+        '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+    Chart.defaults.global.defaultFontColor = "#858796";
+
+    function number_format(number, decimals, dec_point, thousands_sep) {
+        // *     example: number_format(1234.56, 2, ',', ' ');
+        // *     return: '1 234,56'
+        number = (number + "").replace(",", "").replace(" ", "");
+        var n = !isFinite(+number) ? 0 : +number,
+            prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+            sep = typeof thousands_sep === "undefined" ? "," : thousands_sep,
+            dec = typeof dec_point === "undefined" ? "." : dec_point,
+            s = "",
+            toFixedFix = function (n, prec) {
+                var k = Math.pow(10, prec);
+                return "" + Math.round(n * k) / k;
+            };
+        // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+        s = (prec ? toFixedFix(n, prec) : "" + Math.round(n)).split(".");
+        if (s[0].length > 3) {
+            s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+        }
+        if ((s[1] || "").length < prec) {
+            s[1] = s[1] || "";
+            s[1] += new Array(prec - s[1].length + 1).join("0");
+        }
+        return s.join(dec);
+    }
+
+    // Area Chart Example
+    var ctx = document.getElementById("myAreaChart").getContext("2d");
+    var myLineChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: document.getElementById('xIndex').textContent.split(","),
+            datasets: [{
+                label: "Betrag",
+                lineTension: 0.3,
+                backgroundColor: "rgba(0, 97, 242, 0.05)",
+                borderColor: "rgba(0, 97, 242, 1)",
+                pointRadius: 3,
+                pointBackgroundColor: "rgba(0, 97, 242, 1)",
+                pointBorderColor: "rgba(0, 97, 242, 1)",
+                pointHoverRadius: 3,
+                pointHoverBackgroundColor: "rgba(0, 97, 242, 1)",
+                pointHoverBorderColor: "rgba(0, 97, 242, 1)",
+                pointHitRadius: 10,
+                pointBorderWidth: 2,
+                data: document.getElementById('yIndex').textContent.split(",")
+            }]
+        },
+        options: {
+            maintainAspectRatio: true,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 25,
+                    top: 25,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    time: {
+                        unit: "Datum"
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 7
+                    }
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        padding: 10,
+                        callback: function (value, index, values) {
+                            return number_format(value) + "€";
+                        }
+                    },
+                    gridLines: {
+                        color: "rgb(234, 236, 244)",
+                        zeroLineColor: "rgb(234, 236, 244)",
+                        drawBorder: false,
+                        borderDash: [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }]
+            },
+            legend: {
+                display: false
+            },
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                titleMarginBottom: 10,
+                titleFontColor: "#6e707e",
+                titleFontSize: 14,
+                borderColor: "#dddfeb",
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                intersect: false,
+                mode: "index",
+                caretPadding: 10,
+                callbacks: {
+                    label: function (tooltipItem, chart) {
+                        var datasetLabel =
+                            chart.datasets[tooltipItem.datasetIndex].label || "";
+                        return datasetLabel + ": $" + number_format(tooltipItem.yLabel);
+                    }
+                }
+            }
+        }
+    });
+
+    $(document).ready(function () {
+        $('#table_id').DataTable({
+            "columnDefs": [
+                {
+                    "targets": [0],
+                    "visible": false
+
+                }
+            ],
+            language: {
+                "decimal": ",",
+                "thousands": ".",
+                "infoPostFix": "",
+                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
+                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
+                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Zurück"
+                },
+                "processing": "Verarbeitung läuft ...",
+                "search": "Suche:",
+                "searchPlaceholder": "Suchbegriff",
+                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
+                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
+                "aria": {
+                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                },
+                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
+                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
+                "select": {
+                    "rows": {
+                        _: '%d Zeilen ausgewählt',
+                        0: 'Zeile anklicken um auszuwählen',
+                        1: 'Eine Zeile ausgewählt'
+                    }
+                }
+            },  paging: false,
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: 'excel',
+                text: 'Liste als Excel herunterladen'
+
+            }]
+        });
+        setTimeout(function () {
+            document.getElementById("content").classList.remove("d-none");
+            document.getElementById("load").classList.add("d-none");
+        }, 10);
+    });
+</script>
+</body>
+</html>

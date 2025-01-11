@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content">
+                        <div class="row align-items-center justify-content-between pt-3">
+                            <div class="col-auto mb-3">
+                                <h1 class="page-header-title">
+                                    <div class="page-header-icon"><i data-feather="users"></i></div>
+                                    Personal
+                                </h1>
+                            </div>
+                            <div class="col-12 col-xl-auto mb-3">
+                                <a class="btn btn-sm btn-light text-primary" href="javascript:void(0);"
+                                   data-bs-toggle="modal" data-bs-target="#create">
+                                    <i class="me-1" data-feather="plus"></i>
+                                    Person erstellen
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+
+            <div class="container-fluid px-4">
+
+                <div class="card">
+                    <div class="card-header border-bottom">
+                        <ul class="nav nav-tabs card-header-tabs" id="cardTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="overview-tab" href="#overview" data-bs-toggle="tab"
+                                   role="tab" aria-controls="overview" aria-selected="true">Aktive Mesdiener</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="example-tab" href="#example" data-bs-toggle="tab" role="tab"
+                                   aria-controls="example" aria-selected="false">Inaktive Personen</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="nullPerson-tab" href="#nullPerson" data-bs-toggle="tab"
+                                   role="tab" aria-controls="nullPerson" aria-selected="false">Ungeordnete Personen</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="cardTabContent">
+                            <div class="tab-pane fade show active" id="overview" role="tabpanel"
+                                 aria-labelledby="overview-tab">
+                                <div class="text-center" id="load">
+                                    <span class="spinner-border card-img"
+                                      style="min-height: 200px; min-width: 200px;"></span>
+                                </div>
+                                <div class="d-none" id="content" style="overflow-y: scroll">
+                                    <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
+                                        <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th>Name, Vorname</th>
+                                            <th>Rang</th>
+                                            <th>Geburtsdatum</th>
+                                            <th>Activity Status</th>
+                                            <th>Dienste</th>
+                                            <th>Adresse</th>
+                                            <th>Telefon-Nummer</th>
+                                            <th>Handy</th>
+                                            <th>Mail</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        <tr th:each="person:${persons}">
+                                            <td th:text="${person.getLastname() + ', ' + person.getFirstname()}"></td>
+                                            <td>
+                                                <!--
+                                                <span th:unless="${person.absolvedPrivacy()}"
+                                                      class="text-center text-danger mdi mdi-alert-circle"></span>
+                                                <span th:if="${person.absolvedPrivacy()}"
+                                                      class="text-center text-success mdi mdi-check"></span>
+
+
+                                                <span th:unless="${person.getPassword().equals(person.getAdditionalData().getBirthday().getGermanDate())}" class="text-center text-orange mdi mdi-form-textbox-lock"></span>
+                                                <span th:if="${person.getPassword().equals(person.getAdditionalData().getBirthday().getGermanDate())}" class="text-center text-success mdi mdi-form-textbox-lock"></span>
+-->
+                                            </td>
+                                            <td>
+                                                <a class="d-flex align-items-center"
+                                                   th:href="'/personal?q=profil&s=1&id=' + ${person.getId()}">
+                                                    <div class="avatar avatar-sm me-3 bg-gray-200"><img
+                                                            class="avatar-img img-fluid"
+                                                            th:src="${person.getImgAdress()}"
+                                                            alt=""/></div>
+                                                    <span th:text="${person.getLastname() + ', ' + person.getFirstname()}"></span>
+                                                </a>
+                                            </td>
+                                            <td th:text="${person.getRank().getName()}"></td>
+
+                                            <td th:if="${person.getBirthdate().isEmpty()}"></td>
+                                            <td  th:if="${person.getBirthdate().isPresent()}" th:text="${person.getBirthdate().get().getGermanDate()} + ' (' + ${person.getBirthdate().get().getAge()} + ')'"></td>
+                                            <td>
+
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-success"
+                                                         th:style="'width:' + ${person.getStatistics().getDDouble()} + '%'">
+                                                    </div>
+                                                    <div class="progress-bar bg-warning"
+                                                         th:style="'width:' + ${person.getStatistics().getADouble()} + '%'">
+                                                    </div>
+                                                    <div class="progress-bar bg-danger"
+                                                         th:style="'width:' + ${person.getStatistics().getTDouble()} + '%'">
+                                                    </div>
+                                                </div>
+
+                                            </td>
+                                            <td>
+
+
+                                            </td>
+                                            <td th:text="${person.getAddress()}"></td>
+                                            <td th:text="${person.getPhone()}"></td>
+                                            <td th:text="${person.getMobile()}"></td>
+                                            <td th:text="${person.getEmail()}"></td>
+                                        </tr>
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="example" role="tabpanel" aria-labelledby="example-tab">
+                                <table id="table_id_2" class="display" style="min-width:100%; max-width: 100%">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Name, Vorname</th>
+                                        <th>Typ</th>
+                                        <th>Notiz</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    <tr th:each="p:${inactive}">
+                                        <td th:text="${p.getReadName()}"></td>
+                                        <td>
+                                            <a class="d-flex align-items-center"
+                                               th:href="'/personal?q=profil&s=1&id=' + ${p.getId()}">
+                                                <div class="avatar avatar-sm me-3 bg-gray-200"><img
+                                                        class="avatar-img img-fluid"
+                                                        th:src="${p.getImgAdress()}"
+                                                        alt=""/></div>
+                                                <span th:text="${p.getLastname() + ', ' + p.getFirstname()}"></span>
+                                            </a>
+                                        </td>
+                                        <td th:text="${p.getType().toString()}"></td>
+                                        <td></td>
+                                    </tr>
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="tab-pane fade" id="nullPerson" role="tabpanel" aria-labelledby="nullPerson-tab">
+                                <table id="table_id_3" class="display" style="min-width:100%; max-width: 100%">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Name, Vorname</th>
+                                        <th>Typ</th>
+                                        <th>Notiz</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    <tr th:each="p:${nullPerson}">
+                                        <td th:text="${p.getReadName()}"></td>
+                                        <td>
+                                            <a class="d-flex align-items-center"
+                                               th:href="'/personal?q=profil&s=1&id=' + ${p.getId()}">
+                                                <div class="avatar avatar-sm me-3 bg-gray-200"><img
+                                                        class="avatar-img img-fluid"
+                                                        th:src="${p.getImgAdress()}"
+                                                        alt=""/></div>
+                                                <span th:text="${p.getLastname() + ', ' + p.getFirstname()}"></span>
+                                            </a>
+                                        </td>
+                                        <td th:text="${p.getType().toString()}"></td>
+                                        <td></td>
+                                    </tr>
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+<!-- The Modal -->
+<div class="modal fade" id="create">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <form method="post" action="/personal/create">
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="text-center">
+
+                        <script src="https://cdn.lordicon.com/pzdvqjsp.js"></script>
+                        <lord-icon
+                                src="https://cdn.lordicon.com/xzksbhzh.json"
+                                trigger="loop"
+                                delay="2000"
+                                style="width:100px;height:100px">
+                        </lord-icon>
+                        <h4>Person anlegen</h4>
+                        <h6>Hier kannst du eine neue Person anlegen. </h6>
+
+                    </div>
+
+                    <div class="m-2">
+                        <div class="row mb-1">
+
+                            <div class="col">
+
+                                <div class="form-floating ">
+                                    <input type="text" class="form-control" id="firstname"
+                                           name="firstname" required>
+                                    <label for="firstname">Vorname</label>
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-floating mb-1">
+                                    <input type="text" class="form-control" id="lastname"
+                                           name="lastname" required>
+                                    <label for="lastname">Nachname</label>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <input class="d-none invisible" th:value="${user.getTenant().getId()}" readonly name="tenantId">
+                    <div class="d-flex">
+
+                        <button type="button" class="btn btn-secondary btn-block flex-fill m-1" data-bs-dismiss="modal">
+                            Abbrechen
+                        </button>
+                        <button type="submit" class="btn btn-success btn-block flex-fill m-1">Speichern</button>
+
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#table_id').DataTable({
+            "columnDefs": [
+                {
+                    "targets": [0, 7, 8, 9, 10],
+                    "visible": false
+
+                },
+            ],
+            language: {
+                "decimal": ",",
+                "thousands": ".",
+                "infoPostFix": "",
+                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
+                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
+                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Zurück"
+                },
+                "processing": "Verarbeitung läuft ...",
+                "search": "Suche:",
+                "searchPlaceholder": "Suchbegriff",
+                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
+                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
+                "aria": {
+                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                },
+                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
+                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
+                "select": {
+                    "rows": {
+                        _: '%d Zeilen ausgewählt',
+                        0: 'Zeile anklicken um auszuwählen',
+                        1: 'Eine Zeile ausgewählt'
+                    }
+                }
+            }, paging: false,
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: 'excel',
+                text: 'Liste als Excel herunterladen'
+
+            }]
+        });
+        $('#table_id_2').DataTable({
+            "columnDefs": [
+                {
+                    "targets": [0],
+                    "visible": false
+
+                },
+            ],
+            language: {
+                "decimal": ",",
+                "thousands": ".",
+                "infoPostFix": "",
+                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
+                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
+                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Zurück"
+                },
+                "processing": "Verarbeitung läuft ...",
+                "search": "Suche:",
+                "searchPlaceholder": "Suchbegriff",
+                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
+                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
+                "aria": {
+                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                },
+                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
+                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
+                "select": {
+                    "rows": {
+                        _: '%d Zeilen ausgewählt',
+                        0: 'Zeile anklicken um auszuwählen',
+                        1: 'Eine Zeile ausgewählt'
+                    }
+                }
+            }, paging: false,
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: 'excel',
+                text: 'Liste als Excel herunterladen'
+
+            }]
+        });
+        $('#table_id_3').DataTable({
+            "columnDefs": [
+                {
+                    "targets": [0],
+                    "visible": false
+
+                },
+            ],
+            language: {
+                "decimal": ",",
+                "thousands": ".",
+                "infoPostFix": "",
+                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
+                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
+                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Zurück"
+                },
+                "processing": "Verarbeitung läuft ...",
+                "search": "Suche:",
+                "searchPlaceholder": "Suchbegriff",
+                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
+                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
+                "aria": {
+                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                },
+                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
+                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
+                "select": {
+                    "rows": {
+                        _: '%d Zeilen ausgewählt',
+                        0: 'Zeile anklicken um auszuwählen',
+                        1: 'Eine Zeile ausgewählt'
+                    }
+                }
+            }, paging: false,
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: 'excel',
+                text: 'Liste als Excel herunterladen'
+
+            }]
+        });
+
+        setTimeout(function () {
+            document.getElementById("content").classList.remove("d-none");
+            document.getElementById("load").classList.add("d-none");
+        }, 0.1);
+    });
+</script>

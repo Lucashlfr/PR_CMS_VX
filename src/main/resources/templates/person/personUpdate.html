@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="fragments :: html_head"></head>
+<body class="nav-fixed">
+<nav th:insert="fragments :: topnav"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="fragments :: sidebar"></div>
+    <div id="layoutSidenav_content">
+        <form th:action="@{/personal/update}" th:method="post">
+            <main class="h-100 bg-white">
+
+                <nav class="navbar navbar-light bg-light px-1 ">
+
+                    <div class="d-flex">
+                        <button class="btn btn-outline-white border-light d-block text-black" type="submit">
+                            <i data-feather="save" class="mb-2 text-primary"
+                               style="width: 22px!important;height: 22px!important;"></i><br>
+                            <span>Speichern</span>
+                        </button>
+                        <div class="vr"></div>
+
+
+                        <a class="btn btn-outline-white border-light d-block text-black" th:href="'/personal?q=profil&id=' + ${person.getId()}">
+                            <i data-feather="trash-2" class="text-danger mb-2"
+                               style="width: 22px!important;height: 22px!important;"></i><br>
+                            <span>Abbrechen</span>
+                        </a>
+                    </div>
+                </nav>
+
+                <div class="container-fluid px-5 mt-4">
+
+
+                    <div class="card shadow-none mb-3">
+
+                        <div class="card-body">
+                            <div class="row">
+
+                                <div class="col-xl-1 d-xl-block d-none">
+                                    <div class="d-flex justify-content-center h-100 w-100 text-center">
+                                        <img class="img-account-profile rounded-circle m-4"
+                                             th:src="${person.getImgAdress()}" alt=""
+                                             style="max-width: 80px; max-height: 80px">
+                                    </div>
+                                </div>
+                                <div class="col-xl-10 col-12">
+                                    <div class=" p-3">
+                                        <div class="d-flex align-items-center">
+                                            <h1 style="line-height: 0!important;" th:text="${person.getReadName()}"></h1>
+                                            <span style="margin-right: 10px"></span>
+                                            <h2 class="badge rounded-pill bg-success" th:if="${person.isActive()}">
+                                                Aktiv</h2>
+                                            <h2 class="badge rounded-pill bg-danger" th:unless="${person.isActive()}">
+                                                Nicht Aktiv</h2>
+                                        </div>
+
+                                        <div class="d-flex align-items-center p-0">
+                                        <span class="mdi mdi-bag-suitcase "> <span
+                                                th:text="${person.getType()}"></span></span>
+                                            <span style="margin-right: 10px"></span>
+                                            <span class="mdi mdi-account-group "> <span
+                                                    th:text="${person.getTenant().getName()}"></span></span>
+                                        </div>
+
+                                        <p>Onboarding seit XX.XX.XXXX | Obermessdiener: <a href="#">Lucas Helfer</a></p>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card shadow-none mb-4">
+                        <div class="card-header">
+                            Stammdaten
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-xl-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="firstname" placeholder="Enter email" name="firstname"  required th:value="${person.getFirstname()}">
+                                        <label for="firstname">Vorname</label>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="lastname" placeholder="Enter email" name="lastname"  required th:value="${person.getLastname()}">
+                                        <label for="lastname">Nachname</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xl-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="phone" placeholder="Enter email" name="phone" th:value="${person.getPhone()}">
+                                        <label for="phone">Telefon-Nr</label>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="mobile" placeholder="Enter email" name="mobile" th:value="${person.getMobile()}">
+                                        <label for="mobile">Handynummer</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="mail" placeholder="Enter email" name="mail" th:value="${person.getMail()}">
+                                <label for="mail">E-Mail</label>
+                            </div>
+
+                            <div class="form-floating">
+                                <select class="form-select" id="sel1" name="type">
+                                    <option th:selected="${person.getType().toString().equals('null')}">NULL</option>
+                                    <option th:selected="${person.getType().toString().equals('MESSDIENER')}">MESSDIENER</option>
+                                    <option th:selected="${person.getType().toString().equals('PARENT')}">PARENT</option>
+                                    <option  th:selected="${person.getType().toString().equals('OTHER')}">OTHER</option>
+                                </select>
+                                <label for="sel1" class="form-label">Personen-Typ:</label>
+                            </div>
+
+                            <input class="d-none invisible" th:value="${person.getId()}" name="id" readonly>
+
+                        </div>
+                    </div>
+
+
+                    <div class="card shadow-none mb-4" th:if="${person.getType().toString().equals('MESSDIENER')}">
+                        <div class="card-header">
+                            Zusatz-Daten
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-xl-3">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="street" placeholder="Enter email" name="street"   th:value="${person.getAdress().getStreet()}">
+                                        <label for="street">Straße</label>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="number" placeholder="Enter email" name="number"  th:value="${person.getAdress().getNumber()}">
+                                        <label for="number">Hausnummer</label>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="plz" placeholder="Enter email" name="plz" th:value="${person.getAdress().getPlz()}">
+                                        <label for="plz">PLZ</label>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="city" placeholder="Enter email" name="town" th:value="${person.getAdress().getTown()}">
+                                        <label for="city">Ort</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <input type="date" class="form-control" id="birthday" placeholder="Enter email" name="birthday" th:value="${person.getAdditionalData().getBirthday().getEnglishDate()}">
+                                <label for="birthday">Geburtstag</label>
+                            </div>
+
+                            <div class="form-floating">
+                                <select class="form-select" id="rank" name="rank">
+                                    <option th:each="r:${person.getAdditionalData().getRanks()}" th:selected="${person.getAdditionalData().getRank().toString().equals(r.toString())}" th:value="${r}" th:text="${r.getName()}" e></option>
+                                </select>
+                                <label for="rank" class="form-label">Messdiener Rang:</label>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </form>
+        <footer th:insert="fragments :: footer"></footer>
+    </div>
+</div>
+<div th:insert="fragments :: script"></div>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/script/main.js}"></script>
+</body>
+</html>
