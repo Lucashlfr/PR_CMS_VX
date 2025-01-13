@@ -1,7 +1,9 @@
 package com.messdiener.cms.v3.web.controller;
 
+import com.messdiener.cms.v3.app.entities.event.OrganisationEvent;
 import com.messdiener.cms.v3.app.entities.tenant.Tenant;
 import com.messdiener.cms.v3.shared.cache.Cache;
+import com.messdiener.cms.v3.shared.enums.OrganisationType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,24 +27,25 @@ public class OutputController {
 		WeekFields weekFields = WeekFields.of(Locale.getDefault());
 		int number = heute.get(weekFields.weekOfWeekBasedYear());
 
-		model.addAttribute("img", "KW" + number);
+		model.addAttribute("img", "/dist/assets/img/KW/KW" + number + ".png");
+		System.out.println(""+number);
 
 		Tenant tenant = Cache.getTenantService().findTenant(UUID.fromString("89fce045-2ad4-43b3-b088-d1e697999793")).orElseThrow();
 
-		/*
-		List<Worship> worships = new ArrayList<>();
-		for(Worship w : Cache.getWorshipService().getWorshipsByTenant(tenant.getId())){
+
+		List<OrganisationEvent> events = new ArrayList<>();
+		for(OrganisationEvent e : Cache.getOrganisationService().getEvents(tenant.getId(), OrganisationType.WORSHIP)){
 			for(String n : getDays(number)){
-				if(w.getDate().getGermanDate().equals(n)){
-					worships.add(w);
+				if(e.getStartDate().getGermanDate().equals(n)){
+					events.add(e);
 				}
 			}
 		}
-		model.addAttribute("worships", worships);
+		model.addAttribute("events", events);
 
 		System.out.println(getDays(28));
 
-	*/
+
 		return "output";
 	}
 
