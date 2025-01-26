@@ -1,147 +1,42 @@
-2025-01-13T20:44:52.735+01:00  INFO 7160 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 7160 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
-2025-01-13T20:44:52.740+01:00  INFO 7160 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
-2025-01-13T20:44:52.774+01:00  INFO 7160 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-01-13T20:44:52.775+01:00  INFO 7160 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-01-13T20:44:53.580+01:00  INFO 7160 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
-2025-01-13T20:44:53.590+01:00  INFO 7160 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-01-13T20:44:53.590+01:00  INFO 7160 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-01-13T20:44:53.621+01:00  INFO 7160 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-01-13T20:44:53.621+01:00  INFO 7160 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 846 ms
-2025-01-13T20:44:53.733+01:00  INFO 7160 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
-2025-01-13T20:44:53.775+01:00  INFO 7160 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
-2025-01-13T20:44:53.907+01:00  INFO 7160 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
-2025-01-13T20:44:53.933+01:00  INFO 7160 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
-2025-01-13T20:44:54.105+01:00  INFO 7160 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-01-13T20:44:54.257+01:00  INFO 7160 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
-2025-01-13T20:44:54.268+01:00  INFO 7160 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
-2025-01-13T20:44:54.275+01:00  INFO 7160 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 1.759 seconds (process running for 2.453)
-2025-01-13T20:44:54.506+01:00  INFO 7160 --- [RMI TCP Connection(4)-192.168.178.110] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-01-13T20:44:54.506+01:00  INFO 7160 --- [RMI TCP Connection(4)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-01-13T20:44:54.507+01:00  INFO 7160 --- [RMI TCP Connection(4)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2025-01-13T20:46:25.373+01:00  INFO 7160 --- [File Watcher] rtingClassPathChangeChangedEventListener : Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
-2025-01-13T20:46:25.375+01:00  INFO 7160 --- [Thread-5] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-01-13T20:46:25.380+01:00  INFO 7160 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-01-13T20:46:25.492+01:00  INFO 7160 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 7160 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
-2025-01-13T20:46:25.492+01:00  INFO 7160 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
-2025-01-13T20:46:25.759+01:00  INFO 7160 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
-2025-01-13T20:46:25.760+01:00  INFO 7160 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-01-13T20:46:25.760+01:00  INFO 7160 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-01-13T20:46:25.775+01:00  INFO 7160 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-01-13T20:46:25.776+01:00  INFO 7160 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 283 ms
-2025-01-13T20:46:25.815+01:00  INFO 7160 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
-2025-01-13T20:46:25.823+01:00  INFO 7160 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
-2025-01-13T20:46:25.884+01:00  INFO 7160 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
-2025-01-13T20:46:25.894+01:00  INFO 7160 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
-2025-01-13T20:46:25.955+01:00  INFO 7160 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-01-13T20:46:26.043+01:00  INFO 7160 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
-2025-01-13T20:46:26.049+01:00  INFO 7160 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
-2025-01-13T20:46:26.055+01:00  INFO 7160 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 0.581 seconds (process running for 94.232)
-2025-01-13T20:46:26.057+01:00  INFO 7160 --- [restartedMain] .ConditionEvaluationDeltaLoggingListener : Condition evaluation unchanged
-2025-01-13T20:46:26.108+01:00  INFO 7160 --- [https-jsse-nio-9101-exec-5] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-01-13T20:46:26.109+01:00  INFO 7160 --- [https-jsse-nio-9101-exec-5] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-01-13T20:46:26.109+01:00  INFO 7160 --- [https-jsse-nio-9101-exec-5] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
-2025-01-13T20:46:32.489+01:00  INFO 7160 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-01-13T20:46:32.492+01:00  INFO 7160 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-01-13T20:46:34.113+01:00  INFO 13276 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 13276 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
-2025-01-13T20:46:34.114+01:00  INFO 13276 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
-2025-01-13T20:46:34.140+01:00  INFO 13276 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-01-13T20:46:34.141+01:00  INFO 13276 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-01-13T20:46:34.818+01:00  INFO 13276 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
-2025-01-13T20:46:34.826+01:00  INFO 13276 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-01-13T20:46:34.827+01:00  INFO 13276 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-01-13T20:46:34.853+01:00  INFO 13276 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-01-13T20:46:34.853+01:00  INFO 13276 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 712 ms
-2025-01-13T20:46:34.962+01:00  INFO 13276 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
-2025-01-13T20:46:34.993+01:00  INFO 13276 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
-2025-01-13T20:46:35.114+01:00  INFO 13276 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
-2025-01-13T20:46:35.136+01:00  INFO 13276 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
-2025-01-13T20:46:35.271+01:00  INFO 13276 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-01-13T20:46:35.385+01:00  INFO 13276 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
-2025-01-13T20:46:35.396+01:00  INFO 13276 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
-2025-01-13T20:46:35.403+01:00  INFO 13276 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 1.489 seconds (process running for 2.086)
-2025-01-13T20:46:35.930+01:00  INFO 13276 --- [RMI TCP Connection(1)-192.168.178.110] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-01-13T20:46:35.930+01:00  INFO 13276 --- [RMI TCP Connection(1)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-01-13T20:46:35.931+01:00  INFO 13276 --- [RMI TCP Connection(1)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2025-01-13T20:48:38.554+01:00  INFO 13276 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-01-13T20:48:38.558+01:00  INFO 13276 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-01-13T20:48:40.765+01:00  INFO 19208 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 19208 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
-2025-01-13T20:48:40.766+01:00  INFO 19208 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
-2025-01-13T20:48:40.795+01:00  INFO 19208 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-01-13T20:48:40.796+01:00  INFO 19208 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-01-13T20:48:41.536+01:00  INFO 19208 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
-2025-01-13T20:48:41.545+01:00  INFO 19208 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-01-13T20:48:41.545+01:00  INFO 19208 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-01-13T20:48:41.572+01:00  INFO 19208 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-01-13T20:48:41.572+01:00  INFO 19208 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 776 ms
-2025-01-13T20:48:41.686+01:00  INFO 19208 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
-2025-01-13T20:48:41.723+01:00  INFO 19208 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
-2025-01-13T20:48:41.853+01:00  INFO 19208 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
-2025-01-13T20:48:41.878+01:00  INFO 19208 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
-2025-01-13T20:48:42.032+01:00  INFO 19208 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-01-13T20:48:42.159+01:00  INFO 19208 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
-2025-01-13T20:48:42.171+01:00  INFO 19208 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
-2025-01-13T20:48:42.178+01:00  INFO 19208 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 1.615 seconds (process running for 2.494)
-2025-01-13T20:48:54.366+01:00  INFO 19208 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-01-13T20:48:54.372+01:00  INFO 19208 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-01-13T20:48:55.870+01:00  INFO 6628 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 6628 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
-2025-01-13T20:48:55.871+01:00  INFO 6628 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
-2025-01-13T20:48:55.899+01:00  INFO 6628 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-01-13T20:48:55.899+01:00  INFO 6628 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-01-13T20:48:56.565+01:00  INFO 6628 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
-2025-01-13T20:48:56.573+01:00  INFO 6628 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-01-13T20:48:56.573+01:00  INFO 6628 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-01-13T20:48:56.599+01:00  INFO 6628 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-01-13T20:48:56.599+01:00  INFO 6628 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 700 ms
-2025-01-13T20:48:56.710+01:00  INFO 6628 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
-2025-01-13T20:48:56.741+01:00  INFO 6628 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
-2025-01-13T20:48:56.875+01:00  INFO 6628 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
-2025-01-13T20:48:56.898+01:00  INFO 6628 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
-2025-01-13T20:48:57.035+01:00  INFO 6628 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-01-13T20:48:57.154+01:00  INFO 6628 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
-2025-01-13T20:48:57.168+01:00  INFO 6628 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
-2025-01-13T20:48:57.175+01:00  INFO 6628 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 1.535 seconds (process running for 2.064)
-2025-01-13T20:48:57.725+01:00  INFO 6628 --- [RMI TCP Connection(4)-192.168.178.110] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-01-13T20:48:57.725+01:00  INFO 6628 --- [RMI TCP Connection(4)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-01-13T20:48:57.726+01:00  INFO 6628 --- [RMI TCP Connection(4)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2025-01-13T20:49:35.126+01:00  INFO 6628 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
-2025-01-13T20:49:35.130+01:00  INFO 6628 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
-2025-01-13T20:49:37.579+01:00  INFO 17184 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 17184 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
-2025-01-13T20:49:37.581+01:00  INFO 17184 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
-2025-01-13T20:49:37.609+01:00  INFO 17184 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-01-13T20:49:37.609+01:00  INFO 17184 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-01-13T20:49:38.262+01:00  INFO 17184 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
-2025-01-13T20:49:38.270+01:00  INFO 17184 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-01-13T20:49:38.270+01:00  INFO 17184 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-01-13T20:49:38.295+01:00  INFO 17184 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-01-13T20:49:38.295+01:00  INFO 17184 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 686 ms
-2025-01-13T20:49:38.406+01:00  INFO 17184 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
-2025-01-13T20:49:38.438+01:00  INFO 17184 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
-2025-01-13T20:49:38.559+01:00  INFO 17184 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
-2025-01-13T20:49:38.582+01:00  INFO 17184 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
-2025-01-13T20:49:38.716+01:00  INFO 17184 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-01-13T20:49:38.832+01:00  INFO 17184 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
-2025-01-13T20:49:38.843+01:00  INFO 17184 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
-2025-01-13T20:49:38.849+01:00  INFO 17184 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 1.455 seconds (process running for 1.993)
-2025-01-13T20:49:38.958+01:00  INFO 17184 --- [RMI TCP Connection(4)-192.168.178.110] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-01-13T20:49:38.959+01:00  INFO 17184 --- [RMI TCP Connection(4)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-01-13T20:49:38.960+01:00  INFO 17184 --- [RMI TCP Connection(4)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2025-01-13T20:54:00.420+01:00  INFO 14080 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 14080 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
-2025-01-13T20:54:00.421+01:00  INFO 14080 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
-2025-01-13T20:54:00.460+01:00  INFO 14080 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2025-01-13T20:54:00.460+01:00  INFO 14080 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2025-01-13T20:54:01.460+01:00  INFO 14080 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
-2025-01-13T20:54:01.470+01:00  INFO 14080 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2025-01-13T20:54:01.470+01:00  INFO 14080 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
-2025-01-13T20:54:01.500+01:00  INFO 14080 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2025-01-13T20:54:01.500+01:00  INFO 14080 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1040 ms
-2025-01-13T20:54:01.622+01:00  INFO 14080 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
-2025-01-13T20:54:01.664+01:00  INFO 14080 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
-2025-01-13T20:54:01.800+01:00  INFO 14080 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
-2025-01-13T20:54:01.824+01:00  INFO 14080 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
-2025-01-13T20:54:02.006+01:00  INFO 14080 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
-2025-01-13T20:54:02.153+01:00  INFO 14080 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
-2025-01-13T20:54:02.164+01:00  INFO 14080 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
-2025-01-13T20:54:02.170+01:00  INFO 14080 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 2.01 seconds (process running for 2.774)
-2025-01-13T20:54:02.370+01:00  INFO 14080 --- [https-jsse-nio-9101-exec-5] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2025-01-13T20:54:02.370+01:00  INFO 14080 --- [https-jsse-nio-9101-exec-5] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2025-01-13T20:54:02.371+01:00  INFO 14080 --- [https-jsse-nio-9101-exec-5] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-01-26T09:02:36.533+01:00  INFO 19596 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 19596 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
+2025-01-26T09:02:36.539+01:00  INFO 19596 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
+2025-01-26T09:02:36.572+01:00  INFO 19596 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-01-26T09:02:36.572+01:00  INFO 19596 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-01-26T09:02:37.315+01:00  INFO 19596 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
+2025-01-26T09:02:37.324+01:00  INFO 19596 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-01-26T09:02:37.325+01:00  INFO 19596 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
+2025-01-26T09:02:37.353+01:00  INFO 19596 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-01-26T09:02:37.354+01:00  INFO 19596 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 780 ms
+2025-01-26T09:02:37.476+01:00  INFO 19596 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-01-26T09:02:37.510+01:00  INFO 19596 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2025-01-26T09:02:37.658+01:00  INFO 19596 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2025-01-26T09:02:37.686+01:00  INFO 19596 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
+2025-01-26T09:02:37.856+01:00  INFO 19596 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-01-26T09:02:37.990+01:00  INFO 19596 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
+2025-01-26T09:02:38.001+01:00  INFO 19596 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
+2025-01-26T09:02:38.008+01:00  INFO 19596 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 1.696 seconds (process running for 2.333)
+2025-01-26T09:02:38.473+01:00  INFO 19596 --- [RMI TCP Connection(1)-192.168.178.110] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-01-26T09:02:38.473+01:00  INFO 19596 --- [RMI TCP Connection(1)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-01-26T09:02:38.474+01:00  INFO 19596 --- [RMI TCP Connection(1)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2025-01-26T09:03:55.208+01:00  INFO 19596 --- [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-01-26T09:03:55.212+01:00  INFO 19596 --- [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-01-26T09:03:56.953+01:00  INFO 21256 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Starting CMSXApplication using Java 23.0.1 with PID 21256 (X:\workspace\CentralManagmentSystemX\target\classes started by xcg54 in X:\workspace\CentralManagmentSystemX)
+2025-01-26T09:03:56.955+01:00  INFO 21256 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : No active profile set, falling back to 1 default profile: "default"
+2025-01-26T09:03:56.982+01:00  INFO 21256 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-01-26T09:03:56.983+01:00  INFO 21256 --- [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-01-26T09:03:57.667+01:00  INFO 21256 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 9101 (https), 9001 (http)
+2025-01-26T09:03:57.678+01:00  INFO 21256 --- [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-01-26T09:03:57.678+01:00  INFO 21256 --- [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.34]
+2025-01-26T09:03:57.704+01:00  INFO 21256 --- [restartedMain] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-01-26T09:03:57.705+01:00  INFO 21256 --- [restartedMain] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 722 ms
+2025-01-26T09:03:57.828+01:00  INFO 21256 --- [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-01-26T09:03:57.863+01:00  INFO 21256 --- [restartedMain] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page template: index
+2025-01-26T09:03:57.992+01:00  INFO 21256 --- [restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2025-01-26T09:03:58.015+01:00  INFO 21256 --- [restartedMain] o.s.s.w.a.c.ChannelProcessingFilter      : Validated configuration attributes
+2025-01-26T09:03:58.150+01:00  INFO 21256 --- [restartedMain] o.s.b.d.a.OptionalLiveReloadServer       : LiveReload server is running on port 35729
+2025-01-26T09:03:58.264+01:00  INFO 21256 --- [restartedMain] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-9101], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [C:\Users\xcg54\.keystore] using alias [localhost] with trust store [null]
+2025-01-26T09:03:58.275+01:00  INFO 21256 --- [restartedMain] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 9101 (https), 9001 (http) with context path '/'
+2025-01-26T09:03:58.282+01:00  INFO 21256 --- [restartedMain] com.messdiener.cms.v3.CMSXApplication    : Started CMSXApplication in 1.515 seconds (process running for 2.06)
+2025-01-26T09:03:58.855+01:00  INFO 21256 --- [RMI TCP Connection(4)-192.168.178.110] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-01-26T09:03:58.856+01:00  INFO 21256 --- [RMI TCP Connection(4)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2025-01-26T09:03:58.857+01:00  INFO 21256 --- [RMI TCP Connection(4)-192.168.178.110] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms

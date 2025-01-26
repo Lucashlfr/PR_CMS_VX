@@ -64,6 +64,8 @@ public class OrganisationController {
                 if (optionalLong.isPresent()) {
 
                     CMSDate date = CMSDate.convert(optionalLong.get(), DateUtils.DateType.MONTH_NAMES);
+                    System.out.println(date.convertTo(DateUtils.DateType.MONTH_NAMES));
+                    System.out.println(date.getGermanDate());
 
                     model.addAttribute("events", Cache.getOrganisationService().getNextEvents(user.getTenantId(), OrganisationType.WORSHIP, date.toLong()));
                     model.addAttribute("monthName", date.convertTo(DateUtils.DateType.MONTH_NAMES));

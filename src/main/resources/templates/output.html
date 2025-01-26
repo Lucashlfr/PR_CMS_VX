@@ -43,6 +43,16 @@
 
                <span>Euch eine Gute Woche,</span><br>
                <span>Euere Teamer</span>
+
+               <br>
+               <hr>
+
+               <section th:each="e:${allEvents}">
+                   <span th:text="${e.getStartDate().getGermanLongDate()}"></span><br>
+                   <span th:text="${e.getScheduledPersonsInfo()}"></span><br><br>
+
+               </section>
+
            </div>
         </main>
     </div>

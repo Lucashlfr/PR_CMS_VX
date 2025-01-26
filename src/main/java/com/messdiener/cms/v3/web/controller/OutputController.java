@@ -43,6 +43,8 @@ public class OutputController {
 		}
 		model.addAttribute("events", events);
 
+		model.addAttribute("allEvents", Cache.getOrganisationService().getNextEvents(tenant.getId(), OrganisationType.WORSHIP));
+
 		System.out.println(getDays(28));
 
 
