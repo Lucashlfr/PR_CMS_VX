@@ -16,8 +16,8 @@
                                     <div class="page-header-icon"><i data-feather="users"></i></div>
                                     Personal
                                     <span class="mdi mdi-arrow-right"></span>
-                                    <span class="mdi mdi-account text-blue"></span>
-                                    <span>Stammdaten</span>
+                                    <span class="mdi mdi-calendar text-blue"></span>
+                                    <span>Gottesdienste</span>
                                 </h1>
                             </div>
                             <div class="col-12 col-xl-auto mb-3">
@@ -35,7 +35,6 @@
                     <a class="nav-link" th:href="'/personal?q=profil&s=1&id=' + ${person.getId()}">Stammdaten</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=2&id=' + ${person.getId()}">Connections</a>
                     <a class="nav-link  active ms-0 " th:href="'/personal?q=profil&s=3&id=' + ${person.getId()}">Gottesdienste</a>
-                    <a class="nav-link" th:href="'/personal?q=profil&s=4&id=' + ${person.getId()}">Historie</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=5&id=' + ${person.getId()}">Dateien</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=6&id=' + ${person.getId()}">Benutzer</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=7&id=' + ${person.getId()}">Workflows</a>
@@ -109,13 +108,50 @@
                             </tbody>
                         </table>
 
-                        <div id="calendar" class="w-50"></div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div id="calendar" class=""></div>
+                            </div>
+                            <div class="col-6" th:if="${person.getType().toString().equals('MESSDIENER')}">
+                                <div class="chart-pie mb-4">
+                                    <canvas id="myPieChart" width="100%" height="50"></canvas>
+                                </div>
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="fas fa-circle fa-sm me-1 text-blue"></i>
+                                            Eingeteilt
+                                        </div>
+                                        <div class="fw-500 text-dark"
+                                             th:text="${person.getStatistics().getDuty()}"></div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="fas fa-circle fa-sm me-1 text-purple"></i>
+                                            Verfügbar
+                                        </div>
+                                        <div class="fw-500 text-dark"
+                                             th:text="${person.getStatistics().getAvailable()}"></div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="fas fa-circle fa-sm me-1 text-green"></i>
+                                            Abwesend
+                                        </div>
+                                        <div class="fw-500 text-dark"
+                                             th:text="${person.getStatistics().getAbsent()}"></div>
+                                    </div>
+                                    <p id="1" class="d-none"
+                                       th:text="${person.getStatistics().getDuty()}"></p>
+                                    <p id="2" class="d-none"
+                                       th:text="${person.getStatistics().getAvailable()}"></p>
+                                    <p id="3" class="d-none"
+                                       th:text="${person.getStatistics().getAbsent()}"></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-
             </div>
-
         </main>
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
@@ -177,6 +213,59 @@
         }
         calendar.updateSize();
         calendar.render();
+
+
+        if(document.getElementById('1')){
+            // Set new default font family and font color to mimic Bootstrap's default styling
+            (Chart.defaults.global.defaultFontFamily = "Metropolis"),
+                '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+            Chart.defaults.global.defaultFontColor = "#858796";
+
+            let d1 = document.getElementById('1').innerHTML;
+            let d2 = document.getElementById('2').innerHTML;
+            let d3 = document.getElementById('3').innerHTML;
+
+            let ctx = document.getElementById("myPieChart");
+            let myPieChart = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Eingeteilt", "Verfügbar", "Abwesend"],
+                    datasets: [{
+                        data: [d1, d2, d3],
+                        backgroundColor: [
+                            "green",
+                            "orange",
+                            "red"
+                        ],
+                        hoverBackgroundColor: [
+                            "green",
+                            "orange",
+                            "red"
+                        ],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)"
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyFontColor: "#858796",
+                        borderColor: "#dddfeb",
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        caretPadding: 10
+                    },
+                    legend: {
+                        display: false
+                    },
+                    cutoutPercentage: 80
+                }
+            });
+        }
+
+
     });
 
 </script>

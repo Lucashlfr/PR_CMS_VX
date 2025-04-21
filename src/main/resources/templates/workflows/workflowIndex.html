@@ -38,33 +38,6 @@
                             </div>
                         </a>
 
-                        <!-- Dashboard example card 2-->
-                        <a class="card lift h-100"  th:href="'/workflows?q=edit&id=' + ${workflow.getWorkflowId()}"  th:if="${workflow.getWorkflowType().toString().equals('DATA')}">
-                            <div class="card-body d-flex justify-content-center flex-column">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="me-3">
-                                        <i class="feather-xl text-green mb-3" data-feather="users"></i>
-                                        <h3 class="text-green">Daten-Check</h3>
-                                    </div>
-                                    <img th:src="@{/dist/assets/img/illustrations/team_work-bro.svg}" alt="..."
-                                         style="width: 8rem"/>
-                                </div>
-                            </div>
-                        </a>
-
-                        <a class="card lift h-100"  th:href="'/workflows?q=edit&id=' + ${workflow.getWorkflowId()}" th:if="${workflow.getWorkflowType().toString().equals('PRIVACY_POLICY')}">
-                            <div class="card-body d-flex justify-content-center flex-column">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="me-3">
-                                        <i class="feather-xl text-secondary mb-3" data-feather="activity"></i>
-                                        <h3 class="text-purple">Datenschutz Formular</h3>
-                                    </div>
-                                    <img th:src="@{/dist/assets/img/illustrations/survey-amico.svg}" alt="..."
-                                         style="width: 8rem"/>
-                                </div>
-                            </div>
-                        </a>
-
                         <a class="card lift h-100"  th:href="'/workflows?q=edit&id=' + ${workflow.getWorkflowId()}"  th:if="${workflow.getWorkflowType().toString().equals('NULL')}">
                             <div class="card-body d-flex justify-content-center flex-column">
                                 <div class="d-flex align-items-center justify-content-between">
@@ -80,7 +53,7 @@
                     </div>
                 </div>
 
-                <hr class="">
+                <hr class="" th:if="${workflows.size() > 0}">
 
                 <div class="row mt-4">
                     <div class="col-xl-4 mb-4">
@@ -90,7 +63,7 @@
                             <div class="card-body d-flex justify-content-center flex-column">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="me-3">
-                                        <i class="feather-xl text-yellow mb-3" data-feather="activity"></i>
+                                        <i class="feather-xl text-yellow mb-3" data-feather="plus"></i>
                                         <h3 class="text-yellow">Workflow erstellen</h3>
                                     </div>
                                     <img th:src="@{/dist/assets/img/illustrations/data_extraction-cuate.svg}" alt="..."
@@ -101,7 +74,7 @@
                     </div>
                     <div class="col-xl-4 mb-4">
 
-                        <a class="card lift h-100" href="/pulseCheck" th:if="${user.hasPermission('ADMIN')}">
+                        <a class="card lift h-100" href="/workflows?q=current" th:if="${session.permissionTag.equals('GLT')}">
                             <div class="card-body d-flex justify-content-center flex-column">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="me-3">
@@ -134,19 +107,11 @@
                 <!-- Modal body -->
                 <div class="modal-body">
                     <div class="list-group list-group-flush">
-                        <a class="list-group-item list-group-item-action" href="/workflows?q=createScheduler" th:if="${user.hasPermission('ADMIN')}">
+                        <a class="list-group-item list-group-item-action" href="/workflows?q=createScheduler" th:if="${session.permissionTag.contains('GLT')}">
                             <span class="mdi mdi-calendar fw-bold text-blue me-2"></span>
                             Dienstplan
                         </a>
-                        <a class="list-group-item list-group-item-action"  href="/workflows?q=createData" th:if="${user.hasPermission('ADMIN')}">
-                            <span class="mdi mdi-calendar fw-bold text-blue me-2"></span>
-                            Daten überprüfen
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="/workflows?q=createPrivacy_policy" th:if="${user.hasPermission('ADMIN')}">
-                            <span class="mdi mdi-calendar fw-bold text-blue me-2"></span>
-                            Datenschutzformular
-                        </a>
-                        <a class="list-group-item list-group-item-action" href="#!" th:if="${user.hasPermission('ADMIN')}">
+                        <a class="list-group-item list-group-item-action" href="#!" th:if="${session.permissionTag.contains('ADMIN')}">
                             <span class="mdi mdi-calendar fw-bold text-blue me-2"></span>
                             Rechnung einreichen
                         </a>

@@ -35,7 +35,6 @@
                     <a class="nav-link active ms-0 " th:href="'/personal?q=profil&s=1&id=' + ${person.getId()}">Stammdaten</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=2&id=' + ${person.getId()}">Connections</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=3&id=' + ${person.getId()}">Gottesdienste</a>
-                    <a class="nav-link" th:href="'/personal?q=profil&s=4&id=' + ${person.getId()}">Historie</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=5&id=' + ${person.getId()}">Dateien</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=6&id=' + ${person.getId()}">Benutzer</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=7&id=' + ${person.getId()}">Workflows</a>
@@ -92,10 +91,17 @@
                         Stammdaten
                         <div>
                             <a class="btn btn-sm btn-light text-danger" href="javascript:void(0);"
-                               data-bs-toggle="modal" data-bs-target="#create">
+                               data-bs-toggle="modal" data-bs-target="#quit" th:if="${person.isActive()}">
                                 <i class="me-1" data-feather="user-minus"></i>
                                 Person abmelden
                             </a>
+
+                            <a class="btn btn-sm btn-light text-success" th:href="'/personal/join?id=' + ${person.getId()}"
+                               th:unless="${person.isActive()}">
+                                <i class="me-1" data-feather="user-plus"></i>
+                                Person anmelden
+                            </a>
+
                             <a class="btn btn-sm btn-light text-primary" href="javascript:void(0);"
                                data-bs-toggle="modal" data-bs-target="#update">
                                 <i class="me-1" data-feather="edit"></i>
@@ -443,6 +449,44 @@
                                name="accountHolder" th:value="${person.getAccountHolder()}">
                         <label for="accountHolder">Kontoinhaber</label>
                     </div>
+
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<form th:method="post" th:action="@{/personal/quit}">
+    <input type="text" readonly class="d-none" name="id" th:value="${person.getId().toString()}">
+    <div class="modal fade" id="quit">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Person abmelden</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="reason" placeholder="Enter reason"
+                               name="reason">
+                        <label for="reason">Begründung</label>
+                    </div>
+
 
 
                 </div>

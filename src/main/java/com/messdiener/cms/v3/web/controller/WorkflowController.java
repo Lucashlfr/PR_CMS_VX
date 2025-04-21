@@ -1,17 +1,28 @@
 package com.messdiener.cms.v3.web.controller;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.entities.tasks.Task;
+import com.messdiener.cms.v3.app.entities.tasks.message.TaskMessage;
 import com.messdiener.cms.v3.app.entities.workflows.Workflow;
 import com.messdiener.cms.v3.app.entities.workflows.WorkflowLog;
 import com.messdiener.cms.v3.app.entities.workflows.request.WorkflowRequest;
+import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.OrganisationType;
 import com.messdiener.cms.v3.shared.enums.StatusState;
 import com.messdiener.cms.v3.shared.enums.WorkflowAttributes;
+import com.messdiener.cms.v3.shared.enums.tasks.MessageInformationCascade;
+import com.messdiener.cms.v3.shared.enums.tasks.MessageType;
+import com.messdiener.cms.v3.shared.enums.tasks.TaskState;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.utils.time.DateUtils;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,6 +30,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.sql.SQLException;
@@ -28,58 +40,74 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Controller
+@RequiredArgsConstructor
 public class WorkflowController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowController.class);
+    private final Cache cache;
+    private final SecurityHelper securityHelper;
+    private final PersonHelper personHelper;
+
+    @PostConstruct
+    public void init() {
+        LOGGER.info("WorkflowController initialized.");
+    }
+
     @GetMapping("/workflows")
-    public String workflows(HttpSession session, Model model, @RequestParam("q")Optional<String> q, @RequestParam("id")Optional<String> id) throws SQLException {
-        Person user = SecurityHelper.addPersonToSession(session);
+    public String workflows(HttpSession session, Model model, @RequestParam("q") Optional<String> q, @RequestParam("id") Optional<String> id) throws SQLException {
+        Person user = securityHelper.getPerson()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         model.addAttribute("user", user);
-        model.addAttribute("workflows", Cache.getWorkflowService().getWorkflowsByUser(user.getId(), WorkflowAttributes.WorkflowState.PENDING));
+        securityHelper.addPersonToSession(session);
 
         String query = q.orElse("null");
-        switch (query){
-            case "edit":
-                if(id.isPresent()){
+        switch (query) {
+            case "edit" -> {
+                if (id.isPresent()) {
                     UUID workflowId = UUID.fromString(id.get());
-                    Workflow workflow = Cache.getWorkflowService().getWorkflow(workflowId, user.getId()).orElseThrow();
+                    Workflow workflow = cache.getWorkflowService().getWorkflow(workflowId, user.getId()).orElseThrow();
                     model.addAttribute("workflow", workflow);
-                    switch (workflow.getWorkflowType()){
-                        case SCHEDULER:
-                            model.addAttribute("events", Cache.getOrganisationService().getNextEvents(user.getTenantId(), OrganisationType.WORSHIP));
-                            return "workflows/pages/workflow_scheduler";
-                        case DATA:
-                            return "workflows/pages/workflow_data";
-                        case PRIVACY_POLICY:
-                            return "workflows/pages/workflow_privacy_policy";
+
+                    if (workflow.getWorkflowType() == WorkflowAttributes.WorkflowType.SCHEDULER) {
+                        model.addAttribute("events", cache.getOrganisationEventService().getNextEvents(user.getTenantId(), OrganisationType.WORSHIP));
+                        model.addAttribute("connections", personHelper.getConnections(user));
+                        return "workflows/pages/workflow_scheduler";
                     }
                 }
-                break;
-
-            case "createScheduler":
-                model.addAttribute("persons", Cache.getPersonService().getActiveMessdienerByTenant(user.getTenantId()));
-                model.addAttribute("workflowType", WorkflowAttributes.WorkflowType.SCHEDULER.toString());
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+            case "createScheduler" -> {
+                checkPermission(user, "TEAM");
+                model.addAttribute("persons", cache.getPersonService().getActivePersonsByPermission(user.getId(), "*", user.getTenantId())); //TODO: FIX
+                model.addAttribute("workflowType", WorkflowAttributes.WorkflowType.SCHEDULER.name());
+                model.addAttribute("tenantName", personHelper.getTenantName(user).orElse(""));
                 return "workflows/interface/create_workflow";
+            }
+            case "current" -> {
+                checkPermission(user, "TEAM");
+                model.addAttribute("workflows", cache.getWorkflowQueryService().getWorkflowsSummary());
 
-            case "createData":
-                model.addAttribute("persons", Cache.getPersonService().getActiveMessdienerByTenant(user.getTenantId()));
-                model.addAttribute("workflowType", WorkflowAttributes.WorkflowType.DATA.toString());
-                return "workflows/interface/create_workflow";
+                if (id.isPresent()) {
+                    UUID workflowId = UUID.fromString(id.get());
+                    Workflow workflow = cache.getWorkflowService().getWorkflow(workflowId).orElseThrow();
+                    model.addAttribute("workflow", workflow);
+                    model.addAttribute("workflows", cache.getWorkflowService().getWorkflows(workflowId));
+                    return "workflows/workflowStates";
+                }
 
-            case "createPrivacy_policy":
-                model.addAttribute("persons", Cache.getPersonService().getActiveMessdienerByTenant(user.getTenantId()));
-                model.addAttribute("workflowType", WorkflowAttributes.WorkflowType.PRIVACY_POLICY.toString());
-                return "workflows/interface/create_workflow";
+                return "workflows/currentWorkflows";
+            }
         }
 
+        model.addAttribute("workflows", cache.getWorkflowQueryService().getWorkflowsByUser(user.getId(), WorkflowAttributes.WorkflowState.PENDING));
         return "workflows/workflowIndex";
     }
 
     @PostMapping("/workflow/create")
     public ResponseEntity<String> createWorkflow(@RequestBody WorkflowRequest request) throws SQLException {
+        Person user = securityHelper.getPerson()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        Person user = SecurityHelper.getPerson();
-
-        // Validierung der Eingabedaten
         if (request.getStartDate() == null || request.getEndDate() == null) {
             return ResponseEntity.badRequest().body("Start- und Enddatum müssen angegeben werden.");
         }
@@ -88,100 +116,57 @@ public class WorkflowController {
             return ResponseEntity.badRequest().body("Mindestens eine UUID muss ausgewählt sein.");
         }
 
-        System.out.println(request.getType());
-
-        // Verarbeitung der Daten
         UUID workflowId = UUID.randomUUID();
-        UUID tenantId = user.getTenantId();
-        WorkflowAttributes.WorkflowState workflowState = WorkflowAttributes.WorkflowState.PENDING;
         WorkflowAttributes.WorkflowType workflowType = WorkflowAttributes.WorkflowType.valueOf(request.getType());
-        CMSDate creationDate = CMSDate.current();
-        CMSDate startDate = CMSDate.convert(request.getStartDate(), DateUtils.DateType.ENGLISH);
-        CMSDate endDate = CMSDate.convert(request.getEndDate(), DateUtils.DateType.ENGLISH);
-        List<String> uuids = request.getUuids();
 
-        WorkflowLog workflowLog = new WorkflowLog(UUID.randomUUID(), workflowId, creationDate, user.getId(), "Workflow erstellt", user.getName() + " hat den workflow erstellt");
-        List<WorkflowLog> logs = List.of(workflowLog);
+        CMSDate creation = CMSDate.current();
+        CMSDate start = CMSDate.convert(request.getStartDate(), DateUtils.DateType.ENGLISH);
+        CMSDate end = CMSDate.convert(request.getEndDate(), DateUtils.DateType.ENGLISH);
 
-        for(String u : uuids){
-            UUID personId = UUID.fromString(u);
-            Workflow workflow = new Workflow(workflowId, tenantId, personId, workflowType, workflowState, creationDate, startDate, endDate, creationDate, user.getId(), logs);
-            workflow.create();
+        WorkflowLog log = new WorkflowLog(UUID.randomUUID(), workflowId, creation, user.getId(), "Workflow erstellt", user.getName() + " hat den Workflow erstellt");
+
+        for (String uuid : request.getUuids()) {
+            UUID personId = UUID.fromString(uuid);
+            Workflow workflow = new Workflow(workflowId, user.getTenantId(), personId, workflowType,
+                    WorkflowAttributes.WorkflowState.PENDING, creation, start, end, creation, user.getId(), List.of(log), 0, 0);
+            cache.getWorkflowService().createWorkflow(workflow);
+            cache.getGlobalManager().startUp();
         }
 
-        return ResponseEntity.ok("Workflow wurde erfolgreich erstellt mit " + uuids.size() + " ausgewählten Personen.");
+        return ResponseEntity.ok("Workflow erstellt für " + request.getUuids().size() + " Personen.");
     }
 
     @PostMapping("/workflow/scheduler/submit")
-    public RedirectView handleEventSubmission(@RequestParam("id")UUID workflowId, @RequestParam Map<String, String> eventOptions) throws SQLException {
-        Person user = SecurityHelper.getPerson();
-        Workflow workflow = Cache.getWorkflowService().getWorkflow(workflowId, user.getId()).orElseThrow();
+    public RedirectView handleEventSubmission(@RequestParam("id") UUID workflowId, @RequestParam Map<String, String> eventOptions) throws SQLException {
+        Person user = securityHelper.getPerson()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        Workflow workflow = cache.getWorkflowService().getWorkflow(workflowId, user.getId()).orElseThrow();
 
         for (Map.Entry<String, String> entry : eventOptions.entrySet()) {
+            if (entry.getValue().contains(workflowId.toString())) continue;
+            UUID eventId = UUID.fromString(entry.getKey().replace("event_", ""));
+            int selected = Integer.parseInt(entry.getValue());
 
-            if(entry.getValue().contains(workflow.getWorkflowId().toString()))continue;
-
-            String eventIndex = entry.getKey().replace("event_",  "");  // z.B. "event_0"
-            int selectedOption = Integer.parseInt(entry.getValue());  // z.B. "option1"
-
-            Cache.getOrganisationService().setMapState(UUID.fromString(eventIndex), user.getId(), selectedOption, 0,0);
+            cache.getOrganisationMappingService().setMapState(eventId, user.getId(), selected, 0, 0);
         }
-        workflow.complete();
+
+        workflow.setWorkflowState(WorkflowAttributes.WorkflowState.COMPLETED);
+        cache.getWorkflowService().updateWorkflow(workflow);
+
+        Task task = cache.getTaskQueryService().getNormedTaskById(user.getId(), "WF_" + workflow.getCreationDate().getDate()).orElseThrow();
+        TaskMessage taskMessage = new TaskMessage(UUID.randomUUID(), MessageType.ENDE, "Workflow abgeschlossen", "", MessageInformationCascade.C0, CMSDate.current(), Optional.of(user.getId()), false);
+        cache.getTaskMessageService().saveMessage(task.getTaskId(), taskMessage);
+        task.setTaskState(TaskState.COMPLETED);
+        task.setEndDate(Optional.of(CMSDate.current()));
+        task.setUpdateDate(CMSDate.current());
+        cache.getTaskService().saveTask(task);
+
         return new RedirectView("/workflows?statusState=" + StatusState.SCHEDULER_OK);
-
     }
 
-    @PostMapping("/workflow/check/submit")
-    public RedirectView save(@RequestParam("firstname") String firstname, @RequestParam("lastname") String lastname, @RequestParam("phone") Optional<String> phone,
-                             @RequestParam("mobile") Optional<String> mobile, @RequestParam("mail") Optional<String> mail,
-                             @RequestParam("street") Optional<String> street, @RequestParam("number") Optional<String> number, @RequestParam("plz") Optional<String> plz, @RequestParam("town") Optional<String> town,
-                             @RequestParam("birthday") Optional<String> birthday, @RequestParam("data") Optional<String> data, @RequestParam("id")UUID workflowId) throws Exception {
-        Person person = SecurityHelper.getPerson();
-        Workflow workflow = Cache.getWorkflowService().getWorkflow(workflowId, person.getId()).orElseThrow();
-        person.setFirstname(firstname);
-        person.setLastname(lastname);
-        person.setPhone(phone.orElse(""));
-        person.setMobile(mobile.orElse(""));
-        person.setEmail(mail.orElse(""));
-
-        person.setStreet(street.orElse(""));
-        person.setHouseNumber(number.orElse(""));
-        person.setPostalCode(plz.orElse(""));
-        person.setCity(town.orElse(""));
-
-        CMSDate cmsDate = birthday.map(s -> CMSDate.convert(s, DateUtils.DateType.ENGLISH)).orElseGet(CMSDate::current);
-        person.setBirthdate(Optional.of(cmsDate));
-
-        person.update();
-
-        workflow.complete();
-        return new RedirectView("/workflows?statusState=" + StatusState.CHECK_OK);
+    private void checkPermission(Person user, String permission) throws SQLException {
+        if (!personHelper.hasPermission(user, permission)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Zugriff verweigert für: " + permission);
+        }
     }
-
-    @PostMapping("/workflow/privacy/submit")
-    public RedirectView save(@RequestParam("option1") Optional<String> option1, @RequestParam("option2") Optional<String> option2,
-                             @RequestParam("option3") Optional<String> option3, @RequestParam("option4") Optional<String> option4,
-                             @RequestParam("option5") Optional<String> option5, @RequestParam("option6") Optional<String> option6,
-                             @RequestParam("option7") Optional<String> option7, @RequestParam("signature") String signature,
-                             @RequestParam("id")String id) throws Exception {
-
-        Person person = SecurityHelper.getPerson();
-        UUID workflowId = UUID.fromString(id);
-
-        String data = option1.isPresent() + ";" + option2.isPresent() + ";" + option3.isPresent() + ";" + option4.isPresent() + ";" + option5.isPresent() + ";" + option6.isPresent() + ";" + option7.isPresent();
-
-
-        Workflow workflow = Cache.getWorkflowService().getWorkflow(workflowId, person.getId()).orElseThrow();
-
-        if (signature.isEmpty()) throw new IllegalStateException();
-
-        person.setPrivacy_policy(data);
-        person.setSignature(signature);
-
-        person.update();
-        workflow.complete();
-
-        return new RedirectView("/workflows?statusState=" + StatusState.PRIVACY_POLICY_OK);
-    }
-
 }

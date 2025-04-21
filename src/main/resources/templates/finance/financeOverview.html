@@ -2,22 +2,21 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
 <head th:insert="~{fragments :: html_head}"></head>
 <body class="nav-fixed">
-<nav th:insert="fragments :: topnav"></nav>
+<nav th:insert="~{fragments :: topnav}"></nav>
 <div id="layoutSidenav">
-    <div id="layoutSidenav_nav" th:insert="fragments :: sidebar"></div>
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main class="h-75">
-            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
-                <div class="container px-4">
-                    <div class="page-header-content">
-                        <div class="row align-items-center justify-content-between pt-3">
-                            <div class="col-auto mb-3">
+            <header class="page-header page-header-dark bg-primary mb-4">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
                                 <h1 class="page-header-title">
-                                    <div class="page-header-icon"><i data-feather="file"></i></div>
                                     Finanzverwaltung
                                 </h1>
-                            </div>
-                            <div class="col-12 col-xl-auto mb-3">
+                                <div class="page-header-subtitle">Führe hier das digitales Kassenbuch.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -143,12 +142,7 @@
                                         <td th:text="${t.getDescription()}"></td>
                                         <td th:text="${t.getValue()}"></td>
                                         <td>
-                                            <button class="btn btn-sm btn-light mdi mdi-information"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#infoModal"
-                                                    th:attr="data=${t}"></button>
-                                            <button class="btn btn-sm btn-light mdi mdi-file-document"></button>
-                                            <button class="btn btn-sm btn-light mdi mdi-delete"></button>
+                                            <a th:href="'/finance?q=info&id=' + ${t.getId()}" class="btn btn-sm btn-light mdi mdi-information"></a>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -188,10 +182,10 @@
 
             </div>
         </main>
-        <footer th:insert="fragments :: footer"></footer>
+        <footer th:insert="~{fragments :: footer}"></footer>
     </div>
 </div>
-<div th:insert="fragments :: script"></div>
+<div th:insert="~{fragments :: script}"></div>
 
 <!-- The Modal -->
 <form th:method="post" th:action="@{/finance/save}" enctype="multipart/form-data">

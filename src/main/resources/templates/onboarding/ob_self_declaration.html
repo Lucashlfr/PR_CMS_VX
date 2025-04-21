@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark pb-15 bg-img-cover"
+                    style="background-image: url('https://messdiener-knittelsheim.de/wp-content/uploads/2025/01/Handabdruck-scannen-scaled.jpg')">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <h1 class="page-header-title mt-4"
+                            th:text="'CMS Onboarding'">
+                        </h1>
+                        <div class="page-header-subtitle">Bei Fragen wende dich gerne direkt an Lucas!
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div id="container-xl px-4 mt-n10">
+                <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+                <style type="text/css">
+                    .m-signature-pad--body canvas {
+                        position: relative;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        height: 250px;
+                        border: 1px solid #CCCCCC;
+                    }
+                </style>
+
+                <form class="was-validated" th:action="@{/onboarding/sae/submit}" th:method="post"
+                      onSubmit="return submitForm();"
+                      enctype="multipart/form-data" target="_self">
+                    <!-- Main page content-->
+                    <div class="container-xl px-4 mt-n10 d-none" id="load">
+
+                        <div class="card">
+
+                            <div class="card-body">
+
+                                <div class="text-center">
+
+                                    <div class="spinner-border text-primary mb-3" role="status"
+                                         style="width: 150px; height: 150px">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+
+                                    <h1>Bitte warten - Deine Daten werden gespeichert...</h1>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="container-xl px-4 mt-n10" id="content">
+                        <div class="card">
+                            <div class="card-body p-5">
+                                <h1 style="font-size: 35px" class="text-danger">Selbstauskunftserkläreung (SAE)</h1>
+                                <h4 class="lead mb-4">Bitte wende dich bei Fragen direkt an Lucas!</h4>
+                                <p>Gemäß §3 Absatz 1.2. der "Rahmenordnung zur Prävention gegen sexualisierte Gewalt an
+                                    Minderjährigen und schutz- oder hilfsbedürftigen Erwachsenen im Bistum Speyer"</p>
+
+                                <table>
+                                    <tbody>
+                                    <tr>
+                                        <td>Name, Vorname:</td>
+                                        <td style="width: 10px"></td>
+                                        <td th:text="${user.getName()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Geburtsdatum:</td>
+                                        <td></td>
+                                        <td th:text="${birthdate}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tätigkeit:</td>
+                                        <td></td>
+                                        <td th:text="${user.getRank().getName()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Rechtsträger:</td>
+                                        <td></td>
+                                        <td th:text="'Pfarrei Hl. Hildegard von Bingen / ' + ${tenantName}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <br>
+                                <p>versichere hiermit, dass ich nicht wegen einer Straftat im Zusammenhang mit
+                                    sexualisierter Gewalt (gem. §72a SGB VIII genannte Straftaten) rechtskräftig
+                                    verurteilt worden bin und auch insoweit keine Ermittlungsverfahren gegen mich
+                                    eingeleitet worden ist.</p><br>
+                                <p>Für den Fall, dass diesbezüglich ein Ermittlungsverfahren gegen mich eingeleitet
+                                    wird, verpflichte ich mich, dies meinem Dienstvorgesetzten bzw. der Person, die mich
+                                    zu meiner Tätigkeit beauftragt hat, umgehend mitzuteilen.</p>
+                                <p th:text="'Knittelsheim, ' + ${current.getGermanDate()}"></p>
+                                <br>
+                                <h1 class="text-center text-danger">Hier unterschreiben:</h1>
+                                <div id="signature-pad" class="m-signature-pad">
+                                    <div class="m-signature-pad--body">
+                                        <canvas class="bg-danger-soft"></canvas>
+                                        <input type="hidden" name="signature" id="signature" value="">
+                                    </div>
+                                </div>
+                                <script>
+                                    var wrapper = document.getElementById("signature-pad"),
+                                        canvas = wrapper.querySelector("canvas"),
+                                        signaturePad;
+
+                                    var signaturePad = new SignaturePad(canvas);
+                                    signaturePad.minWidth = 1; //minimale Breite des Stiftes
+                                    signaturePad.maxWidth = 5; //maximale Breite des Stiftes
+                                    signaturePad.penColor = "#000000"; //Stiftfarbe
+                                    signaturePad.backgroundColor = "#fff2cc"; //Hintergrundfarbe
+
+                                    signaturePad.addEventListener("beginStroke", () => {
+                                        console.log("Signature started");
+                                    }, {once: true});
+
+                                    function resizeCanvas() {
+                                        var oldContent = signaturePad.toData();
+                                        var ratio = Math.max(window.devicePixelRatio || 1, 1);
+                                        canvas.width = canvas.offsetWidth * ratio;
+                                        canvas.height = canvas.offsetHeight * ratio;
+                                        canvas.getContext("2d").scale(ratio, ratio);
+                                        signaturePad.clear();
+                                        signaturePad.fromData(oldContent);
+                                    }
+
+                                    window.onresize = resizeCanvas;
+                                    resizeCanvas();
+
+                                    function submitForm() {
+                                        if (!signaturePad.isEmpty()) {
+                                            save();
+                                            document.getElementById('signature').value = signaturePad.toDataURL();
+                                            return true;
+                                        } else {
+                                            alert("Please provide a signature first.");
+                                            return false;
+                                        }
+
+                                    }
+
+
+                                    function save() {
+                                        document.getElementById('content').classList.add('d-none');
+                                        document.getElementById('load').classList.remove('d-none');
+                                    }
+
+                                </script>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="d-grid">
+
+                            <button class="btn btn-primary btn-block btn-xl" type="submit">Speichern</button>
+
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+</html>

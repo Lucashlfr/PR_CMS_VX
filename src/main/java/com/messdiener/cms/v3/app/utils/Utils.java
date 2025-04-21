@@ -1,5 +1,6 @@
 package com.messdiener.cms.v3.app.utils;
 
+import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -11,10 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class Utils {
 
@@ -119,5 +117,35 @@ public class Utils {
 
         return records;
 
+    }
+
+    public static String optionalId(Optional<UUID> s){
+        if(s.isPresent())
+            return s.get().toString();
+        return "";
+    }
+
+    public static String optional(Optional<String> s){
+        return s.orElse("#");
+    }
+
+    public static long optionalDate(Optional<CMSDate> s){
+        return s.map(CMSDate::toLong).orElse(0L);
+    }
+
+    public static Optional<UUID> getOId(String s){
+        try {
+            UUID uuid = UUID.fromString(s);
+            return Optional.of(uuid);
+        }catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<CMSDate> getODate(long l){
+        if(l > 0){
+            return Optional.of(CMSDate.of(l));
+        }
+        return Optional.empty();
     }
 }

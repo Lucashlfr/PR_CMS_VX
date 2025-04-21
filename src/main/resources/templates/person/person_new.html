@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-purple mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title" th:text="'Personen / ' + ${person.getName()}"></h1>
+                                <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4 mt-4">
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-8 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="user" class="text-success fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold" >
+                                                <span th:text="${person.getName()}"></span>
+                                                <span th:if="${person.getGender().toString().equals('MALE')}" class="mdi mdi-gender-male text-blue"></span>
+                                                <span th:if="${person.getGender().toString().equals('FEMALE')}"  class="mdi mdi-gender-female text-pink"></span>
+                                                <span th:if="${person.getRank().toString().equals('OBERMESSDIENER')}" class="mdi mdi-shield-account text-red"></span>
+                                                <span th:if="${person.getRank().toString().equals('LEITUNGSTEAM')}" class="mdi mdi-account-group text-yellow"></span>
+                                                <span th:if="${person.getRank().toString().equals('MESSDIENER')}" class="mdi mdi-circle text-info"></span>
+                                                <span th:if="${person.isActive()}" class="mdi mdi-check-circle text-success"></span>
+                                                <span th:unless="${person.isActive()}"class="mdi mdi-account-alert text-danger"></span>
+                                            </h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
+                                                    10.04.2025
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                   <div>
+                                       <button class="btn btn-primary btn-sm mdi mdi-pencil" href="javascript:void(0);"
+                                               data-bs-toggle="modal" data-bs-target="#update"></button>
+                                       <a class="btn btn-sm btn-danger mdi mdi-account-minus" href="javascript:void(0);"
+                                          data-bs-toggle="modal" data-bs-target="#quit" th:if="${person.isActive()}">
+                                       </a>
+                                       <button class="btn btn-orange btn-sm mdi mdi-account-network" href="javascript:void(0);"
+                                               data-bs-toggle="modal" data-bs-target="#create"></button>
+                                   </div>
+                                </div>
+                            </div>
+                            <div class="card-body clamp-description"  style="overflow: scroll; max-height: 400px">
+                                <span class="card-title text-lg fw-bold text-black">Stammdaten</span><br>
+                                <table class="table table-sm table-hover">
+                                    <tbody>
+                                    <tr>
+                                        <td>Adresse</td>
+                                        <td th:text="${person.getAddress()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>E-Mail</td>
+                                        <td th:text="${person.getEmail()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Telefon</td>
+                                        <td th:text="${person.getPhone()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Handynummer</td>
+                                        <td th:text="${person.getMobile()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bankdaten</td>
+                                        <td th:text="${person.getBankDetails()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Benutzername</td>
+                                        <td th:text="${person.getUsername()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Passwort</td>
+                                        <td>
+                                            <span th:if="${person.getBirthdate().isPresent()} and ${person.getPassword().equals(person.getBirthdate().get().getGermanDate())}" class="text-green mdi mdi-security"></span>
+                                            <span th:unless="${person.getBirthdate().isPresent()} and ${person.getPassword().equals(person.getBirthdate().get().getGermanDate())}" class="text-red mdi mdi-security"></span>
+                                        </td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+
+                                <br>
+                                <h5 class="card-title">Notfallkontakte</h5>
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Vorname</th>
+                                        <th>Nachname</th>
+                                        <th>Typ</th>
+                                        <th>Telefon</th>
+                                        <th>E-Mail</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="contact : ${contacts}">
+                                        <td th:text="${contact.getFirstName()}"></td>
+                                        <td th:text="${contact.getLastName()}"></td>
+                                        <td th:text="${contact.getType()}"></td>
+                                        <td th:text="${contact.getPhoneNumber()}"></td>
+                                        <td th:text="${contact.getMail()}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <br>
+                                <h5 class="card-title">Connections</h5>
+                                <div class="row">
+                                    <div class="col-lg-4" th:each="connection : ${connections}">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-lg"><img class="avatar-img img-fluid" src="https://i.ibb.co/B26W5pnb/Design-ohne-Titel.png" /></div>
+                                            <div class="ms-3">
+                                                <div class="fs-4 text-dark fw-500" th:text="${personHelper.getPersonSubName(connection)}"></div>
+                                                <div class="small text-muted" th:text="${connection.getConnectionType().getName()}"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br>
+                                <h5 class="card-title">Tags</h5>
+                                <div class="border rounded p-2 d-flex flex-wrap gap-2" id="tagContainer">
+                                    <input type="text" class="form-control border-0 p-0 w-auto" id="tagsInput" placeholder="Tag hinzufügen..." />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-12 mb-4">
+                        <div class="card h-100" id="reference-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="info" class="text-info fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Zusatzinformationen</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                Füge weitere Informationen hinzu
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="table-responsive">
+                                    <table class="table text-nowrap align-middle">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="file" class="me-2"></i> Personen ID
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td>PSN - 123</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="users" class="me-2 text-danger"></i> Gruppe
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td th:text="${personHelper.getTenantName(person).orElse('')}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="check-circle" class="me-2 text-info"></i> Status
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+
+                                            <td><span class="d-flex"><span
+                                                    class="badge bg-success-soft text-success flex-fill">Aktiv</span></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="alert-circle" class="me-2 text-warning"></i> Rang
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td><span class="d-flex"><span
+                                                    class="badge bg-secondary-soft text-secondary flex-fill" th:text="${person.getRank().getName()}"></span></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="calendar" class="me-2 text-primary"></i> Geburtstag
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td th:text="${person.getBirthdate().orElseThrow().getGermanDate()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="user" class="me-2 text-primary"></i> Manager
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="tag" class="me-2 text-success"></i> Tags
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">Web Design</span>
+                                                <span class="badge bg-light text-dark border">Responsive Design</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="bar-chart-2" class="me-2 text-primary"></i> Activity
+                                    </span>
+                                            </td>
+                                            <td class="border-bottom">:</td>
+                                            <td class="border-bottom">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-fill me-2" style="height: 6px;">
+                                                        <div class="progress-bar bg-primary" role="progressbar"
+                                                             style="width: 10%;" aria-valuenow="10"
+                                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <div class="text-muted small">10%</div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex align-items-stretch mb-3">
+                    <!-- Project Documents -->
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="folder" class="text-red fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Dateien</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div>10 Uploads</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm mdi mdi-plus">Datei</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: scroll;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tasks -->
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="git-pull-request" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Verknüpfte Vorgänge</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div>10 offene Aufgaben</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm mdi mdi-plus">Subtask</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: scroll;">
+                                <div class="overflow-scroll" style="max-height: 500px!important;">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Id</th>
+                                            <th>Beschreibung</th>
+                                            <th>Status</th>
+                                            <th>Bearbeiter</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="task : ${tasks}">
+                                            <td></td>
+                                            <td th:text="${task.getTaskNumber()}"></td>
+                                            <td>
+                                                <a th:text="${task.getTaskTitle()}" th:href="'/tasks?id=' + ${task.getTaskId()}"></a>
+                                            </td>
+                                            <td th:text="${task.getTaskState().getLabel()}"></td>
+                                            <td>
+                                                <span th:if="${taskHelper.getProcessorName(task).isPresent()}" th:text="${taskHelper.getProcessorName(task).get()}"></span>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- Weitere Timeline-Items -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 mb-2">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="inbox" class="text-primary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Meldungen</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div>10 Meldungen</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm mdi mdi-plus">Meldung</button>
+                                </div>
+                            </div>
+                            <div class="card-body pt-3" style="max-height: 300px; overflow-y: scroll;">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+
+<!-- The Modal -->
+<form th:method="post" th:action="@{/personal/update}" enctype="multipart/form-data">
+    <input type="text" readonly class="d-none" name="id" th:value="${person.getId().toString()}">
+
+    <div class="modal fade" id="update">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Person bearbeiten</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <div class="form-floating mb-2">
+                                <select class="form-select" id="type" name="type" required>
+                                    <option value="NULL" th:selected="${person.getType().toString().equals('NULL')}">
+                                        Kein Typ ausgewählt
+                                    </option>
+                                    <option value="MESSDIENER"
+                                            th:selected="${person.getType().toString().equals('MESSDIENER')}">Messdiener
+                                    </option>
+                                    <option value="PARENT"
+                                            th:selected="${person.getType().toString().equals('PARENT')}">Elternteil
+                                    </option>
+                                    <option value="OTHER" th:selected="${person.getType().toString().equals('OTHER')}">
+                                        Anderes
+                                    </option>
+                                    <option value="EXTERN"
+                                            th:selected="${person.getType().toString().equals('EXTERN')}">
+                                        Externe Person
+                                    </option>
+                                </select>
+                                <label for="type" class="form-label">Personen-Typ</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating mb-2">
+                                <select class="form-select" id="rank" name="rank" required>
+                                    <option value="NULL" th:selected="${person.getRank().toString().equals('NULL')}">
+                                        Kein Rang ausgewählt
+                                    </option>
+                                    <option value="MESSDIENER"
+                                            th:selected="${person.getRank().toString().equals('MESSDIENER')}">Messdiener
+                                    </option>
+                                    <option value="LEITUNGSTEAM"
+                                            th:selected="${person.getRank().toString().equals('LEITUNGSTEAM')}">
+                                        Leitungsteam
+                                    </option>
+                                    <option value="OBERMESSDIENER"
+                                            th:selected="${person.getRank().toString().equals('OBERMESSDIENER')}">
+                                        Obermessdiener
+                                    </option>
+                                    <option value="NONE" th:selected="${person.getRank().toString().equals('NONE')}">
+                                        Kein Messdiener
+                                    </option>
+                                </select>
+                                <label for="rank" class="form-label">Gruppen-Rang</label>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <div class="form-floating mb-2">
+                                <select class="form-select" id="salutation" name="salutation">
+                                    <option value="NULL"
+                                            th:selected="${person.getSalutation().toString().equals('NULL')}"></option>
+                                    <option value="PERSONAL_YOU"
+                                            th:selected="${person.getSalutation().toString().equals('PERSONAL_YOU')}">
+                                        persönliches Du
+                                    </option>
+                                    <option value="POLITE_YOU"
+                                            th:selected="${person.getSalutation().toString().equals('POLITE_YOU')}">
+                                        höfliches Du
+                                    </option>
+                                    <option value="FORMAL_YOU"
+                                            th:selected="${person.getSalutation().toString().equals('FORMAL_YOU')}">
+                                        höfliches Sie
+                                    </option>
+                                </select>
+                                <label for="salutation" class="form-label">Anrede</label>
+                            </div>
+
+                            <div class="form-floating mb-2">
+                                <input type="text" class="form-control" id="firstname" placeholder="Enter firstname"
+                                       name="firstname" required th:value="${person.getFirstname()}">
+                                <label for="firstname">Vorname</label>
+                            </div>
+
+                            <div class="form-floating mb-2">
+                                <input type="text" class="form-control" id="lastname" placeholder="Enter lastname"
+                                       name="lastname" required th:value="${person.getLastname()}">
+                                <label for="lastname">Nachname</label>
+                            </div>
+
+                            <div class="form-floating mb-2">
+                                <select class="form-select" id="gender" name="gender">
+                                    <option value="NOT_SPECIFIED"
+                                            th:selected="${person.getGender().toString().equals('NOT_SPECIFIED')}">Nicht
+                                        angegeben
+                                    </option>
+                                    <option value="MALE" th:selected="${person.getGender().toString().equals('MALE')}">
+                                        Mann
+                                    </option>
+                                    <option value="FEMALE"
+                                            th:selected="${person.getGender().toString().equals('FEMALE')}">Frau
+                                    </option>
+                                    <option value="DIVERSE"
+                                            th:selected="${person.getGender().toString().equals('DIVERSE')}">Divers
+                                    </option>
+                                </select>
+                                <label for="gender" class="form-label">Geschlecht</label>
+                            </div>
+
+                            <div class="form-floating mb-2">
+                                <input type="date" class="form-control" id="birthdate2" placeholder="Enter birthdate"
+                                       name="birthdate" th:if="${person.getBirthdate().isEmpty()}">
+                                <label for="birthdate2" th:if="${person.getBirthdate().isEmpty()}">Geburtstag</label>
+
+                                <input type="date" class="form-control" id="birthdate" placeholder="Enter birthdate"
+                                       name="birthdate" th:if="${person.getBirthdate().isPresent()}"
+                                       th:value="${person.getBirthdate().get().getEnglishDate()}">
+                                <label for="birthdate" th:if="${person.getBirthdate().isPresent()}">Geburtstag</label>
+                            </div>
+
+                            <div class="mb-2">
+                                <a class="mdi mdi-map-marker" href="javascript:void(0);" data-bs-toggle="modal"
+                                   data-bs-target="#address">Adresse bearbeiten</a>
+                            </div>
+
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating mb-2">
+                                <input type="email" class="form-control" id="mail" placeholder="Enter mail"
+                                       name="mail" th:value="${person.getEmail()}">
+                                <label for="mail">E-Mail</label>
+                            </div>
+                            <div class="form-floating mb-2">
+                                <input type="text" class="form-control" id="phone" placeholder="Enter phone"
+                                       name="phone" th:value="${person.getPhone()}">
+                                <label for="phone">Telefonnummer</label>
+                            </div>
+                            <div class="form-floating mb-2">
+                                <input type="text" class="form-control" id="mobile" placeholder="Enter mobile"
+                                       name="mobile" th:value="${person.getMobile()}">
+                                <label for="mobile">Handynummer</label>
+                            </div>
+
+                            <div class="form-floating mb-2">
+                                <input type="date" class="form-control" id="accessionDate"
+                                       placeholder="Enter accessionDate" name="accessionDate">
+                                <label for="accessionDate">Beitrittsdatum</label>
+                            </div>
+
+                            <div class="form-floating mb-2">
+                                <input type="date" class="form-control" id="exitDate" placeholder="Enter accessionDate"
+                                       name="exitDate">
+                                <label for="exitDate">Austrittsdatum</label>
+                            </div>
+                            <div class="mb-2">
+                                <a class="mdi mdi-cash-check" href="javascript:void(0);" data-bs-toggle="modal"
+                                   data-bs-target="#bankAccount">Bank-Account bearbeiten</a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<form th:method="post" th:action="@{/personal/adress/update}">
+    <input type="text" readonly class="d-none" name="id" th:value="${person.getId().toString()}">
+    <div class="modal fade" id="address">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Adresse bearbeiten</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="street" placeholder="Enter street"
+                               name="street" th:value="${person.getStreet()}">
+                        <label for="street">Straße</label>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="houseNumber" placeholder="Enter houseNumber"
+                               name="houseNumber" th:value="${person.getHouseNumber()}">
+                        <label for="houseNumber">Hausnummer</label>
+                    </div>
+
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="postalCode" placeholder="Enter postalCode"
+                               name="postalCode" th:value="${person.getPostalCode()}">
+                        <label for="postalCode">Postleitzahl</label>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="city" placeholder="Enter city"
+                               name="city" th:value="${person.getCity()}">
+                        <label for="city">Ort</label>
+                    </div>
+
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<form th:method="post" th:action="@{/personal/bankAccount/update}">
+    <input type="text" readonly class="d-none" name="id" th:value="${person.getId().toString()}">
+    <div class="modal fade" id="bankAccount">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Bank-Account bearbeiten</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="iban" placeholder="Enter IBAN"
+                               name="iban" th:value="${person.getIban()}">
+                        <label for="iban">IBAN</label>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="bic" placeholder="Enter bic"
+                               name="bic" th:value="${person.getBic()}">
+                        <label for="bic">BIC</label>
+                    </div>
+
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="bank" placeholder="Enter bank"
+                               name="bank" th:value="${person.getBank()}">
+                        <label for="bank">Bank</label>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="accountHolder" placeholder="Enter accountHolder"
+                               name="accountHolder" th:value="${person.getAccountHolder()}">
+                        <label for="accountHolder">Kontoinhaber</label>
+                    </div>
+
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<form th:method="post" th:action="@{/personal/quit}">
+    <input type="text" readonly class="d-none" name="id" th:value="${person.getId().toString()}">
+    <div class="modal fade" id="quit">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Person abmelden</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="form-floating mb-2">
+                        <input type="text" class="form-control" id="reason" placeholder="Enter reason"
+                               name="reason">
+                        <label for="reason">Begründung</label>
+                    </div>
+
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<!-- The Modal -->
+<div class="modal fade" id="create">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <form method="post" action="/personal/connection/create">
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="text-center">
+
+                        <script src="https://cdn.lordicon.com/pzdvqjsp.js"></script>
+                        <lord-icon
+                                src="https://cdn.lordicon.com/xzksbhzh.json"
+                                trigger="loop"
+                                delay="2000"
+                                style="width:100px;height:100px">
+                        </lord-icon>
+                        <h4>Connection anlegen</h4>
+                        <h6>Hier kannst du eine neue Verbindung anlegen. </h6>
+
+                    </div>
+
+                    <div class="m-2">
+                        <div class="row mb-1">
+
+                            <div class="col">
+
+                                <div class="form-floating">
+                                    <select class="form-select" id="sel1" name="sub">
+                                        <option th:each="p:${persons}" th:value="${p.getId()}"
+                                                th:text="${p.getReadName()}"></option>
+                                    </select>
+                                    <label for="sel1" class="form-label">Person:</label>
+                                </div>
+
+                            </div>
+                            <div class="col">
+                                <div class="form-floating">
+                                    <select class="form-select" id="t" name="type">
+                                        <option th:each="t:${types}" th:value="${t}" th:text="${t.getName()}"></option>
+                                    </select>
+                                    <label for="t" class="form-label">Verbindung:</label>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <input class="d-none invisible" th:value="${person.getId()}" readonly name="host">
+                    <div class="d-flex">
+
+                        <button type="button" class="btn btn-secondary btn-block flex-fill m-1" data-bs-dismiss="modal">
+                            Abbrechen
+                        </button>
+                        <button type="submit" class="btn btn-success btn-block flex-fill m-1">Speichern</button>
+
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<script>
+    const tagContainer = document.getElementById('tagContainer');
+    const input = document.getElementById('tagsInput');
+    const tags = [];
+
+    function sendTagToServer(tag) {
+        fetch('/api/tags', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({tag: tag})
+        })
+            .then(response => {
+                if (!response.ok) throw new Error('Fehler beim Senden');
+                return response.json();
+            })
+            .then(data => console.log('Gespeichert:', data))
+            .catch(error => console.error('Fehler:', error));
+    }
+
+    function createTag(label) {
+        const span = document.createElement('span');
+        span.className = 'badge text-white bg-primary d-flex align-items-center gap-1';
+        span.textContent = label;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-close btn-close-white btn-sm ms-2';
+        btn.ariaLabel = 'Tag entfernen';
+        btn.onclick = () => {
+            tagContainer.removeChild(span);
+            tags.splice(tags.indexOf(label), 1);
+        };
+
+        span.appendChild(btn);
+        tagContainer.insertBefore(span, input);
+    }
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (text && !tags.includes(text)) {
+                tags.push(text);
+                createTag(text);
+                //sendTagToServer(text); // <== Hier wird der Tag per AJAX gesendet
+                input.value = '';
+            }
+        }
+    });
+</script>

@@ -2,136 +2,156 @@ package com.messdiener.cms.v3.web.controller;
 
 import com.messdiener.cms.v3.app.entities.finance.TransactionEntry;
 import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.entities.planer.entities.PlanerText;
+import com.messdiener.cms.v3.app.entities.planer.entities.PlannerLog;
+import com.messdiener.cms.v3.app.helper.person.PersonHelper;
+import com.messdiener.cms.v3.app.services.finance.FinanceService;
 import com.messdiener.cms.v3.app.utils.Utils;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.Finance;
+import com.messdiener.cms.v3.shared.enums.planer.PlanerTag;
+import com.messdiener.cms.v3.shared.enums.tasks.LogType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.utils.time.DateUtils;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
+import java.util.*;
 
 @Controller
+@RequiredArgsConstructor
 public class FinanceController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(FinanceController.class);
+    private final Cache cache;
+    private final SecurityHelper securityHelper;
+    private final PersonHelper personHelper;
+
+    @PostConstruct
+    public void init() {
+        LOGGER.info("FinanceController initialized.");
+    }
+
     @GetMapping("/finance")
-    public String finance(HttpSession httpSession, Model model, @RequestParam("q") Optional<String> q, @RequestParam("id") Optional<String> idS, @RequestParam("t") Optional<String> text) throws SQLException {
+    public String finance(HttpSession httpSession, Model model,
+                          @RequestParam("q") Optional<String> q,
+                          @RequestParam("id") Optional<String> idS,
+                          @RequestParam("t") Optional<String> text) throws SQLException {
 
-        Person user = SecurityHelper.addPersonToSession(httpSession);
-        model.addAttribute("entries_all", Cache.getFinanceService().getEntriesByPerson(user));
+        Person user = securityHelper.getPerson()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        securityHelper.addPersonToSession(httpSession);
+        if (!personHelper.hasPermission(user, "TEAM")) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
+        }
 
+        var financeQueryService = cache.getFinanceQueryService();
+        UUID tenantId = user.getTenantId();
 
-        model.addAttribute("summCash", Utils.roundToTwoDecimalPlaces(Cache.getFinanceService().getSumm(user.getTenant(), "CASH")));
-        model.addAttribute("summAccount", Utils.roundToTwoDecimalPlaces(Cache.getFinanceService().getSumm(user.getTenant(), "ACCOUNT")));
-
+        model.addAttribute("entries_all", financeQueryService.getEntriesByPerson(user.getId(), tenantId));
+        model.addAttribute("summCash", Utils.roundToTwoDecimalPlaces(financeQueryService.getSumm(tenantId, "CASH")));
+        model.addAttribute("summAccount", Utils.roundToTwoDecimalPlaces(financeQueryService.getSumm(tenantId, "ACCOUNT")));
         addText(model, text);
 
         String query = q.orElse("null");
 
-        if (query.equals("overviewCash")) {
-            model.addAttribute("summ", Utils.roundToTwoDecimalPlaces(Cache.getFinanceService().getSumm(user.getTenant(), "CASH")));
-            model.addAttribute("transactions", Cache.getFinanceService().getEntriesByTenant(user.getTenantId(), "CASH"));
-            model.addAttribute("current", "cash");
-            model.addAttribute("name", Finance.CashRegisterType.CASH.getText());
-            model.addAttribute("expense", Cache.getFinanceService().getSumm(user.getTenant(), "CASH", false));
-            model.addAttribute("revenue", Cache.getFinanceService().getSumm(user.getTenant(), "CASH", true));
-            return "finance/financeOverview";
-        } else if (query.equals("overviewAccount")) {
-            model.addAttribute("summ", Utils.roundToTwoDecimalPlaces(Cache.getFinanceService().getSumm(user.getTenant(), "ACCOUNT")));
-            model.addAttribute("transactions", Cache.getFinanceService().getEntriesByTenant(user.getTenantId(), "ACCOUNT"));
-            model.addAttribute("current", "account");
-            model.addAttribute("name", Finance.CashRegisterType.ACCOUNT.getText());
-            model.addAttribute("expense", Cache.getFinanceService().getSumm(user.getTenant(), "ACCOUNT", false));
-            model.addAttribute("revenue", Cache.getFinanceService().getSumm(user.getTenant(), "ACCOUNT", true));
-            return "finance/financeOverview";
-        } else {
-            double summ = Utils.roundToTwoDecimalPlaces(Cache.getFinanceService().getSumm(user.getTenant(), "ACCOUNT") + Cache.getFinanceService().getSumm(user.getTenant(), "CASH"));
-            model.addAttribute("summ", summ);
-            model.addAttribute("transactions", Cache.getFinanceService().getEntriesByTenant(user.getTenantId()));
-            model.addAttribute("current", "overview");
-            model.addAttribute("name", "Gesamt");
+        if (query.equals("info") && idS.isPresent()) {
+            UUID id = UUID.fromString(idS.get());
+            TransactionEntry entry = financeQueryService.getEntry(id).orElseThrow();
+            model.addAttribute("transaction", entry);
+            return "finance/financeInterface";
+        }
 
-            model.addAttribute("expense", Cache.getFinanceService().getSumm(user.getTenant(), "CASH", false) + Cache.getFinanceService().getSumm(user.getTenant(), "ACCOUNT", false));
-            model.addAttribute("revenue", Cache.getFinanceService().getSumm(user.getTenant(), "CASH", true) + Cache.getFinanceService().getSumm(user.getTenant(), "ACCOUNT", true));
-
+        if (query.equals("overviewCash") || query.equals("overviewAccount")) {
+            boolean isCash = query.equals("overviewCash");
+            String type = isCash ? "CASH" : "ACCOUNT";
+            model.addAttribute("summ", Utils.roundToTwoDecimalPlaces(financeQueryService.getSumm(tenantId, type)));
+            model.addAttribute("transactions", financeQueryService.getEntriesByTenant(tenantId, type));
+            model.addAttribute("current", isCash ? "cash" : "account");
+            model.addAttribute("name", isCash ? Finance.CashRegisterType.CASH.getText() : Finance.CashRegisterType.ACCOUNT.getText());
+            model.addAttribute("expense", financeQueryService.getSumm(tenantId, type, false));
+            model.addAttribute("revenue", financeQueryService.getSumm(tenantId, type, true));
             return "finance/financeOverview";
         }
+
+        double summ = Utils.roundToTwoDecimalPlaces(financeQueryService.getSumm(tenantId, "ACCOUNT") +
+                financeQueryService.getSumm(tenantId, "CASH"));
+        model.addAttribute("summ", summ);
+        model.addAttribute("transactions", financeQueryService.getEntriesByTenant(tenantId));
+        model.addAttribute("current", "overview");
+        model.addAttribute("name", "Gesamt");
+        model.addAttribute("expense", financeQueryService.getSumm(tenantId, "CASH", false) +
+                financeQueryService.getSumm(tenantId, "ACCOUNT", false));
+        model.addAttribute("revenue", financeQueryService.getSumm(tenantId, "CASH", true) +
+                financeQueryService.getSumm(tenantId, "ACCOUNT", true));
+        return "finance/financeOverview";
     }
 
     private void addText(Model model, Optional<String> t) {
-        String text;
         model.addAttribute("textShow", t.isPresent());
-        switch (t.orElse("null")) {
-            case "fileSuccess":
-                text = "Datei wurde erfolgreich hochgeladen";
-                break;
-            case "fileDelete":
-                text = "Datei wurde erfolgreich gelöscht";
-                break;
-            case "saveSuccess":
-                text = "Antrag wurde erfolgreich gespeichert";
-                break;
-            case "checkSuccess":
-                text = "Beleg-Check wurde erfolgreich gespeichert";
-                break;
-            default:
-                text = "null";
-        }
+        String text = switch (t.orElse("null")) {
+            case "fileSuccess" -> "Datei wurde erfolgreich hochgeladen";
+            case "fileDelete" -> "Datei wurde erfolgreich gelöscht";
+            case "saveSuccess" -> "Antrag wurde erfolgreich gespeichert";
+            case "checkSuccess" -> "Beleg-Check wurde erfolgreich gespeichert";
+            default -> "null";
+        };
         model.addAttribute("text", text);
     }
 
-
     @GetMapping("/finance/file")
-    public ResponseEntity<Resource> downloadFile(@RequestParam("uuid") UUID uuid, @RequestParam("name") String name) throws IOException {
-        // Annahme: Dateiname ist der ID-Wert gefolgt von ".txt" (zum Beispiel: 123.txt)
-        File file = getFile(uuid, name).orElseThrow();
-        Resource resource = new UrlResource(Path.of(file.getPath()).toUri());
+    public ResponseEntity<Resource> downloadFile(@RequestParam("uuid") String uuid) throws IOException {
+        File file = getFile(uuid).orElseThrow(() -> new FileNotFoundException("File not found for ID: " + uuid));
+        Path path = file.toPath();
+        Resource resource = new UrlResource(path.toUri());
 
-        if (resource.exists() && resource.isReadable()) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=" + file.getName());
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .contentLength(resource.contentLength())
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(resource);
-        } else {
-            // Datei nicht gefunden oder nicht lesbar
-            // Hier könntest du eine Fehlerseite anzeigen oder eine entsprechende Antwort zurückgeben
+        if (!resource.exists() || !resource.isReadable()) {
+            LOGGER.warn("File not found or unreadable: {}", path);
             return ResponseEntity.notFound().build();
         }
+
+        String contentType = Files.probeContentType(path);
+        if (contentType == null) contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + file.getName());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType(contentType))
+                .body(resource);
     }
 
-    public Optional<File> getFile(UUID id, String filename) {
-        if (!new File("." + File.separator + "cms_v2" + File.separator + "financeData" + File.separator + id).exists())
-            return Optional.empty();
-
-        return Stream.of((new File("." + File.separator + "cms_v2" + File.separator + "financeData" + File.separator + id).listFiles()))
-                .filter(file -> file.getName().equals(filename))
+    private Optional<File> getFile(String id) {
+        File directory = Paths.get("cms_vx", "financeData").toFile();
+        return Optional.ofNullable(directory.listFiles())
+                .stream()
+                .flatMap(Arrays::stream)
+                .filter(file -> file.getName().startsWith(id))
                 .findFirst();
     }
-
 
     @PostMapping("/finance/save")
     public RedirectView save(@RequestParam("documentType") String documentType,
@@ -142,76 +162,81 @@ public class FinanceController {
                              @RequestParam("costCenter") String costCenter,
                              @RequestParam("file") MultipartFile file,
                              @RequestParam("notes") String notes,
-                             @RequestParam("id") Optional<String> id) throws SQLException {
+                             @RequestParam("id") Optional<String> id,
+                             @RequestParam("planerId") Optional<String> planerId) throws SQLException {
 
-        Person person = SecurityHelper.getPerson();
-        TransactionEntry financeEntry = TransactionEntry.empty(person);
-        if (id.isPresent()) {
-            financeEntry = Cache.getFinanceService().getEntry(UUID.fromString(id.get())).orElseThrow();
-        }
-
-        System.out.println("/save");
-        System.out.println(person.getTenantId());
-        System.out.println(type);
+        Person person = securityHelper.getPerson()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        TransactionEntry financeEntry = id.map(i -> {
+            try {
+                return cache.getFinanceQueryService().getEntry(UUID.fromString(i))
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid ID: " + i));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }).orElseGet(() -> TransactionEntry.empty(person.getTenantId(), person.getId()));
 
         financeEntry.setType(type);
         financeEntry.setDescription(description);
-
-        switch (documentType) {
-            case "EXPENSE":
-                financeEntry.setValue(-value);
-                break;
-
-            case "REVENUE":
-                financeEntry.setValue(value);
-                break;
-
-            case "EXCHANGE":
-                financeEntry.setValue(value);
-                financeEntry.setExchange(true);
-                break;
-
-            default:
-                throw new IllegalStateException("Unexpected value: " + documentType);
-        }
-
+        financeEntry.setValue(calculateValue(documentType, value));
+        financeEntry.setExchange("EXCHANGE".equals(documentType));
         financeEntry.setDocumentDate(CMSDate.convert(englishDate, DateUtils.DateType.ENGLISH));
         financeEntry.setCostCenter(costCenter);
         financeEntry.setNote(notes);
+        planerId.ifPresent(s -> financeEntry.setPlanerId(Optional.of(UUID.fromString(s))));
 
-        try {
-            // Originaler Dateiname und Endung extrahieren
-            String originalName = file.getOriginalFilename();
-            String extension = "";
-            if (originalName != null && originalName.contains(".")) {
-                extension = originalName.substring(originalName.lastIndexOf("."));
+        if (!file.isEmpty()) {
+            try {
+                saveFile(file, financeEntry.getId().toString());
+            } catch (IOException e) {
+                LOGGER.error("File upload failed", e);
+                return new RedirectView("/finance?q=error&t=fileUploadFailed");
             }
+        }
 
-            // Zielname erstellen: id + Endung
-            String newFileName = financeEntry.getId() + extension;
+        cache.getFinanceService().saveFinanceRequest(financeEntry);
 
-            // Byte-Daten der Datei auslesen
-            byte[] bytes = file.getBytes();
+        if (planerId.isPresent()) {
+            UUID planerUUID = UUID.fromString(planerId.get());
+            PlannerLog plannerLog = new PlannerLog(
+                    UUID.randomUUID(),
+                    PlanerTag.BUDGET,
+                    LogType.INFO,
+                    CMSDate.current(),
+                    "Update",
+                    person.getName() + " hat folgende Abrechnung erstellt: " + description
+            );
 
-            // Verzeichnis erstellen, falls nicht vorhanden
-            File dir = new File("." + File.separator + "cms_v2" + File.separator + "financeData");
-            if (!dir.exists()) {
-                dir.mkdirs();
+            try {
+                cache.getPlannerLogService().createLog(UUID.fromString(planerId.get()), plannerLog);
+                cache.getPlannerTextService().saveText(UUID.fromString(planerId.get()), PlanerText.create(person.getId(), PlanerTag.BUDGET, "STATE", "ok"));
+            } catch (SQLException e) {
+                LOGGER.error("Failed to save planner log or planner text for PlanerID: {}", planerUUID, e);
+                return new RedirectView("/finance?q=error&t=planerSaveError");
             }
-
-            // Datei im Zielverzeichnis speichern
-            File serverFile = new File(dir.getAbsolutePath() + File.separator + newFileName);
-            try (BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile))) {
-                stream.write(bytes);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace(); // Fehlerbehandlung
         }
 
 
-        financeEntry.save();
-        return new RedirectView("/finance?q=info&id=" + id + "&t=saveSuccess");
+        return planerId.map(s -> new RedirectView("/planer?q=BUDGET&id=" + s + "&state=ok"))
+                .orElseGet(() -> new RedirectView("/finance?q=info&id=" + financeEntry.getId() + "&t=saveSuccess"));
     }
 
+    private double calculateValue(String documentType, double value) {
+        return switch (documentType) {
+            case "EXPENSE" -> -value;
+            case "REVENUE", "EXCHANGE" -> value;
+            default -> throw new IllegalStateException("Unexpected value: " + documentType);
+        };
+    }
+
+    private void saveFile(MultipartFile file, String id) throws IOException {
+        String originalName = file.getOriginalFilename();
+        String extension = (originalName != null && originalName.contains(".")) ? originalName.substring(originalName.lastIndexOf(".")) : "";
+
+        Path dirPath = Paths.get("cms_vx", "financeData");
+        Files.createDirectories(dirPath);
+
+        Path filePath = dirPath.resolve(id + extension);
+        Files.write(filePath, file.getBytes());
+    }
 }

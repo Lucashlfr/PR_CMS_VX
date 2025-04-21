@@ -58,19 +58,19 @@
                                 <td>Rückmeldungen</td>
                                 <td>
                                     <div class="progress">
-                                        <div class="progress-bar bg-success" th:style="'width:' + ${targetEvent.getPercentagesRegister(1)} +'%'">
+                                        <div class="progress-bar bg-success" th:style="'width:' + ${tenantHelper.getPercentageRegister(targetEvent.getTenantId(), 1)} +'%'">
                                         </div>
-                                        <div class="progress-bar bg-warning" th:style="'width:' + ${targetEvent.getPercentagesRegister(2)} +'%'">
+                                        <div class="progress-bar bg-warning" th:style="'width:' + ${tenantHelper.getPercentageRegister(targetEvent.getTenantId(), 2)} +'%'">
                                         </div>
-                                        <div class="progress-bar bg-danger" th:style="'width:' + ${targetEvent.getPercentagesRegister(3)} +'%'">
+                                        <div class="progress-bar bg-danger"th:style="'width:' + ${tenantHelper.getPercentageRegister(targetEvent.getTenantId(), 3)} +'%'">
                                         </div>
                                     </div>
                                     <span class="mdi mdi-circle text-success"></span>
-                                    <span th:text="'Eingeteilt: ' + ${targetEvent.getScheduledPersons().size()} + ' | '"></span>
+                                    <span th:text="'Eingeteilt: ' + ${tenantHelper.getScheduledPersons(targetEvent.getTenantId())} + ' | '"></span>
                                     <span class="mdi mdi-circle text-warning"></span>
-                                    <span th:text="'Verfügbare: ' + ${targetEvent.getRegisteredPersons().size()} + ' | '"></span>
+                                    <span th:text="'Verfügbare: ' + ${tenantHelper.getRegisteredPersons(targetEvent.getTenantId())} + ' | '"></span>
                                     <span class="mdi mdi-circle text-red"></span>
-                                    <span th:text="'Keine Rückmeldung: ' + ${targetEvent.getOtherPersons()}"></span>
+                                    <span th:text="'Keine Rückmeldung: ' + ${tenantHelper.getOtherPersons(targetEvent.getTenantId())}"></span>
                                 </td>
                             </tr>
 
@@ -94,7 +94,7 @@
                             </tr>
                             <tr>
                                 <td>Eingeteilte Messdiener</td>
-                                <td th:text="${targetEvent.getScheduledPersonsInfo()}"></td>
+                                <td th:text="${eventHelper.getScheduledPersonsInfo(targetEvent.getId())}"></td>
                             </tr>
 
 

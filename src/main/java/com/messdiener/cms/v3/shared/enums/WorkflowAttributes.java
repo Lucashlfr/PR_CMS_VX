@@ -8,8 +8,6 @@ public class WorkflowAttributes {
     public enum WorkflowType {
 
         SCHEDULER("Dienstplan"),
-        DATA("Daten überprüfen"),
-        PRIVACY_POLICY("Datenschutzformular"),
         NULL("Fehler");
 
         final String label;

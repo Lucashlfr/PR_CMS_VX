@@ -47,8 +47,9 @@
                             angezeigt.</p>
                         <div class="d-grid">
                             <a class="btn btn-block btn-primary mb-2" th:each="p:${connections}"
-                               th:text="'Kopieren von ' + ${p.getName()}"
-                               th:href="'/selfSerivce/clone?id=' + ${p.getId()}"></a>
+                               th:if="${p.getConnectionType().toString().equals('SIBLING')}"
+                               th:text="'Kopieren von ' + ${p.getSubPerson().getName()}"
+                               th:href="'/selfSerivce/clone?id=' + ${p.getSub()}"></a>
                         </div>
                     </div>
                 </div>
@@ -75,13 +76,13 @@
                                     <td th:text="${event.getStartDate().getGermanLongDate()}"></td>
                                     <td>
                                         <!-- Verfügbarkeit Option 1 (Verfügbar) -->
-                                        <input type="radio" class="btn-check" th:id="'available_' + ${event.id}"
+                                        <input type="radio" class="btn-check" th:id="'available_' + ${event.id}" th:checked="!${event.personIsUnavailable(user.getId())}"
                                                th:name="'event_' + ${event.id}" value="1" required autocomplete="off" >
                                         <label class="btn btn-outline-primary btn-sm flex-fill m-1 mdi mdi-check"
                                                th:for="'available_' + ${event.id}">Verfügbar</label>
 
                                         <!-- Verfügbarkeit Option 2 (Nicht verfügbar) -->
-                                        <input type="radio" class="btn-check" th:id="'unavailable_' + ${event.id}" checked
+                                        <input type="radio" class="btn-check" th:id="'unavailable_' + ${event.id}" th:checked="${event.personIsUnavailable(user.getId())}"
                                                th:name="'event_' + ${event.id}" value="0" required autocomplete="off">
                                         <label class="btn btn-outline-danger btn-sm flex-fill m-1 mdi mdi-close"
                                                th:for="'unavailable_' + ${event.id}">Nicht verfügbar</label>

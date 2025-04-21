@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-primary mb-4">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    Finanzverwaltung
+                                </h1>
+                                <div class="page-header-subtitle">Führe hier das digitales Kassenbuch.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main page content -->
+            <div class="container px-4">
+
+                <div class="d-flex mb-3" th:if="${transaction.getPlanerId().isPresent()}">
+                    <a class="btn btn-primary btn-sm m-1 mdi mdi-arrow-left flex-fill" th:href="'/planer?q=BUDGET&id=' + ${transaction.getPlanerId().get()}"> Zur Aktion</a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" th:text="${transaction.getDescription()}"></div>
+                    <div class="card-body">
+                        <table class="table">
+                            <tbody>
+                            <tr>
+                                <td>Ersteller</td>
+                                <td th:text="${transaction.getCreatorUser().getName()}"></td>
+                            </tr>
+                            <tr>
+                                <td>Datum</td>
+                                <td th:text="${transaction.getDocumentDate().getGermanDate()}"></td>
+                            </tr>
+                            <tr>
+                                <td>Typ</td>
+                                <td th:text="${transaction.getType()}"></td>
+                            </tr>
+                            <tr>
+                                <td>Kostenstelle</td>
+                                <td th:text="${transaction.getCostCenter()}"></td>
+                            </tr>
+                            <tr>
+                                <td>Betrag</td>
+                                <td th:text="${transaction.getValue()} + ' €'"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <br>
+
+                        <div class="embed-container" th:if="${!transaction.getUrl().isEmpty()}">
+                            <embed name="plugin"
+                                   th:src="${transaction.getUrl()}"
+                                   type="application/pdf">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+
+<style>
+    .embed-container {
+        width: 100%;
+        height: 900px; /* Standardhöhe für bessere Darstellung */
+    }
+    .embed-container embed {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<style>
+    .kanban-column {
+        max-height: 600px!important;
+        overflow-y: scroll;
+    }
+
+    .kanban-wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-green mb-4">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">Task-Manager</h1>
+                                <div class="page-header-subtitle">Deine Aufgaben für deine Messdienergruppe.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main page content-->
+            <div class="container-xl px-4">
+                <div class="row g-4">
+
+                    <!-- To Do -->
+                    <div class="col-md-3 d-flex flex-column">
+                        <div class="bg-white rounded shadow p-3 kanban-wrapper">
+                            <h5 class="text-primary border-bottom pb-2 mb-3"
+                                th:text="'To Do (' + ${#lists.size(tasks.?[taskState.kanban == 0])} + ')'">
+                            </h5>
+                            <div class="kanban-column">
+                                <a class="card shadow-sm mb-3 lift"
+                                   th:each="task : ${tasks}"
+                                   th:if="${task.getTaskState().getKanban() == 0}"
+                                   th:href="'/tasks?id=' + ${task.getTaskId()}">
+                                    <div class="card-body position-relative">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" th:text="${task.getTaskTitle()}"></h6>
+                                            <span class="badge bg-danger bg-opacity-25 text-danger" th:text="${task.getPriority().getLabel()}"></span>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <div><i th:class="'me-1 ' + ${task.getTaskType().getTextColor()}" th:data-feather="${task.getTaskType().getIcon()}"></i><span th:text="${task.getTaskType().getLabel()}"></span></div>
+                                            <div><i class="me-1 text-primary" data-feather="corner-down-right"></i>8 Comments</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In Progress -->
+                    <div class="col-md-3 d-flex flex-column">
+                        <div class="bg-white rounded shadow p-3 kanban-wrapper">
+                            <h5 class="text-warning border-bottom pb-2 mb-3" th:text="'In Bearbeitung (' + ${#lists.size(tasks.?[taskState.kanban == 1])} + ')'"></h5>
+                            <div class="kanban-column">
+                                <a class="card shadow-sm mb-3 lift"
+                                   th:each="task : ${tasks}"
+                                   th:if="${task.getTaskState().getKanban() == 1}"
+                                   th:href="'/tasks?id=' + ${task.getTaskId()}">
+                                    <div class="card-body position-relative">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" th:text="${task.getTaskTitle()}"></h6>
+                                            <span class="badge bg-danger bg-opacity-25 text-danger" th:text="${task.getPriority().getLabel()}"></span>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <div><i class="me-1 text-primary" data-feather="corner-down-right"></i>8 Comments</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Waiting -->
+                    <div class="col-md-3 d-flex flex-column">
+                        <div class="bg-white rounded shadow p-3 kanban-wrapper">
+                            <h5 class="text-primary border-bottom pb-2 mb-3" th:text="'Waiting (' + ${#lists.size(tasks.?[taskState.kanban == 2])} + ')'">></h5>
+                            <div class="kanban-column">
+                                <a class="card shadow-sm mb-3 lift"
+                                   th:each="task : ${tasks}"
+                                   th:if="${task.getTaskState().getKanban() == 2}"
+                                   th:href="'/tasks?id=' + ${task.getTaskId()}">
+                                    <div class="card-body position-relative">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" th:text="${task.getTaskTitle()}"></h6>
+                                            <span class="badge bg-danger bg-opacity-25 text-danger" th:text="${task.getPriority().getLabel()}"></span>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <div><i class="me-1 text-primary" data-feather="corner-down-right"></i>8 Comments</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Done -->
+                    <div class="col-md-3 d-flex flex-column">
+                        <div class="bg-white rounded shadow p-3 kanban-wrapper">
+                            <h5 class="text-success border-bottom pb-2 mb-3" th:text="'Erledigt (' + ${#lists.size(tasks.?[taskState.kanban == 3])} + ')'">></h5>
+                            <div class="kanban-column">
+                                <a class="card shadow-sm mb-3 lift"
+                                   th:each="task : ${tasks}"
+                                   th:if="${task.getTaskState().getKanban() == 3}"
+                                   th:href="'/tasks?id=' + ${task.getTaskId()}">
+                                    <div class="card-body position-relative">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" th:text="${task.getTaskTitle()}"></h6>
+                                            <span class="badge bg-danger bg-opacity-25 text-danger" th:text="${task.getPriority().getLabel()}"></span>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <div><i class="me-1 text-primary" data-feather="corner-down-right"></i>8 Comments</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+
+<!-- Nur relevante Scripts -->
+<div th:insert="~{fragments :: script}"></div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+</body>
+</html>

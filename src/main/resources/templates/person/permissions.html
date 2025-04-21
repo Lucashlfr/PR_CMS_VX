@@ -76,10 +76,10 @@
                             </thead>
                             <tbody>
                             <tr th:each="p:${mappedPermissions}">
-                                <td th:text="${p.getName()}"></td>
-                                <td th:text="${p.getDescription()}"></td>
+                                <td th:text="${p.name()}"></td>
+                                <td th:text="${p.description()}"></td>
                                 <td>
-                                    <a th:href="'/personal/permissions/remove?id=' + ${person.getId()} + '&p=' + ${p.getName()}" class="btn btn-sm btn-danger mdi mdi-lock-remove"></a>
+                                    <a th:href="'/personal/permissions/remove?id=' + ${person.getId()} + '&p=' + ${p.name()}" class="btn btn-sm btn-danger mdi mdi-lock-remove"></a>
                                 </td>
                             </tr>
                             </tbody>
@@ -104,11 +104,11 @@
                                 <tr th:each="p:${permissions}">
                                     <td>
                                         <input class="" type="checkbox"
-                                               th:field="*{selectedPermissions}" th:value="${p.getName()}"
+                                               th:field="*{selectedPermissions}" th:value="${p.name()}"
                                                checked="checked">
                                     </td>
-                                    <td th:text="${p.getName()}"></td>
-                                    <td th:text="${p.getDescription()}"></td>
+                                    <td th:text="${p.name()}"></td>
+                                    <td th:text="${p.description()}"></td>
                                 </tr>
                                 </tbody>
                             </table>

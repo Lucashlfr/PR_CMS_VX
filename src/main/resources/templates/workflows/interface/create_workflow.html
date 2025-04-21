@@ -61,7 +61,7 @@
                             </thead>
                             <tbody>
                             <tr th:each="person : ${persons}">
-                                <td th:text="${person.getName()}"></td>
+                                <td th:text="${person.getName()} + ' (' + ')'"></td>
                                 <td th:text="${person.getId()}"></td>
                             </tr>
                             </tbody>

@@ -20,7 +20,7 @@
                             <div class="col-12 col-xl-auto mb-3">
                                 <form th:method="get" th:action="@{/organisation/worship}">
                                     <select class="form-select" id="sel1" name="t" onChange="this.form.submit()">
-                                        <option th:each="m:${selectMonths}" th:text="${m}" th:selected="${m.equals(monthName)}"></option>
+                                        <option th:each="m:${selectMonths}" th:text="${m.monthName()}" th:value="${m.toLong()}" th:selected="${m.toLong() == longD}"></option>
                                     </select>
                                     <input class="d-none" value="plan" name="q" readonly>
                                 </form>

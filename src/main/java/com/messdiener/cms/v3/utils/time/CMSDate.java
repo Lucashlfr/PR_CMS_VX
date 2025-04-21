@@ -11,6 +11,7 @@ import java.util.Optional;
 @Data
 public class CMSDate {
 
+
     private long date;
 
     public CMSDate(String date, DateUtils.DateType dateType){
@@ -69,6 +70,10 @@ public class CMSDate {
         return DateUtils.getMonthNumberName(date);
     }
 
+    public String monthName(){
+        return convertTo(DateUtils.DateType.MONTH_NAMES);
+    }
+
     public int getDayOfWeek() {
         Calendar calendar = new GregorianCalendar();
         calendar.setTimeInMillis(date);
@@ -91,6 +96,10 @@ public class CMSDate {
         if(cmsDate.getGermanDate().equals("01.01.1970"))
             return Optional.empty();
         return Optional.of(cmsDate);
+    }
+
+    public String getGermanTime(){
+        return convertTo(DateUtils.DateType.GERMAN_WITH_TIME);
     }
 
 }

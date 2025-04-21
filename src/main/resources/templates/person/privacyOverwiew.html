@@ -7,17 +7,14 @@
     <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main>
-            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
+            <header class="page-header page-header-dark bg-purple mb-4">
                 <div class="container-fluid px-4">
-                    <div class="page-header-content">
-                        <div class="row align-items-center justify-content-between pt-3">
-                            <div class="col-auto mb-3">
-                                <h1 class="page-header-title">
-                                    <div class="page-header-icon"><i data-feather="users"></i></div>
-                                    Datenschutz Formulare
-                                </h1>
-                            </div>
-                            <div class="col-12 col-xl-auto mb-3">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">Personen</h1>
+                                <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -26,42 +23,70 @@
             <!-- Main page content-->
 
 
-            <div class="container-fluid px-4">
+            <div class="container-fluid px-4 mt-4">
 
-                <div class="card" th:each="entry : ${privacyPolicies}">
-                    <div class="card-header" th:text="${entry.getFirstname()} + ' ' + ${entry.getLastname()}"></div>
+                <div class="card">
+                    <div class="card-header border-bottom">
+                        <ul class="nav nav-tabs card-header-tabs" id="cardTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/personal?s=1">Alle Personen in deiner Verantwortung</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/personal?s=2">Deine Gruppe</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/personal?s=3">Sonstige</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/personal?s=4">Inaktive Personen</a>
+                            </li>
+                            <li class="nav-item disabled">
+                                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="modal"
+                                   data-bs-target="#create">Person erstellen</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/person/privacyPolicy">Datenschutz</a>
+                            </li>
+
+                        </ul>
+                    </div>
                     <div class="card-body">
-                        <table class="table">
-                            <tbody>
-                            <tr>
-                                <td>Adresse</td>
-                                <td th:text="${entry.getStreet()} + ' ' + ${entry.getNumber()} + ${entry.getPlz()} + ' '+  ${entry.getCity()}"></td>
-                            </tr>
-                            <tr>
-                                <td>Einwilligung</td>
-                                <td>
-                                    <span th:if="${entry.isCheck1()}" class="mdi mdi-check text-success">Internet-Präsentationen der Pfarrei / Gruppe verwendet</span>
-                                    <br th:if="${entry.isCheck1()}">
-                                    <span th:if="${entry.isCheck2()}" class="mdi mdi-check text-success">an andere Eltern - auch in der Form digitaler Speichermedien - weitergegeben werden dürfen,</span>
-                                    <br th:if="${entry.isCheck2()}">
-                                    <span th:if="${entry.isCheck3()}" class="mdi mdi-check text-success"> in Mitteilungen an die Mitglieder der katholischen Kirche wie z. B. dem Pfarrbrief wiedergegeben werden dürfen </span>
-                                    <br th:if="${entry.isCheck3()}">
-                                    <span th:if="${entry.isCheck4()}" class="mdi mdi-check text-success">an öffentliche Publikationsorgane zum Zwecke der Veröffentlichung weitergegeben werden dürfen.</span>
-                                    <br th:if="${entry.isCheck4()}">
-                                    <span th:if="${entry.isCheck5()}" class="mdi mdi-check text-success">Hiermit willigen wir / willige ich ein, der Name, die Telefonnummer und die Emailadresse des Ministranten an die anderen Ministranten und deren Leiter für dienstliche Absprachen weitergegeben werden dürfen.</span>
-                                    <br th:if="${entry.isCheck5()}">
-                                    <span th:if="${entry.isCheck6()}" class="mdi mdi-check text-success">Hiermit willigen wir / willige ich ein, der Name des Ministranten in Veröffentlichungen der Einrichtung genannt werden darf.</span>
-                                    <br th:if="${entry.isCheck6()}">
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Unterschrift</td>
-                                <td>
-                                    <img th:src="${entry.getSignature()}" alt="...">
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <div class="tab-content" id="cardTabContent">
+                            <div class="card mb-3" th:each="entry : ${privacyPolicies}">
+                                <div th:text="${entry.getFirstname()} + ' ' + ${entry.getLastname()}"></div>
+                                <table class="table">
+                                    <tbody>
+                                    <tr>
+                                        <td>Adresse</td>
+                                        <td th:text="${entry.getStreet()} + ' ' + ${entry.getNumber()} + ${entry.getPlz()} + ' '+  ${entry.getCity()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Einwilligung</td>
+                                        <td>
+                                            <span th:if="${entry.isCheck1()}" class="mdi mdi-check text-success">Internet-Präsentationen der Pfarrei / Gruppe verwendet</span>
+                                            <br th:if="${entry.isCheck1()}">
+                                            <span th:if="${entry.isCheck2()}" class="mdi mdi-check text-success">an andere Eltern - auch in der Form digitaler Speichermedien - weitergegeben werden dürfen,</span>
+                                            <br th:if="${entry.isCheck2()}">
+                                            <span th:if="${entry.isCheck3()}" class="mdi mdi-check text-success"> in Mitteilungen an die Mitglieder der katholischen Kirche wie z. B. dem Pfarrbrief wiedergegeben werden dürfen </span>
+                                            <br th:if="${entry.isCheck3()}">
+                                            <span th:if="${entry.isCheck4()}" class="mdi mdi-check text-success">an öffentliche Publikationsorgane zum Zwecke der Veröffentlichung weitergegeben werden dürfen.</span>
+                                            <br th:if="${entry.isCheck4()}">
+                                            <span th:if="${entry.isCheck5()}" class="mdi mdi-check text-success">Hiermit willigen wir / willige ich ein, der Name, die Telefonnummer und die Emailadresse des Ministranten an die anderen Ministranten und deren Leiter für dienstliche Absprachen weitergegeben werden dürfen.</span>
+                                            <br th:if="${entry.isCheck5()}">
+                                            <span th:if="${entry.isCheck6()}" class="mdi mdi-check text-success">Hiermit willigen wir / willige ich ein, der Name des Ministranten in Veröffentlichungen der Einrichtung genannt werden darf.</span>
+                                            <br th:if="${entry.isCheck6()}">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Unterschrift</td>
+                                        <td>
+                                            <img th:src="${entry.getSignature()}" alt="...">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

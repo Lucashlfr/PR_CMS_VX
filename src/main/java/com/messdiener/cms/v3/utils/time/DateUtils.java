@@ -1,6 +1,8 @@
 package com.messdiener.cms.v3.utils.time;
 
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -12,6 +14,9 @@ import java.util.stream.Collectors;
 
 public class DateUtils {
 
+
+
+    private static final Logger logger = LoggerFactory.getLogger(DateUtils.class);
 
     @Getter
     public enum MonthNumberName {
@@ -59,7 +64,8 @@ public class DateUtils {
         ENGLISH_DATETIME("yyyy-MM-dd'T'HH:mm"),
         TIME("HH:mm"),
         GERMAN_WITH_DAY_TIME("EEEE, dd.MM.yyyy HH:mm"),
-        MONTH_NAMES("MMMM yyyy");
+        MONTH_NAMES("MMMM yyyy"),
+        SIMPLE_GERMAN("E, dd.MM.yy");
 
         private final String pattern;
 
@@ -81,6 +87,7 @@ public class DateUtils {
         try {
             return dateFormat.parse(date).getTime();
         } catch (ParseException e) {
+            logger.error(e.getMessage());
             return -1;
         }
     }

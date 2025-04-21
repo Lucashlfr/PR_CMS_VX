@@ -1,6 +1,10 @@
 package com.messdiener.cms.v3.app.configuration;
 
-import com.messdiener.cms.v3.shared.cache.Cache;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,90 +12,93 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+@Component
+@RequiredArgsConstructor
 public class AppConfiguration {
 
-    private static final Logger LOGGER = Logger.getLogger("Manager.Config");
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppConfiguration.class);
     private File configFile;
     private Properties properties;
 
-    public AppConfiguration(Path path) {
+    private static final String DEFAULT_CONFIG_PATH = "config/app.properties"; // falls du das standardisieren willst
 
-        LOGGER.setLevel(Level.ALL);
-        LOGGER.info("Datei wird ausgelesen.");
-
+    @PostConstruct
+    public void init() {
+        Path path = Path.of(DEFAULT_CONFIG_PATH);
+        LOGGER.info("Initializing AppConfiguration from file: {}", path);
 
         try {
-
-            if(!path.getParent().toFile().exists()){
-                path.getParent().toFile().mkdir();
-            }
-
-            boolean create = false;
-            configFile = new File(path.toString());
-            if(!configFile.exists()){
-                if(configFile.createNewFile()){
-                    // do something
-                }
-                create = true;
-            }
-
-            if(create){
-                this.properties = new Properties();
-                properties.setProperty("database.host", "X");
-                properties.setProperty("database.port", "x");
-                properties.setProperty("database.database", "x");
-                properties.setProperty("database.username", "x");
-                properties.setProperty("database.password", "x");
-                properties.setProperty("service.name", "x");
-                properties.setProperty("service.url", "x");
-
-                createConfigFile(properties);
-                LOGGER.info("Configuration file created successfully.");
-            }
-
-
-            // Read the configuration file
-            this.properties = readConfigFile();
-            LOGGER.info("Properties read from the configuration file:");
-            DatabaseConfiguration.setHost(getValue("database.host"));
-            DatabaseConfiguration.setPort(getValue("database.port"));
-            DatabaseConfiguration.setDatabase(getValue("database.database"));
-            DatabaseConfiguration.setUser(getValue("database.username"));
-            DatabaseConfiguration.setPassword(getValue("database.password"));
-
-        } catch (Exception e){
-            e.printStackTrace();
+            prepareConfigFile(path);
+            this.properties = initProperties();
+            loadDatabaseConfiguration();
+            LOGGER.info("Configuration file successfully loaded. Service started.");
+        } catch (IOException e) {
+            LOGGER.error("Error reading configuration file: {}", e.getMessage(), e);
         }
-        LOGGER.info("Datei erfolgreich ausgelesen. Service wird als " + Cache.APP_NAME + " gestartet.");
     }
 
-    private void createConfigFile(Properties properties) throws IOException {
-        FileWriter writer = new FileWriter(configFile);
+    private void prepareConfigFile(Path path) throws IOException {
+        File directory = path.getParent().toFile();
+        if (!directory.exists() && !directory.mkdirs()) {
+            LOGGER.warn("Could not create configuration directory.");
+        }
 
-        // Write the properties to the configuration file
-        properties.store(writer, "Configuration File");
+        this.configFile = path.toFile();
 
-        writer.close();
+        if (!configFile.exists() && configFile.createNewFile()) {
+            LOGGER.info("Configuration file created: {}", configFile.getAbsolutePath());
+            createDefaultProperties();
+        }
     }
 
+    private void createDefaultProperties() throws IOException {
+        Properties defaultProps = new Properties();
+        defaultProps.setProperty("database.host", "X");
+        defaultProps.setProperty("database.port", "x");
+        defaultProps.setProperty("database.database", "x");
+        defaultProps.setProperty("database.username", "x");
+        defaultProps.setProperty("database.password", "x");
+        defaultProps.setProperty("service.name", "x");
+        defaultProps.setProperty("service.url", "x");
 
-    private Properties readConfigFile() throws IOException {
-        FileInputStream inputStream = new FileInputStream(configFile);
+        try (FileWriter writer = new FileWriter(configFile)) {
+            defaultProps.store(writer, "Configuration File");
+        }
 
-        Properties readProperties = new Properties();
+        LOGGER.info("Default configuration properties written.");
+    }
 
-        // Load the properties from the configuration file
-        readProperties.load(inputStream);
+    private Properties initProperties() throws IOException {
+        Properties loadedProps = new Properties();
+        try (FileInputStream inputStream = new FileInputStream(configFile)) {
+            loadedProps.load(inputStream);
+        }
+        return loadedProps;
+    }
 
-        inputStream.close();
+    public void loadDatabaseConfiguration() {
+        DatabaseConfiguration.setHost(getValue("database.host"));
+        DatabaseConfiguration.setPort(getValue("database.port"));
+        DatabaseConfiguration.setDatabase(getValue("database.database"));
+        DatabaseConfiguration.setUser(getValue("database.username"));
+        DatabaseConfiguration.setPassword(getValue("database.password"));
 
-        return readProperties;
+        LOGGER.debug("Database configuration loaded from properties.");
     }
 
     public String getValue(String key) {
+        if (this.properties == null) {
+            try {
+                prepareConfigFile(Path.of(DEFAULT_CONFIG_PATH));
+                this.properties = initProperties();
+            } catch (IOException e) {
+                LOGGER.error("Error during lazy config init", e);
+                return null;
+            }
+        }
+
         return this.properties.getProperty(key);
     }
+
 }

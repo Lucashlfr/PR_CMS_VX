@@ -17,7 +17,7 @@
                                     Personal
                                     <span class="mdi mdi-arrow-right"></span>
                                     <span class="mdi mdi-account text-blue"></span>
-                                    <span>Stammdaten</span>
+                                    <span>Workflows</span>
                                 </h1>
                             </div>
                             <div class="col-12 col-xl-auto mb-3">
@@ -34,7 +34,6 @@
                     <a class="nav-link" th:href="'/personal?q=profil&s=1&id=' + ${person.getId()}">Stammdaten</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=2&id=' + ${person.getId()}">Connections</a>
                     <a class="nav-link " th:href="'/personal?q=profil&s=3&id=' + ${person.getId()}">Gottesdienste</a>
-                    <a class="nav-link  " th:href="'/personal?q=profil&s=4&id=' + ${person.getId()}">Historie</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=5&id=' + ${person.getId()}">Dateien</a>
                     <a class="nav-link" th:href="'/personal?q=profil&s=6&id=' + ${person.getId()}">Benutzer</a>
                     <a class="nav-link active ms-0" th:href="'/personal?q=profil&s=7&id=' + ${person.getId()}">Workflows</a>
@@ -99,13 +98,15 @@
 
                             <tbody>
                             <tr th:each="workflow : ${person.getWorkflows()}">
+                                <td th:text="${workflow.getWorkflowType().getLabel()}"></td>
                                 <td th:text="${workflow.getStartDate().getGermanLongDate()}"></td>
                                 <td th:text="${workflow.getEndDate().getGermanLongDate()}"></td>
-                                <td th:text="${workflow.getWorkflowType().getLabel()}"></td>
+
                                 <td th:if="${workflow.getWorkflowState().toString().equals('COMPLETED')}" class="text-success mdi mdi-check-circle" th:text="${workflow.getLastUpdateDate().getGermanLongDate()}"></td>
                                 <td th:unless="${workflow.getWorkflowState().toString().equals('COMPLETED')}"  class="text-danger mdi mdi-alert-circle"> Ausstehend</td>
+
                                 <td>
-                                    <a th:if="${workflow.getWorkflowState().toString().equals('COMPLETED')}" class="btn btn-sm btn-light text-danger">Freischalten</a>
+                                    <a th:if="${workflow.getWorkflowState().toString().equals('COMPLETED')}" class="btn btn-sm btn-light text-danger" th:href="'/personal/workflow/unlock?personId=' + ${person.getId()} + '&workflowId=' + ${workflow.getWorkflowId()}">Freischalten</a>
                                 </td>
                             </tr>
                             </tbody>

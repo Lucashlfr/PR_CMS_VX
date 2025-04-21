@@ -1,16 +1,14 @@
 package com.messdiener.cms.v3.app.entities.finance;
 
-import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.sql.SQLException;
+import java.util.Optional;
 import java.util.UUID;
 
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class TransactionEntry {
 
     private UUID id;
@@ -30,23 +28,13 @@ public class TransactionEntry {
 
     private boolean active;
 
-    public static TransactionEntry empty(Person person) {
-        return new TransactionEntry(UUID.randomUUID(), person.getTenantId(), person.getId(), "", CMSDate.current(), "", "", "", 0d, false, true);
+    private Optional<UUID> planerId;
+
+    public static TransactionEntry empty(UUID tenantId, UUID personId) {
+        return new TransactionEntry(UUID.randomUUID(), tenantId, personId, "", CMSDate.current(), "", "", "", 0d, false, true, Optional.empty());
     }
 
-    public void save() throws SQLException {
-        Cache.getFinanceService().saveFinanceRequest(this);
-    }
-
-    public Person getCreatorUser() throws SQLException {
-        return Cache.getPersonService().getPersonById(creator).orElseThrow();
-    }
-
-    public String getValueString(){
-        String v = "" + value;
-        if(v.endsWith(".0")){
-            return v + "0";
-        }
-        return v;
+    public String getValueFormatted() {
+        return String.format("%.2f", value).replace('.', ',') + " €";
     }
 }

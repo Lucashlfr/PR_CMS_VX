@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div th:insert="~{fragments :: sidebar}" id="layoutSidenav_nav"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-yellow mb-4">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">Angemeldete Personen</h1>
+                                <div class="page-header-subtitle">Teilnehmerliste bearbeiten</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-xl px-4">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-3 m-1" th:each="person : ${mappedPersons}">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-lg"><img class="avatar-img img-fluid" src="https://localhost:9101/dist/assets/img/illustrations/profiles/profile-1.png" /></div>
+                                    <div class="ms-3">
+                                        <div class="fs-4 text-dark fw-500" th:text="${person.getName()}"></div>
+                                        <div class="small text-muted" th:text="${person.getTenant().getName()}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex mb-3">
+                    <a class="btn btn-yellow btn-sm m-1 mdi mdi-arrow-left" th:href="'/planer?q=EVENT&id=' + ${event.getPlanerId()}"></a>
+                    <div class="btn btn-yellow btn-sm flex-fill m-1" data-bs-toggle="modal" data-bs-target="#persons">Personen bearbeiten</div>
+                    <div class="btn btn-yellow btn-sm flex-fill m-1">Eintrag anlegen</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="timeline timeline-xs">
+                            <!-- Timeline Item 1-->
+                            <div class="timeline-item" th:each="log : ${event.getLogs('REGISTERED_PERSONS')}">
+                                <div class="timeline-item-marker">
+                                    <div th:class="'timeline-item-marker-indicator ' + ${log.getLogType().getColor()}"></div>
+                                </div>
+                                <div class="timeline-item-content">
+                                    <span th:text="'[' +${log.getDate().getGermanTime()} + '] ' + ${log.getHeadline()} + ': ' + ${log.getLogText()}"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+<!-- The Modal -->
+
+<!-- Button zum Öffnen des Modals -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#persons">
+    Teilnehmer verwalten
+</button>
+<!-- Button zum Öffnen des Modals -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#persons">
+    Teilnehmer verwalten
+</button>
+
+<!-- Modal & Formular -->
+<form th:action="@{/planer/persons/register}" method="post">
+    <input type="hidden" name="id" th:value="${event.getPlanerId()}">
+
+    <div class="modal fade" id="persons" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title text-yellow">Teilnehmer</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <div class="form-check" th:each="p : ${persons}">
+                        <!-- Checkbox für ausgewählte Personen -->
+                        <input class="form-check-input" type="checkbox"
+                               th:id="'person-' + ${p.getId()}"
+                               name="checkedPersons"
+                               th:value="${p.getId()}"
+                               th:checked="${p.personIsInEvent(event.getPlanerId())}"
+                               onchange="toggleHiddenField(this)">
+                        <label class="form-check-label" th:for="'person-' + ${p.getId()}"
+                               th:text="${p.getName()}"></label>
+
+                        <!-- Hidden Input für nicht gecheckte Personen -->
+                        <input type="hidden" name="uncheckedPersons" th:value="${p.getId()}" th:id="'hidden-' + ${p.getId()}">
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer d-flex">
+                    <button class="btn btn-yellow btn-sm flex-fill m-1" type="submit">Speichern</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    function toggleHiddenField(checkbox) {
+        var hiddenField = document.getElementById('hidden-' + checkbox.value);
+        if (checkbox.checked) {
+            hiddenField.disabled = true; // Nicht mehr senden, wenn gecheckt
+        } else {
+            hiddenField.disabled = false; // Senden, wenn nicht gecheckt
+        }
+    }
+</script>
+
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+</div>

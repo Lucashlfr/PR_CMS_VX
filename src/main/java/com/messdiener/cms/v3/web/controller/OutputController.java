@@ -4,6 +4,10 @@ import com.messdiener.cms.v3.app.entities.event.OrganisationEvent;
 import com.messdiener.cms.v3.app.entities.tenant.Tenant;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.OrganisationType;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,67 +16,60 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.WeekFields;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
+@RequiredArgsConstructor
 public class OutputController {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(OutputController.class);
+	private final Cache cache;
+
+	@PostConstruct
+	public void init() {
+		LOGGER.info("OutputController initialized.");
+	}
 
 	@GetMapping("/output")
 	public String output(Model model) throws SQLException {
+		LocalDate today = LocalDate.now();
+		int weekNumber = today.get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear());
 
-		LocalDate heute = LocalDate.now();
-		WeekFields weekFields = WeekFields.of(Locale.getDefault());
-		int number = heute.get(weekFields.weekOfWeekBasedYear());
+		model.addAttribute("img", "/dist/assets/img/KW/KW" + weekNumber + ".png");
+		LOGGER.info("Current week number: {}", weekNumber);
 
-		model.addAttribute("img", "/dist/assets/img/KW/KW" + number + ".png");
-		System.out.println(""+number);
+		UUID tenantId = UUID.fromString("89fce045-2ad4-43b3-b088-d1e697999793");
+		Tenant tenant = cache.getTenantService().findTenant(tenantId)
+				.orElseThrow(() -> new IllegalStateException("Tenant not found: " + tenantId));
 
-		Tenant tenant = Cache.getTenantService().findTenant(UUID.fromString("89fce045-2ad4-43b3-b088-d1e697999793")).orElseThrow();
+		List<String> targetDates = getDays(weekNumber);
+		List<OrganisationEvent> events = cache.getOrganisationEventService()
+				.getEvents(tenant.getId(), OrganisationType.WORSHIP)
+				.stream()
+				.filter(e -> targetDates.contains(e.getStartDate().getGermanDate()))
+				.toList();
 
-
-		List<OrganisationEvent> events = new ArrayList<>();
-		for(OrganisationEvent e : Cache.getOrganisationService().getEvents(tenant.getId(), OrganisationType.WORSHIP)){
-			for(String n : getDays(number)){
-				if(e.getStartDate().getGermanDate().equals(n)){
-					events.add(e);
-				}
-			}
-		}
 		model.addAttribute("events", events);
-
-		model.addAttribute("allEvents", Cache.getOrganisationService().getNextEvents(tenant.getId(), OrganisationType.WORSHIP));
-
-		System.out.println(getDays(28));
-
+		model.addAttribute("allEvents", cache.getOrganisationEventService()
+				.getNextEvents(tenant.getId(), OrganisationType.WORSHIP));
 
 		return "output";
 	}
 
-	public static List<String> getDays(int kw) {
-		List<String> tageListe = new ArrayList<>();
+	public static List<String> getDays(int weekNumber) {
+		List<String> dates = new ArrayList<>();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
-		// Aktuelles Jahr ermitteln
-		int aktuellesJahr = LocalDate.now().getYear();
-
-		// Locale auf Deutsch setzen und WeekFields mit Montag als erstem Tag der Woche einstellen
 		Locale locale = Locale.GERMANY;
 		WeekFields weekFields = WeekFields.of(locale);
-		LocalDate ersterTagDerWoche = LocalDate.of(aktuellesJahr, 1, 1)
-				.with(weekFields.weekOfWeekBasedYear(), kw)
+
+		LocalDate firstDayOfWeek = LocalDate.of(LocalDate.now().getYear(), 1, 1)
+				.with(weekFields.weekOfWeekBasedYear(), weekNumber)
 				.with(weekFields.dayOfWeek(), 1);
 
-		// Daten der Tage der Woche in die Liste einfügen
 		for (int i = 0; i < 7; i++) {
-			LocalDate tag = ersterTagDerWoche.plusDays(i);
-			String datum = tag.format(formatter);
-			tageListe.add(datum);
+			dates.add(firstDayOfWeek.plusDays(i).format(formatter));
 		}
 
-		return tageListe;
+		return dates;
 	}
-
 }

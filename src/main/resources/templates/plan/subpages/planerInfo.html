@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div th:insert="~{fragments :: sidebar}" id="layoutSidenav_nav"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-yellow mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title" th:text="${event.getEventName()}">
+                                </h1>
+                                <div class="page-header-subtitle">Plane deine Aktionen für deine Messdienergruppe.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-fluid px-4 mt-4">
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-8 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="framer" class="text-success fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold" th:text="${event.getEventName()}"></h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div><span th:class="'badge ' + ${event.getPlanerState().getText()} + ' ' + ${event.getPlanerState().getBg()}" th:text="${event.getPlanerState().getLabel()}"></span></div>
+                                                <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
+                                                    10.04.2025
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body clamp-description">
+                                <ul class="list-group">
+                                    <li th:class="'list-group-item d-flex align-items-start ' + ${task.getTaskState().getBg()}" th:each="task : ${event.getTasks()}">
+                                        <span th:class="'mdi mdi-circle me-2 ' + ${task.getTaskState().getText()}"></span>
+                                        <a class="w-100 text-black" th:href="'/planer?q=' + ${task.getLable()} + '&id=' + ${event.getPlanerId()} + '&taskId=' + ${task.getTaskId()}">
+                                            <span class="fw-bold" th:text="${task.getTaskName()}"></span>:
+                                            <span class="" th:text="${task.getTaskDescription()}"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-12 mb-4">
+                        <div class="card h-100"  id="reference-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="info" class="text-info fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Zusatzinformationen</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                Füge weitere Informationen hinzu
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm mdi mdi-table-edit" data-bs-toggle="modal" data-bs-target="#zi"></button>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="table-responsive">
+                                    <table class="table text-nowrap align-middle">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="file" class="me-2"></i> Planer ID
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td th:text="'PNR - ' + ${event.getId()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="users" class="me-2 text-danger"></i> Bearbeiter
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                        <span th:each="p:${event.getEditors()}" class="avatar avatar-sm rounded-circle me-1" data-bs-toggle="tooltip"
+                                              th:title="${p.getName()}">
+                                            <img th:src="${p.getImgAdress()}" alt="img"
+                                                 class="img-fluid rounded-circle">
+                                        </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="check-circle" class="me-2 text-info"></i> Status
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+
+                                            <td><span class="d-flex"><span
+                                                    th:class="'badge flex-fill ' + ${event.getPlanerState().getText()} + ' ' + ${event.getPlanerState().getBg()}" th:text="${event.getPlanerState().getLabel()}"></span></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="calendar" class="me-2 text-primary"></i> Timeline
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td th:text="${event.getStartDate().getGermanLongDate()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="user" class="me-2 text-primary"></i> Manager
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td th:text="${event.getManagerName()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="tag" class="me-2 text-success"></i> Tags
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">Aktion</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="bar-chart-2" class="me-2 text-primary"></i> Fortschritt
+                                    </span>
+                                            </td>
+                                            <td class="border-bottom">:</td>
+                                            <td class="border-bottom">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="progress flex-fill me-2" style="height: 6px;">
+                                                        <div class="progress-bar bg-primary" role="progressbar"
+                                                             th:style="'width: ' + ${event.getProgress()} + '%;'" aria-valuenow="10"
+                                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                                    </div>
+                                                    <div class="text-muted small" th:text="${event.getProgress()} + '%'"></div>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex align-items-stretch mb-3">
+                    <!-- Project Documents -->
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="folder" class="text-red fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Dateien</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div>10 Uploads</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm mdi mdi-plus">Datei</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: scroll;">
+                                <ul class="list-group list-group-flush">
+                                    <!-- Example List Item -->
+                                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="rounded-circle bg-primary-soft text-primary d-flex align-items-center justify-content-center"
+                                                 style="width: 40px; height: 40px;">
+                                                <i data-feather="file"></i>
+                                            </div>
+                                            <div>
+                                                <a href="#" class="fw-bold d-block">Full Project</a>
+                                                <small class="text-muted">0.45MB</small>
+                                            </div>
+                                        </div>
+                                        <div class="g-2">
+                                            <button class="btn btn-sm btn-primary"><i data-feather="edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i data-feather="delete"></i></button>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="rounded-circle bg-primary-soft text-primary d-flex align-items-center justify-content-center"
+                                                 style="width: 40px; height: 40px;">
+                                                <i data-feather="file"></i>
+                                            </div>
+                                            <div>
+                                                <a href="#" class="fw-bold d-block">Abrechnung</a>
+                                                <small class="text-muted">0.45MB</small>
+                                            </div>
+                                        </div>
+                                        <div class="g-2">
+                                            <button class="btn btn-sm btn-primary"><i data-feather="edit"></i></button>
+                                            <button class="btn btn-sm btn-danger"><i data-feather="delete"></i></button>
+                                        </div>
+                                    </li>
+
+                                    <!-- Weitere List Items kannst du nach dem gleichen Muster ergänzen -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tasks -->
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="git-pull-request" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Verknüpfte Aufgaben</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${event.getTasks().size()} + ' offene Aufgaben'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm mdi mdi-plus">Subtask</button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: scroll;">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="inbox" class="text-primary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Meldungen</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${event.getLogs().size()} + ' Meldungen'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm mdi mdi-plus" data-bs-toggle="modal"
+                                            data-bs-target="#create"></button>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 250px; overflow-y: scroll;">
+                                <div class="timeline timeline-sm p-2">
+                                    <div class="timeline-item" th:each="m : ${event.getLogs()}">
+                                        <div class="timeline-item-marker">
+                                            <div th:class="'timeline-item-marker-indicator bg-blue-soft text-blue'"><i data-feather="info"></i>
+                                            </div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <span th:text="${m.getDate().getGermanDate()}"></span>: <span th:text="${m.getHeadline()}"></span>
+                                            </a></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+<form th:action="@{/planer/zi/edit}" th:method="post">
+    <input type="hidden" name="id" th:value="${event.getPlanerId()}">
+    <div class="modal fade" id="zi">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title text-yellow">Zusatzinformationen bearbeiten</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="state" name="state">
+                            <option>Erstellt</option>
+                            <option>In Bearbeitung</option>
+                            <option>In Durchführung</option>
+                            <option>Nachbereitung</option>
+                            <option>Abgeschlossen</option>
+                            <option>Verworfen</option>
+                        </select>
+                        <label for="state" class="form-label">Status ändern:</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <select class="form-select" id="manager" name="manager">
+                            <option>Lucas Helfer</option>
+                        </select>
+                        <label for="manager" class="form-label">Manager ändern:</label>
+                    </div>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer d-flex">
+                    <button class="btn btn-yellow btn-sm flex-fill m-1" type="submit">Speichern</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+</div>

@@ -1,0 +1,265 @@
+package com.messdiener.cms.v3.web.controller.personal;
+
+import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.entities.person.data.connection.PersonConnection;
+import com.messdiener.cms.v3.app.entities.tasks.Task;
+import com.messdiener.cms.v3.app.entities.user.Permission;
+import com.messdiener.cms.v3.app.entities.workflows.Workflow;
+import com.messdiener.cms.v3.app.helper.person.PersonHelper;
+import com.messdiener.cms.v3.app.helper.tasks.TaskHelper;
+import com.messdiener.cms.v3.app.services.person.PersonService;
+import com.messdiener.cms.v3.app.services.tasks.TaskService;
+import com.messdiener.cms.v3.security.SecurityHelper;
+import com.messdiener.cms.v3.shared.cache.Cache;
+import com.messdiener.cms.v3.shared.enums.PersonAttributes;
+import com.messdiener.cms.v3.shared.enums.StatusState;
+import com.messdiener.cms.v3.shared.enums.WorkflowAttributes;
+import com.messdiener.cms.v3.utils.html.HTMLClasses;
+import com.messdiener.cms.v3.web.request.PermissionsForm;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.view.RedirectView;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Controller
+@RequiredArgsConstructor
+public class PersonManagementController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersonManagementController.class);
+    private final Cache cache;
+    private final SecurityHelper securityHelper;
+    private final PersonHelper personHelper;
+    private final TaskHelper taskHelper;
+
+    @PostConstruct
+    public void init() {
+        LOGGER.info("PersonManagementController initialized.");
+    }
+
+
+    @GetMapping("/personal")
+    public String messdienerList(HttpSession httpSession, Model model, @RequestParam("q") Optional<String> q, @RequestParam("id") Optional<String> id, @RequestParam("s") Optional<String> s, @RequestParam("statusState") Optional<StatusState> statusState) throws SQLException {
+
+        Person user = securityHelper.getPerson()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        securityHelper.addPersonToSession(httpSession);
+
+        if (!personHelper.hasPermission( user, "TEAM"))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
+
+        UUID tenantId = personHelper.getTenant(user).orElseThrow().getId();
+
+        model.addAttribute("user", user);
+        String idS = id.orElse("null");
+        String query = q.orElse("list");
+        String step = s.orElse("null");
+
+        model.addAttribute("statusState", statusState);
+        model.addAttribute("query", query);
+
+        model.addAttribute("personHelper", personHelper);
+
+        switch (query) {
+            case "profil": {
+
+                UUID personUUID = UUID.fromString(idS);
+                Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
+                model.addAttribute("person", person);
+                model.addAttribute("types", PersonAttributes.Connection.values());
+                model.addAttribute("persons", cache.getPersonService().getPersonsByTenant(tenantId));
+                model.addAttribute("contacts", personHelper.getEmergencyContacts(person));
+                model.addAttribute("connections", personHelper.getConnections(person));
+
+                List<Task> tasks = cache.getTaskQueryService().getTaskByUserId(user.getId());
+                model.addAttribute("tasks", tasks);
+                model.addAttribute("taskHelper", taskHelper);
+                return "person/person_new";
+            }
+            case "permissions": {
+
+                if (!personHelper.hasPermission( user, "*"))
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
+
+                UUID personUUID = UUID.fromString(idS);
+                Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
+                model.addAttribute("person", person);
+
+                List<Permission> permissions = cache.getUserPermissionMappingService().getUncheckPermissionsByUser(person);
+                model.addAttribute("permissions", permissions);
+                model.addAttribute("mappedPermissions", cache.getUserPermissionMappingService().getPermissionsByUser(person));
+                model.addAttribute("permissionsForm", new PermissionsForm());
+
+                return "person/permissions";
+            }
+            case "edit": {
+
+                UUID personUUID = UUID.fromString(idS);
+                Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
+                model.addAttribute("person", person);
+                return "person/personUpdate";
+            }
+            case "connection": {
+
+                UUID personUUID = UUID.fromString(idS);
+                Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
+                model.addAttribute("persons", cache.getPersonService().getPersonsByTenant(tenantId));
+                model.addAttribute("types", PersonAttributes.Connection.values());
+                model.addAttribute("person", person);
+                return "person/personConnection";
+            }
+            default:
+                step = s.orElse("1");
+                model.addAttribute("step", step);
+                model.addAttribute("htmlClasses", new HTMLClasses());
+
+                switch (step) {
+                    case "1":
+                        //TODO: FIX
+                        model.addAttribute("persons", cache.getPersonService().getActivePersonsByPermission(user.getId(), "*", tenantId));
+
+                        break;
+                    case "2":
+                        model.addAttribute("persons", cache.getPersonService().getActiveMessdienerByTenant(tenantId));
+                        break;
+                    case "3":
+                        model.addAttribute("persons", cache.getPersonService().getPersonsByTenantAndType(tenantId, PersonAttributes.Type.NULL));
+                        break;
+                    case "4":
+                        model.addAttribute("persons", cache.getPersonService().getInactiveMessdienerByTenant(tenantId));
+                        break;
+                }
+
+                return "person/personOverview";
+        }
+
+    }
+
+    @PostMapping("/personal/adress/update")
+    public RedirectView updateAddress(@RequestParam("id") UUID id, @RequestParam("street") String street,
+                                      @RequestParam("houseNumber") String houseNumber, @RequestParam("postalCode") String postalCode,
+                                      @RequestParam("city") String city) throws SQLException {
+
+        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        person.setStreet(street);
+        person.setHouseNumber(houseNumber);
+        person.setPostalCode(postalCode);
+        person.setCity(city);
+
+        return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK);
+    }
+
+    @PostMapping("/personal/bankAccount/update")
+    public RedirectView updateBankAccount(@RequestParam("id") UUID id, @RequestParam("iban") String iban,
+                                          @RequestParam("bic") String bic, @RequestParam("bank") String bank,
+                                          @RequestParam("accountHolder") String accountHolder) throws SQLException {
+
+        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        person.setIban(iban);
+        person.setBic(bic);
+        person.setBank(bank);
+        person.setAccountHolder(accountHolder);
+        return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK);
+    }
+
+    @PostMapping("/personal/connection/create")
+    public RedirectView createConnection(@RequestParam("host") UUID host, @RequestParam("sub") UUID sub, @RequestParam("type") String type) throws SQLException {
+        PersonConnection personConnection = new PersonConnection(UUID.randomUUID(), host, sub, PersonAttributes.Connection.valueOf(type));
+        cache.getPersonConnectionService().createConnection(personConnection);
+        return new RedirectView("/personal?q=profil&s=2&id=" + host);
+    }
+
+    @PostMapping("/personal/user/update")
+    public RedirectView updateLogin(@RequestParam("id") UUID id, @RequestParam("user") String user, @RequestParam("passwort") String passwort) throws SQLException {
+
+        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        person.setUsername(user);
+        person.setPassword(passwort);
+        cache.getPersonService().updatePerson(person);
+
+        cache.getUserService().initializeUsersAndPermissions();
+
+        return new RedirectView("/personal?s=6&q=profil&id=" + person.getId());
+    }
+
+    @GetMapping("/person/passwordReset")
+    public RedirectView resetPW(@RequestParam("id") UUID id) throws SQLException {
+        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        person.setPassword(person.getBirthdate().isPresent() ? person.getBirthdate().get().getGermanDate() : "PASSWORT");
+        cache.getPersonService().updatePerson(person);
+
+        cache.getUserService().initializeUsersAndPermissions();
+
+        return new RedirectView("/personal?s=6&q=profil&id=" + person.getId());
+    }
+
+    @GetMapping("/person/privacyPolicy")
+    public String privacyPolicy(HttpSession httpSession, Model model) throws SQLException {
+        Person user = securityHelper.getPerson()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        securityHelper.addPersonToSession(httpSession);
+
+        if (!personHelper.hasPermission(user, "TEAM"))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
+
+
+        model.addAttribute("privacyPolicies", cache.getPrivacyService().getAll());
+        return "person/privacyOverwiew";
+    }
+
+    @GetMapping("/personal/workflow/unlock")
+    public RedirectView unlock(@RequestParam("personId") UUID personId, @RequestParam("workflowId")UUID workflowId) throws SQLException {
+        Workflow workflow = cache.getWorkflowService().getWorkflow(workflowId, personId).orElseThrow();
+
+        workflow.setWorkflowState(WorkflowAttributes.WorkflowState.PENDING);
+        cache.getWorkflowService().updateWorkflow(workflow);
+
+        return new RedirectView("/personal?q=profil&s=7&id=" + personId);
+    }
+
+
+    @GetMapping("/personal/download")
+    public ResponseEntity<?> download(@RequestParam("q") String q, @RequestParam("id")String id) throws SQLException, FileNotFoundException {
+
+        File file = getFile(q, id).orElseThrow();
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
+        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
+
+
+        return ResponseEntity.ok()
+                .headers(header)
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+
+    public Optional<File> getFile(String q, String id){
+        return Optional.of(new File("./cms_vx/person/" + id + "/" + q));
+    }
+
+}

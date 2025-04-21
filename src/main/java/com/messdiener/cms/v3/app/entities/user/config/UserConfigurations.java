@@ -22,8 +22,11 @@ public class UserConfigurations {
         return UserConfigurations.of(new ArrayList<>());
     }
 
-    public String getValue(String name){
-        return configurations.stream().filter(c -> c.getName().equals(name)).findFirst().orElse(UserConfiguration.empty()).getValue();
+    public String getValue(String name) {
+        return configurations.stream()
+                .filter(c -> c.getName().equals(name))
+                .findFirst()
+                .orElse(UserConfiguration.empty())
+                .getValue();
     }
-
 }
