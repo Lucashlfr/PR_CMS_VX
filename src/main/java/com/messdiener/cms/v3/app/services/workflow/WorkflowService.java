@@ -1,10 +1,9 @@
 package com.messdiener.cms.v3.app.services.workflow;
 
-import com.messdiener.cms.v3.app.entities.workflows.Workflow;
-import com.messdiener.cms.v3.app.entities.workflows.WorkflowLog;
+import com.messdiener.cms.v3.app.entities.workflow.Workflow;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
-import com.messdiener.cms.v3.shared.cache.Cache;
-import com.messdiener.cms.v3.shared.enums.WorkflowAttributes;
+import com.messdiener.cms.v3.shared.enums.workflow.CMSState;
+import com.messdiener.cms.v3.shared.enums.workflow.WorkflowType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +15,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,114 +26,93 @@ public class WorkflowService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowService.class);
     private final DatabaseService databaseService;
-    private final WorkflowLogService workflowLogService;
 
     @PostConstruct
     public void init() {
-        String sql = "CREATE TABLE IF NOT EXISTS module_workflow (workflowId VARCHAR(255), tenantId VARCHAR(255), userId VARCHAR(255), workflowType VARCHAR(255), workflowState VARCHAR(255), creationDate LONG, startDate LONG, endDate LONG, lastUpdate LONG, creatorId VARCHAR(255))";
+        String sql = "CREATE TABLE IF NOT EXISTS module_workflow (workflowId VARCHAR(255) primary key , ownerId VARCHAR(255), workflowType VARCHAR(255), workflowState VARCHAR(255), creationDate long, endDate long, currentNumber int, metaData LONGTEXT)";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
-            LOGGER.info("WorkflowService initialized and table ensured.");
+            LOGGER.info("WorkflowController initialized and table ensured.");
         } catch (SQLException e) {
-            LOGGER.error("Failed to initialize WorkflowService", e);
+            LOGGER.error("Failed to initialize UserConfigurationService", e);
         }
     }
 
-    public void createWorkflow(Workflow workflow) throws SQLException {
-        String sql = "INSERT INTO module_workflow (workflowId, tenantId, userId, workflowType, workflowState, creationDate, startDate, endDate, lastUpdate, creatorId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, workflow.getWorkflowId().toString());
-            preparedStatement.setString(2, workflow.getTenantId().toString());
-            preparedStatement.setString(3, workflow.getUserId().toString());
-            preparedStatement.setString(4, workflow.getWorkflowType().toString());
-            preparedStatement.setString(5, workflow.getWorkflowState().toString());
-            preparedStatement.setLong(6, workflow.getCreationDate().toLong());
-            preparedStatement.setLong(7, workflow.getStartDate().toLong());
-            preparedStatement.setLong(8, workflow.getEndDate().toLong());
-            preparedStatement.setLong(9, workflow.getLastUpdateDate().toLong());
-            preparedStatement.setString(10, workflow.getCreatorId().toString());
-            preparedStatement.executeUpdate();
-        }
 
-        for (WorkflowLog log : workflow.getLogs()) {
-            workflowLogService.saveWorkflowLog(log);
-        }
-    }
-
-    public void updateWorkflow(Workflow workflow) throws SQLException {
-        String sql = "UPDATE module_workflow SET workflowState = ?, lastUpdate = ? WHERE workflowId = ? AND userId = ?";
-        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, workflow.getWorkflowState().toString());
-            preparedStatement.setLong(2, workflow.getLastUpdateDate().toLong());
-            preparedStatement.setString(3, workflow.getWorkflowId().toString());
-            preparedStatement.setString(4, workflow.getUserId().toString());
-            preparedStatement.executeUpdate();
-        }
-    }
-
-    public Optional<Workflow> getWorkflow(UUID workflowId, UUID personId) throws SQLException {
-        String sql = "SELECT * FROM module_workflow WHERE workflowId = ? AND userId = ?";
-        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, workflowId.toString());
-            preparedStatement.setString(2, personId.toString());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next() ? Optional.of(mapToWorkflow(resultSet)) : Optional.empty();
-            }
-        }
-    }
-
-    public Optional<Workflow> getWorkflow(UUID workflowId) throws SQLException {
+    public Optional<Workflow> getWorkflowById(UUID workflowId) throws SQLException {
         String sql = "SELECT * FROM module_workflow WHERE workflowId = ?";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, workflowId.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next() ? Optional.of(mapToWorkflow(resultSet)) : Optional.empty();
+                if (resultSet.next()) {
+                    return Optional.of(mapResultToWorkflow(resultSet));
+                }
             }
         }
+        return Optional.empty();
     }
 
-    public List<Workflow> getWorkflows() throws SQLException {
-        String sql = "SELECT * FROM module_workflow ORDER BY creationDate DESC";
+    public List<Workflow> getWorkflowsByUserId(UUID ownerId) throws SQLException {
         List<Workflow> workflows = new ArrayList<>();
-        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                workflows.add(mapToWorkflow(resultSet));
-            }
-        }
-        return workflows;
-    }
-
-    public List<Workflow> getWorkflows(UUID workflowId) throws SQLException {
-        String sql = "SELECT * FROM module_workflow WHERE workflowId = ?";
-        List<Workflow> workflows = new ArrayList<>();
+        String sql = "SELECT * FROM module_workflow WHERE ownerId = ?";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, workflowId.toString());
+            preparedStatement.setString(1, ownerId.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    workflows.add(mapToWorkflow(resultSet));
+                    workflows.add(mapResultToWorkflow(resultSet));
                 }
             }
         }
         return workflows;
     }
 
-    public Workflow mapToWorkflow(ResultSet resultSet) throws SQLException {
-        UUID workflowId = UUID.fromString(resultSet.getString("workflowId"));
-        UUID tenantId = UUID.fromString(resultSet.getString("tenantId"));
-        UUID userId = UUID.fromString(resultSet.getString("userId"));
-        WorkflowAttributes.WorkflowType workflowType = WorkflowAttributes.WorkflowType.valueOf(resultSet.getString("workflowType"));
-        WorkflowAttributes.WorkflowState workflowState = WorkflowAttributes.WorkflowState.valueOf(resultSet.getString("workflowState"));
-        CMSDate creationDate = CMSDate.of(resultSet.getLong("creationDate"));
-        CMSDate startDate = CMSDate.of(resultSet.getLong("startDate"));
-        CMSDate endDate = CMSDate.of(resultSet.getLong("endDate"));
-        CMSDate lastUpdateDate = CMSDate.of(resultSet.getLong("lastUpdate"));
-        UUID creatorId = UUID.fromString(resultSet.getString("creatorId"));
+    public void saveWorkflow(Workflow workflow) throws SQLException {
+        String sql = "INSERT INTO module_workflow (workflowId, ownerId, workflowType, workflowState, creationDate, endDate, currentNumber, metaData) VALUES (?, ?, ?, ?, ?, ?, ?, ?) " +
+                "ON DUPLICATE KEY UPDATE ownerId = VALUES(ownerId), workflowType = VALUES(workflowType), workflowState = VALUES(workflowState), creationDate = VALUES(creationDate), endDate = VALUES(endDate), currentNumber = VALUES(currentNumber), metaData = VALUES(metaData)";
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, workflow.getWorkflowId().toString());
+            preparedStatement.setString(2, workflow.getOwnerId().toString());
+            preparedStatement.setString(3, workflow.getWorkflowType().name());
+            preparedStatement.setString(4, workflow.getCMSState().name());
+            preparedStatement.setLong(5, workflow.getCreationDate().toLong());
+            preparedStatement.setLong(6, workflow.getEndDate() != null ? workflow.getEndDate().toLong() : 0L);
+            preparedStatement.setInt(7, workflow.getCurrentNumber());
+            preparedStatement.setString(8, workflow.getMetadata());
+            preparedStatement.executeUpdate();
+            LOGGER.info("Saved workflow with ID {}", workflow.getWorkflowId());
+        }
+    }
 
-        List<WorkflowLog> logs = workflowLogService.getWorkflowLogs(workflowId);
-        int counter = workflowLogService.getCounter(workflowId);
-        int completed = workflowLogService.getCompletedCounter(workflowId);
+    private Workflow mapResultToWorkflow(ResultSet resultSet) throws SQLException {
+        return new Workflow(
+                UUID.fromString(resultSet.getString("workflowId")),
+                UUID.fromString(resultSet.getString("ownerId")),
+                WorkflowType.valueOf(resultSet.getString("workflowType")),
+                CMSState.valueOf(resultSet.getString("workflowState")),
+                new CMSDate(resultSet.getLong("creationDate")),
+                new CMSDate(resultSet.getLong("endDate")),
+                resultSet.getInt("currentNumber"),
+                resultSet.getString("metaData")
+        );
+    }
 
-        return new Workflow(workflowId, tenantId, userId, workflowType, workflowState, creationDate, startDate, endDate, lastUpdateDate, creatorId, logs, counter, completed);
+
+    public List<Workflow> getRelevantWorkflows(String userId) {
+
+        String sql = "SELECT * FROM module_workflow, module_workflow_modules WHERE module_workflow_modules.ownerId = ? and module_workflow.workflowState = ? and module_workflow_modules.workflowId = module_workflow.workflowId and module_workflow.currentNumber = module_workflow_modules.number";
+        List<Workflow> workflows = new ArrayList<>();
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, userId);
+            preparedStatement.setString(2, CMSState.ACTIVE.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Workflow workflow = mapResultToWorkflow(resultSet);
+                    workflows.add(workflow);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return workflows;
     }
 }

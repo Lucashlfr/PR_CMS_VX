@@ -7,28 +7,16 @@
     <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main>
-            <header class="page-header page-header-compact page-header-light border-bottom bg-white mb-4">
-                <div class="container px-4">
-                    <div class="page-header-content">
-                        <div class="row align-items-center justify-content-between pt-3">
-                            <div class="col-auto mb-3">
+            <header class="page-header page-header-dark bg-pink mb-4">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
                                 <h1 class="page-header-title">
-                                    <span class="page-header-icon"><i data-feather="calendar"></i></span>
-                                    Gottesdienst <span class="mdi mdi-arrow-right"></span><span>Bearbeiten</span>
+                                    <span class="page-header-icon text-white"><i data-feather="calendar"></i></span>
+                                    <span>Gottesdienste</span>
                                 </h1>
-                            </div>
-                            <div class="col-12 col-xl-auto mb-3">
-                                <a class="btn btn-sm btn-light text-primary" href="javascript:void(0);"
-                                   data-bs-toggle="modal" data-bs-target="#create">
-                                    <i class="me-1" data-feather="edit"></i>
-                                    Bearbeiten
-                                </a>
-
-                                <a class="btn btn-sm btn-light text-primary" data-bs-toggle="modal"
-                                   data-bs-target="#delete">
-                                    <i class="me-1" data-feather="trash"></i>
-                                    Löschen
-                                </a>
+                                <div class="page-header-subtitle">Verwalte die Gottesdienste deiner Gruppe </div>
                             </div>
                         </div>
                     </div>
@@ -36,70 +24,117 @@
             </header>
             <!-- Main page content-->
             <div class="container px-4 mt-4">
-                <div class="card mb-2">
-                    <div class="card-header">Stammdaten</div>
-                    <div class="card-body">
-                        <table class="table table-bordered">
-                            <tbody>
+                <div class="card h-100" id="reference-card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <!-- Icon -->
+                                <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="info" class="text-info fs-4"></i>
+                                </div>
 
-                            <tr>
-                                <td>Titel</td>
-                                <td th:text="${targetEvent.getDescription()}"></td>
-                            </tr>
-                            <tr>
-                                <td>Info</td>
-                                <td th:text="${targetEvent.getInfo()}"></td>
-                            </tr>
-                            <tr>
-                                <td>Termin</td>
-                                <td th:text="${targetEvent.getTime()}"></td>
-                            </tr>
-                            <tr>
-                                <td>Rückmeldungen</td>
-                                <td>
-                                    <div class="progress">
-                                        <div class="progress-bar bg-success" th:style="'width:' + ${tenantHelper.getPercentageRegister(targetEvent.getTenantId(), 1)} +'%'">
+                                <!-- Text content -->
+                                    <h5 class="mb-1 fw-semibold">Gotttesdienst</h5>
+                            </div>
+                            <div>
+                                <a class="btn btn-sm btn-pink  mdi mdi-calendar-edit" href="javascript:void(0);"
+                                   data-bs-toggle="modal" data-bs-target="#create">
+                                </a>
+
+                                <a class="btn btn-sm btn-pink  mdi mdi-trash-can" data-bs-toggle="modal"
+                                   data-bs-target="#delete">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body ">
+                        <div class="table-responsive">
+                            <table class="table text-nowrap align-middle">
+                                <tbody>
+                                <tr>
+                                    <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="file" class="me-2"></i> Titel
+                                    </span>
+                                    </td>
+                                    <td>:</td>
+                                    <td th:text="${targetEvent.getDescription()}"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="users" class="me-2 text-danger"></i> Info
+                                    </span>
+                                    </td>
+                                    <td>:</td>
+                                    <td th:text="${targetEvent.getInfo()}"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="calendar" class="me-2 text-primary"></i> Termin
+                                    </span>
+                                    </td>
+                                    <td>:</td>
+                                    <td th:text="${targetEvent.getTime()}"></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="alert-circle" class="me-2 text-warning"></i> Rückmeldungen
+                                    </span>
+                                    </td>
+                                    <td>:</td>
+                                    <td class="border-bottom">
+                                        <div class="progress flex-fill" style="height: 6px;">
+                                            <div class="progress-bar bg-success" th:style="'width:' + ${eventHelper.getRegistrationPercentage(targetEvent.getId(), person.getTenantId(), 1)} +'%'">
+                                            </div>
+                                            <div class="progress-bar bg-warning" th:style="'width:' + ${eventHelper.getRegistrationPercentage(targetEvent.getId(), person.getTenantId(), 2)} +'%'">
+                                            </div>
+                                            <div class="progress-bar bg-danger"th:style="'width:' + ${eventHelper.getRegistrationPercentage(targetEvent.getId(), person.getTenantId(), 3)}  +'%'">
+                                            </div>
                                         </div>
-                                        <div class="progress-bar bg-warning" th:style="'width:' + ${tenantHelper.getPercentageRegister(targetEvent.getTenantId(), 2)} +'%'">
-                                        </div>
-                                        <div class="progress-bar bg-danger"th:style="'width:' + ${tenantHelper.getPercentageRegister(targetEvent.getTenantId(), 3)} +'%'">
-                                        </div>
-                                    </div>
-                                    <span class="mdi mdi-circle text-success"></span>
-                                    <span th:text="'Eingeteilt: ' + ${tenantHelper.getScheduledPersons(targetEvent.getTenantId())} + ' | '"></span>
-                                    <span class="mdi mdi-circle text-warning"></span>
-                                    <span th:text="'Verfügbare: ' + ${tenantHelper.getRegisteredPersons(targetEvent.getTenantId())} + ' | '"></span>
-                                    <span class="mdi mdi-circle text-red"></span>
-                                    <span th:text="'Keine Rückmeldung: ' + ${tenantHelper.getOtherPersons(targetEvent.getTenantId())}"></span>
-                                </td>
-                            </tr>
+                                        <span class="mdi mdi-circle text-success"></span>
+                                        <span th:text="'Eingeteilt: ' + ${eventHelper.getRegistration(targetEvent.getId(), person.getTenantId(), 1)} + ' | '"></span>
+                                        <span class="mdi mdi-circle text-warning"></span>
+                                        <span th:text="'Verfügbare: ' + ${eventHelper.getRegistration(targetEvent.getId(), person.getTenantId(), 2)} +' | '"></span>
+                                        <span class="mdi mdi-circle text-red"></span>
+                                        <span th:text="'Keine Rückmeldung: ' + ${eventHelper.getRegistration(targetEvent.getId(), person.getTenantId(), 3)}"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="user" class="me-2 text-primary"></i> Zelebrant
+                                    </span>
+                                    </td>
+                                    <td>:</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="tag" class="me-2 text-success"></i> Angemeldete Messdiener
+                                    </span>
+                                    </td>
+                                    <td>:</td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="bar-chart-2" class="me-2 text-primary"></i> Eingeteilte Messdiener
+                                    </span>
+                                    </td>
+                                    <td class="border-bottom">:</td>
+                                    <td th:text="${eventHelper.getScheduledPersonsInfo(targetEvent.getId())}"></td>
+                                </tr>
 
-                            <tr>
-                                <td>Activity Status</td>
-                                <td></td>
-                            </tr>
-
-                            <tr>
-                                <td>Zelebrant</td>
-                                <td></td>
-                            </tr>
-
-                            <tr>
-                                <td>Organist</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Angemeldete Messdiener</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Eingeteilte Messdiener</td>
-                                <td th:text="${eventHelper.getScheduledPersonsInfo(targetEvent.getId())}"></td>
-                            </tr>
-
-
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

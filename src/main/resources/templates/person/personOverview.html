@@ -7,12 +7,15 @@
     <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main>
-            <header class="page-header page-header-dark bg-purple mb-4">
+            <header class="page-header page-header-dark bg-info mb-4">
                 <div class="container-fluid px-4">
                     <div class="page-header-content pt-4">
                         <div class="row align-items-center justify-content-between">
                             <div class="col-auto mt-4">
-                                <h1 class="page-header-title">Personen</h1>
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="user"></i></span>
+                                    <span>Personen</span>
+                                </h1>
                                 <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
                                 </div>
                             </div>
@@ -81,12 +84,12 @@
                                                th:href="'/personal?q=profil&s=1&id=' + ${person.getId()}">
                                                 <div class="avatar avatar-sm me-3 bg-gray-200"><img
                                                         class="avatar-img img-fluid"
-                                                        th:src="${personHelper.getImgAddress()}"
+                                                        th:src="${personHelper.getImgAddress(person)}"
                                                         alt=""/></div>
                                                 <span th:text="${person.getLastname() + ', ' + person.getFirstname()}"></span>
                                             </a>
                                         </td>
-                                        <td th:text="${personHelper.getTenantName(person)}"></td>
+                                        <td th:text="${personHelper.getTenantName(person).orElse('')}"></td>
                                         <td th:text="${person.getRank().getName()}"></td>
 
                                         <td th:if="${person.getBirthdate().isEmpty()}"></td>
@@ -140,21 +143,11 @@
 
             <form method="post" action="/personal/create">
                 <!-- Modal body -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Person erstellen</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
                 <div class="modal-body">
-                    <div class="text-center">
-
-                        <script src="https://cdn.lordicon.com/pzdvqjsp.js"></script>
-                        <lord-icon
-                                src="https://cdn.lordicon.com/xzksbhzh.json"
-                                trigger="loop"
-                                delay="2000"
-                                style="width:100px;height:100px">
-                        </lord-icon>
-                        <h4>Person anlegen</h4>
-                        <h6>Hier kannst du eine neue Person anlegen. </h6>
-
-                    </div>
-
                     <div class="m-2">
                         <div class="row mb-1">
 
@@ -180,10 +173,6 @@
                     </div>
                     <input class="d-none invisible" th:value="${personHelper.getTenant(user).orElse(false).getId()}" readonly name="tenantId">
                     <div class="d-flex">
-
-                        <button type="button" class="btn btn-secondary btn-block flex-fill m-1" data-bs-dismiss="modal">
-                            Abbrechen
-                        </button>
                         <button type="submit" class="btn btn-success btn-block flex-fill m-1">Speichern</button>
 
                     </div>

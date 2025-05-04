@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark mb-4" style="background-color: rgb(0,0,100);">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="layers"></i></span>
+                                    <span th:text="'Homepage / ' + ${article.getTitle()}"></span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalten der Homepage
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+            <div class="container-fluid px-4 mt-4">
+              <div class="card">
+                  <div class="card-body">
+                      <form th:action="@{/article/save}" th:method="post">
+                          <input type="hidden" name="id" th:value="${article.id}"/>
+                          <div class="row mb-3 align-items-center">
+                              <label for="titel" class="col-sm-2 col-form-label">Titel <span class="text-danger">*</span></label>
+                              <div class="col-sm-10">
+                                  <input type="text" class="form-control" id="titel" name="title" th:value="${article.getTitle()}" required>
+                              </div>
+                          </div>
+
+                          <div class="row mb-3 align-items-center">
+                              <label for="type" class="col-sm-2 col-form-label">Type <span class="text-danger">*</span></label>
+                              <div class="col-sm-10">
+                                  <select class="form-select" id="type" name="type" required>
+                                      <option th:selected="${article.getType().equals('BLOG')}">BLOG</option>
+                                      <option th:selected="${article.getType().equals('INTERN')}">INTERN</option>
+                                      <option th:selected="${article.getType().equals('ABOUT')}">ABOUT</option>
+                                      <option th:selected="${article.getType().equals('IMPRESSUM')}">IMPRESSUM</option>
+                                  </select>
+                              </div>
+                          </div>
+
+                          <div class="row mb-3 align-items-center">
+                              <label for="description" class="col-sm-2 col-form-label">Beschreibung <span class="text-danger">*</span></label>
+                              <div class="col-sm-10">
+                                  <input type="text" class="form-control" id="description" name="description" th:value="${article.getDescription()}" required>
+                              </div>
+                          </div>
+                          <div class="row mb-3 align-items-center">
+                              <label for="imgUrl" class="col-sm-2 col-form-label">Bild <span class="text-danger">*</span></label>
+                              <div class="col-sm-10">
+                                  <input type="text" class="form-control" id="imgUrl" name="imgUrl" th:value="${article.getImgUrl()}">
+                              </div>
+                          </div>
+
+                          <div class="row mb-3 align-items-start">
+                              <label for="form" class="col-sm-2 col-form-label">MS Form</label>
+                              <div class="col-sm-10">
+                            <textarea class="form-control" id="form" name="form" rows="8"
+                                      th:text="${article.getForm()}"></textarea>
+                              </div>
+                          </div>
+
+                          <div class="row mb-3 align-items-start">
+                              <label for="html" class="col-sm-2 col-form-label">HTML</label>
+                              <div class="col-sm-10">
+                            <textarea class="form-control" id="html" name="html" rows="8"
+                                      th:text="${article.getHtml()}"></textarea>
+                              </div>
+                          </div>
+
+                          <div class="d-flex">
+                              <button class="btn text-white btn-sm flex-fill m-1" type="submit" style="background-color: rgb(0,0,100)">Speichern</button>
+                          </div>
+                      </form>
+
+
+                  </div>
+              </div>
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<script src="https://cdn.tiny.cloud/1/cffl90sfi2w6v9p7qf819uqgaookf9q7jqhf5e83m8g0rbb5/tinymce/7/tinymce.min.js"
+        referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#html', // Wähle das Textarea-Element aus
+        plugins: 'advlist autolink lists link image charmap preview anchor table',
+        toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image table',
+        menubar: false, // Menüleiste deaktivieren (optional)
+        branding: false, // "Powered by TinyMCE" ausblenden (nur in Free-Version anpassbar)
+        height: 600, // Editor-Höhe einstellen
+        image_uploadtab: false, // Falls keine Bilder hochgeladen werden sollen
+        content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }'
+    });
+</script>

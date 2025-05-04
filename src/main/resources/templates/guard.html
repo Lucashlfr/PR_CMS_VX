@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-red mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="shield"></i></span>
+                                    <span>HildeGuard</span>
+                                </h1>
+                                <div class="page-header-subtitle">Dein Complaince Manager
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+            <div class="container-fluid px-4 mt-4">
+                <div class="row d-flex align-items-stretch mb-3">
+                    <!-- Project Documents -->
+                    <div class="col-xl-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="alert-circle" class="text-red fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Compliance Verstöße</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${checks.size()} + ' Verstöße'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-3">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Bezeichnung</th>
+                                        <th>Score</th>
+                                        <th>Betreffende Person</th>
+                                        <th>Gruppe</th>
+                                        <th>Erklärung</th>
+                                        <th>Maßnahme</th>
+                                        <th>Offen seit</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="c : ${checks}">
+                                        <td th:text="${c.id}"></td>
+                                        <td  th:text="${c.complianceType.title}"></td>
+                                        <td>
+                                            <span th:if="${c.complianceType.score >= 10}" class="text-red" th:text="'Hoch Kritisch (' + ${c.complianceType.score} + ')'"></span>
+                                            <span th:if="${c.complianceType.score < 10} and ${c.complianceType.score >= 5}" class="text-orange" th:text="'Kritisch (' + ${c.complianceType.score} + ')'"></span>
+                                            <span th:if="${c.complianceType.score < 5} and ${c.complianceType.score >= 0}" class="text-green" th:text="'Informativ (' + ${c.complianceType.score} + ')'"></span>
+                                        </td>
+                                        <td>
+                                            <a  th:text="${personHelper.getName(c.getTargetPerson())}" th:href="'/personal?q=profil&s=1&id=' + ${c.getTargetPerson()}"></a>
+                                        </td>
+                                        <td  th:text="${personHelper.getTenantNameId(c.getTargetPerson()).orElse('')}"></td>
+                                        <td  th:text="${c.complianceType.description}"></td>
+                                        <td  th:text="${c.complianceType.action}"></td>
+                                        <td  th:text="${c.getDate().getGermanDate()}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <style>
+                        .card-body.clamp-description {
+                            overflow: scroll;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                            -webkit-box-orient: vertical;
+                        }
+
+                        .card-limit-height {
+                            min-height: 400px;
+                        }
+
+                        .row.d-flex {
+                            align-items: stretch;
+                        }
+
+                    </style>
+                </div>
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</div>

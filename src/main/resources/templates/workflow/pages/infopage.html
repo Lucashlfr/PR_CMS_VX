@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body>
+<main>
+    <header class="page-header page-header-dark pb-15 bg-img-cover"
+            style="background-image: url('https://messdiener-knittelsheim.de/wp-content/uploads/2025/01/Handabdruck-scannen-scaled.jpg')">
+        <div class="container-xl px-4">
+            <div class="page-header-content pt-4">
+                <h1 class="page-header-title mt-4" th:text="'CMS Workflows'"></h1>
+                <div class="page-header-subtitle">Bei Fragen wende dich gerne direkt an Lucas!</div>
+            </div>
+        </div>
+    </header>
+    <!-- Main page content-->
+    <div class="container-xl px-4 mt-n10">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center">
+                    <h1 class="text-primary">Bitte warten - das System denkt nach.</h1>
+                    <!-- Ergebnis-URL zur Weiterleitung -->
+                    <span id="redirectUrl" class="d-none" th:text="'/workflow/jump?id=' + ${id}"></span>
+                </div>
+                <div class="text-center">
+                    <div class="spinner-grow text-muted"></div>
+                    <div class="spinner-grow text-muted"></div>
+                    <div class="spinner-grow text-muted"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<div th:insert="~{fragments :: script}"></div>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/script/main.js}"></script>
+
+<!-- Weiterleitung nach 2 Sekunden mit Parent-Refresh im Popup-Fall -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var url = document.getElementById('redirectUrl').textContent;
+        setTimeout(function() {
+            if (window.opener && !window.opener.closed) {
+                // Parent window aktualisieren
+                window.opener.location.reload();
+                // Popup weiterleiten oder neu laden
+                if (url) {
+                    window.location.href = url;
+                } else {
+                    window.location.reload();
+                }
+            } else {
+                // Fallback: normales Verhalten im selben Fenster
+                if (url) {
+                    window.location.href = url;
+                } else {
+                    window.location.reload();
+                }
+            }
+        }, 2000);
+    });
+</script>
+
+</body>
+</html>

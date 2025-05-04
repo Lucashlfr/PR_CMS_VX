@@ -12,7 +12,10 @@
                     <div class="page-header-content pt-4">
                         <div class="row align-items-center justify-content-between">
                             <div class="col-auto mt-4">
-                                <h1 class="page-header-title" th:text="'Gottesdienste'"></h1>
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="calendar"></i></span>
+                                    <span>Gottesdienste</span>
+                                </h1>
                                 <div class="page-header-subtitle">Verwalte die Gottesdienste deiner Gruppe
                                 </div>
                             </div>
@@ -20,39 +23,65 @@
                     </div>
                 </div>
             </header>
-            <!-- Main page content-->
             <div class="container-fluid px-4 mt-4">
-                <div class="row">
-                    <div class="col-xl-8">
-                        <div class="card card-header-actions mb-2">
-                            <div class="card-header">Anstehende Gottesdienste deiner Gruppe
-                            <div>
-                                <a class="btn btn-sm btn-light text-primary" href="/organisation/worship?q=plan">
-                                    <i class="me-1" data-feather="edit"></i>
-                                    Planen
-                                </a>
-                                <a class="btn btn-sm btn-light text-primary" href="/organisation/worship?q=export">
-                                    <i class="me-1" data-feather="download-cloud"></i>
-                                    Exportieren
-                                </a>
-                                <a class="btn btn-sm btn-light text-primary" href="javascript:void(0);"
-                                   data-bs-toggle="modal" data-bs-target="#create">
-                                    <i class="me-1" data-feather="plus"></i>
-                                    Anlegen
-                                </a>
-                                <a class="btn btn-sm btn-light text-primary" href="javascript:void(0);"
-                                   data-bs-toggle="modal" data-bs-target="#import">
-                                    <i class="me-1" data-feather="upload-cloud"></i>
-                                    Importieren
-                                </a>
-                            </div></div>
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-7 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="calendar" class="text-pink fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">
+                                                <span>Anstehende Gottesdienste</span>
+                                            </h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${events.size()} + ' Gottesdienste'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-pink btn-sm mdi mdi-calendar-edit"
+                                           href="/organisation/worship?q=plan">
+                                        </a>
+                                        <a class="btn btn-pink btn-sm mdi mdi-download-circle"
+                                           href="/organisation/worship?q=export">
+                                        </a>
+                                        <a class="btn btn-pink btn-sm mdi mdi-plus" href="javascript:void(0);"
+                                           data-bs-toggle="modal" data-bs-target="#create">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="card-body text-center" id="load">
                                 <span class="spinner-border card-img"
                                       style="min-height: 200px; min-width: 200px;"></span>
                             </div>
-                            <div class="card-body d-none" id="content" style="overflow-y: scroll">
-
-
+                            <div class="card-body clamp-description d-none" id="content"
+                                 style="overflow: scroll;">
                                 <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
                                     <thead>
                                     <tr>
@@ -75,32 +104,22 @@
                                         <td th:text="${event.getInfo()}"></td>
                                         <td th:text="${event.getStartDate().getGermanLongDate()}"></td>
                                         <td>
-                                            <div class="progress">
-                                                <div class="progress-bar bg-success" th:style="'width:' + ${event.getPercentagesRegister(1)} +'%'">
-                                                </div>
-                                                <div class="progress-bar bg-warning" th:style="'width:' + ${event.getPercentagesRegister(2)} +'%'">
-                                                </div>
-                                                <div class="progress-bar bg-danger" th:style="'width:' + ${event.getPercentagesRegister(3)} +'%'">
-                                                </div>
-                                            </div>
+                                            <span class="text-red" th:text="${eventHelper.getRegistration(event.getId(), person.getTenantId(), 3)}"></span>
+                                            <span>|</span>
+                                            <span class="text-yellow" th:text="${eventHelper.getRegistration(event.getId(), person.getTenantId(), 2)}"></span>
+                                            <span>|</span>
+                                            <span class="text-green" th:text="${eventHelper.getRegistration(event.getId(), person.getTenantId(), 1)}"></span>
                                         </td>
                                     </tr>
 
                                     </tbody>
                                 </table>
-
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">Gloaber Actity Status</div>
-                            <div class="card-body">
-
-                                <table class="table table-bordered">
+                                <br>
+                                <table class="table table-sm table-bordered">
                                     <tbody>
 
                                     <tr th:each="t:${tenants}">
-                                        <td th:text="${tenantHelper.getTenantName(t)}"></td>
+                                        <td th:text="${tenantHelper.getTenantName(t).orElse('')}"></td>
                                         <td>
                                             <span class="mdi mdi-circle text-success"></span>
                                             <span th:text="'Eingeteilt: ' + ${tenantHelper.getScheduledPersons(t.getId())} + ' | '"></span>
@@ -114,34 +133,56 @@
                                     </tbody>
                                 </table>
                             </div>
+
                         </div>
                     </div>
-                    <div class="col-xl-4">
-                        <div class="card mb-2">
-                            <div class="card-header">Gottesdienste in der Pfarrei</div>
-                            <table id="data" class="d-none">
-                                <tbody>
-                                <tr th:each="e:${allEvents}">
-                                    <td th:text="${e.getStartDate().getEnglishDate()}"></td>
-                                    <td th:text="${tenantHelper.getTenant(e.getTenantId()).getColor()}"></td>
-                                    <td th:text="'[' + ${tenantHelper.getTenant(e.getTenantId()).getInitial()} + '] '+ ${e.getDescription()}"></td>
-                                    <td th:text="'/organisation/worship?q=interface#id=' + ${e.getId()}"></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                            <div class="card-body">
-                                <div id="calendar" class=""></div>
+                    <div class="col-xl-5 col-12 mb-4">
+                        <div class="card h-100" id="reference-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="info" class="text-info fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Alle Gottesdienste in der Pfarrei</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                Alle aus der Pfarrei
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <table id="data" class="d-none">
+                                    <tbody>
+                                    <tr th:each="e:${allEvents}">
+                                        <td th:text="${e.getStartDate().getEnglishDate()}"></td>
+                                        <td th:text="${tenantHelper.getTenant(e.getTenantId()).getColor()}"></td>
+                                        <td th:text="'[' + ${tenantHelper.getTenant(e.getTenantId()).getInitial()} + '] '+ ${e.getDescription()}"></td>
+                                        <td th:text="'/organisation/worship?q=interface#id=' + ${e.getId()}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="card-body">
+                                    <div id="calendar" class=""></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
-
-
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
 </div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
 
 <!-- The Modal -->
 <form th:method="post" th:action="@{/organisation/save/worship}">
@@ -236,7 +277,8 @@
                 </div>
                 <div class="modal-body">
                     <div class=" mb-3 mt-3">
-                        <input type="file"  class="form-control" id="name" placeholder="Enter email" name="file" accept=".xlsx" required>
+                        <input type="file" class="form-control" id="name" placeholder="Enter email" name="file"
+                               accept=".xlsx" required>
                     </div>
 
                     <div class="d-flex">
@@ -420,5 +462,4 @@
     });
 
 </script>
-</body>
 </html>

@@ -2,20 +2,20 @@ package com.messdiener.cms.v3.web.controller.personal;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.person.data.connection.PersonConnection;
-import com.messdiener.cms.v3.app.entities.tasks.Task;
-import com.messdiener.cms.v3.app.entities.user.Permission;
-import com.messdiener.cms.v3.app.entities.workflows.Workflow;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
-import com.messdiener.cms.v3.app.helper.tasks.TaskHelper;
+import com.messdiener.cms.v3.app.services.audit.AuditService;
+import com.messdiener.cms.v3.app.services.document.DocumentService;
+import com.messdiener.cms.v3.app.services.person.PersonFileService;
 import com.messdiener.cms.v3.app.services.person.PersonService;
-import com.messdiener.cms.v3.app.services.tasks.TaskService;
+import com.messdiener.cms.v3.app.services.privacy.PrivacyService;
+import com.messdiener.cms.v3.app.services.workflow.WorkflowService;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.PersonAttributes;
 import com.messdiener.cms.v3.shared.enums.StatusState;
-import com.messdiener.cms.v3.shared.enums.WorkflowAttributes;
 import com.messdiener.cms.v3.utils.html.HTMLClasses;
-import com.messdiener.cms.v3.web.request.PermissionsForm;
+import com.messdiener.cms.v3.utils.time.CMSDate;
+import com.messdiener.cms.v3.utils.time.DateUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -50,7 +51,12 @@ public class PersonManagementController {
     private final Cache cache;
     private final SecurityHelper securityHelper;
     private final PersonHelper personHelper;
-    private final TaskHelper taskHelper;
+    private final PersonFileService personFileService;
+    private final PersonService personService;
+    private final DocumentService documentService;
+    private final WorkflowService workflowService;
+    private final AuditService auditService;
+    private final PrivacyService privacyService;
 
     @PostConstruct
     public void init() {
@@ -65,7 +71,7 @@ public class PersonManagementController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(httpSession);
 
-        if (!personHelper.hasPermission( user, "TEAM"))
+        if (!personHelper.hasPermission(user, 1))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
 
         UUID tenantId = personHelper.getTenant(user).orElseThrow().getId();
@@ -75,85 +81,92 @@ public class PersonManagementController {
         String query = q.orElse("list");
         String step = s.orElse("null");
 
+        model.addAttribute("systemId", Cache.SYSTEM_USER);
+
         model.addAttribute("statusState", statusState);
         model.addAttribute("query", query);
 
         model.addAttribute("personHelper", personHelper);
 
-        switch (query) {
-            case "profil": {
+        if (query.equals("profil")) {
+            UUID personUUID = UUID.fromString(idS);
+            Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
+            model.addAttribute("person", person);
+            model.addAttribute("types", PersonAttributes.Connection.values());
+            model.addAttribute("persons", cache.getPersonService().getPersonsByTenant(tenantId));
+            model.addAttribute("contacts", personHelper.getEmergencyContacts(person));
+            model.addAttribute("connections", personHelper.getConnections(person));
+            model.addAttribute("workflows", workflowService.getWorkflowsByUserId(personUUID));
+            model.addAttribute("files", personFileService.listFilesUsingJavaIO(person.getId()));
+            model.addAttribute("documents", documentService.getAllDocumentsByTarget(person.getId().toString()));
+            model.addAttribute("managers", personService.getManagers());
 
-                UUID personUUID = UUID.fromString(idS);
-                Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
-                model.addAttribute("person", person);
-                model.addAttribute("types", PersonAttributes.Connection.values());
-                model.addAttribute("persons", cache.getPersonService().getPersonsByTenant(tenantId));
-                model.addAttribute("contacts", personHelper.getEmergencyContacts(person));
-                model.addAttribute("connections", personHelper.getConnections(person));
+            model.addAttribute("privacy", privacyService.getById(person.getId()));
 
-                List<Task> tasks = cache.getTaskQueryService().getTaskByUserId(user.getId());
-                model.addAttribute("tasks", tasks);
-                model.addAttribute("taskHelper", taskHelper);
-                return "person/person_new";
-            }
-            case "permissions": {
+            model.addAttribute("audit", auditService.getLogsByConnectId(person.getId()));
 
-                if (!personHelper.hasPermission( user, "*"))
-                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
-
-                UUID personUUID = UUID.fromString(idS);
-                Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
-                model.addAttribute("person", person);
-
-                List<Permission> permissions = cache.getUserPermissionMappingService().getUncheckPermissionsByUser(person);
-                model.addAttribute("permissions", permissions);
-                model.addAttribute("mappedPermissions", cache.getUserPermissionMappingService().getPermissionsByUser(person));
-                model.addAttribute("permissionsForm", new PermissionsForm());
-
-                return "person/permissions";
-            }
-            case "edit": {
-
-                UUID personUUID = UUID.fromString(idS);
-                Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
-                model.addAttribute("person", person);
-                return "person/personUpdate";
-            }
-            case "connection": {
-
-                UUID personUUID = UUID.fromString(idS);
-                Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
-                model.addAttribute("persons", cache.getPersonService().getPersonsByTenant(tenantId));
-                model.addAttribute("types", PersonAttributes.Connection.values());
-                model.addAttribute("person", person);
-                return "person/personConnection";
-            }
-            default:
-                step = s.orElse("1");
-                model.addAttribute("step", step);
-                model.addAttribute("htmlClasses", new HTMLClasses());
-
-                switch (step) {
-                    case "1":
-                        //TODO: FIX
-                        model.addAttribute("persons", cache.getPersonService().getActivePersonsByPermission(user.getId(), "*", tenantId));
-
-                        break;
-                    case "2":
-                        model.addAttribute("persons", cache.getPersonService().getActiveMessdienerByTenant(tenantId));
-                        break;
-                    case "3":
-                        model.addAttribute("persons", cache.getPersonService().getPersonsByTenantAndType(tenantId, PersonAttributes.Type.NULL));
-                        break;
-                    case "4":
-                        model.addAttribute("persons", cache.getPersonService().getInactiveMessdienerByTenant(tenantId));
-                        break;
-                }
-
-                return "person/personOverview";
+            return "person/personInterface";
         }
+        step = s.orElse("1");
+        model.addAttribute("step", step);
+        model.addAttribute("htmlClasses", new HTMLClasses());
+
+        List<Person> persons = new ArrayList<>();
+        switch (step) {
+            case "1":
+                persons = cache.getPersonService().getActivePersonsByPermission(user.getFRank(), tenantId);
+                break;
+            case "2":
+                persons = cache.getPersonService().getActiveMessdienerByTenant(tenantId);
+                break;
+            case "3":
+                persons = cache.getPersonService().getPersonsByTenantAndType(tenantId, PersonAttributes.Type.NULL);
+                break;
+            case "4":
+                persons = cache.getPersonService().getInactiveMessdienerByTenant(tenantId);
+                break;
+            default:
+                break;
+        }
+        model.addAttribute("persons", persons);
+
+        return "person/personOverview";
 
     }
+
+    @PostMapping("/personal/update")
+    public RedirectView updatePerson(@RequestParam("id") UUID id, @RequestParam("type") String type,
+                                     @RequestParam("rank") String rank, @RequestParam("fRank") int fRank,
+                                     @RequestParam("principal") UUID principal, @RequestParam("salutation") String salutation,
+                                     @RequestParam("firstname") String firstname, @RequestParam("lastname") String lastname,
+                                     @RequestParam("gender") String gender, @RequestParam("birthdate") Optional<String> birthdateE,
+                                     @RequestParam("mail") String mail, @RequestParam("phone") String phone,
+                                     @RequestParam("mobile") String mobile, @RequestParam("accessionDate") Optional<String> accessionDateE,
+                                     @RequestParam("exitDate") Optional<String> exitDateE) throws SQLException {
+
+        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        person.setType(PersonAttributes.Type.valueOf(type));
+        person.setRank(PersonAttributes.Rank.valueOf(rank));
+        person.setFRank(fRank);
+        person.setPrincipal(principal);
+        person.setSalutation(PersonAttributes.Salutation.valueOf(salutation));
+        person.setFirstname(firstname);
+        person.setLastname(lastname);
+        person.setGender(PersonAttributes.Gender.valueOf(gender));
+
+        person.setBirthdate(CMSDate.generateOptionalString(birthdateE, DateUtils.DateType.ENGLISH));
+        person.setEmail(mail);
+        person.setPhone(phone);
+        person.setMobile(mobile);
+        person.setAccessionDate(CMSDate.generateOptionalString(accessionDateE, DateUtils.DateType.ENGLISH));
+        person.setExitDate(CMSDate.generateOptionalString(exitDateE, DateUtils.DateType.ENGLISH));
+
+        cache.getPersonService().updatePerson(person);
+
+        return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK);
+
+    }
+
 
     @PostMapping("/personal/adress/update")
     public RedirectView updateAddress(@RequestParam("id") UUID id, @RequestParam("street") String street,
@@ -165,6 +178,7 @@ public class PersonManagementController {
         person.setHouseNumber(houseNumber);
         person.setPostalCode(postalCode);
         person.setCity(city);
+        personService.updatePerson(person);
 
         return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK);
     }
@@ -179,6 +193,8 @@ public class PersonManagementController {
         person.setBic(bic);
         person.setBank(bank);
         person.setAccountHolder(accountHolder);
+        personService.updatePerson(person);
+
         return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK);
     }
 
@@ -219,7 +235,7 @@ public class PersonManagementController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(httpSession);
 
-        if (!personHelper.hasPermission(user, "TEAM"))
+        if (!personHelper.hasPermission(user, 1))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
 
 
@@ -227,19 +243,8 @@ public class PersonManagementController {
         return "person/privacyOverwiew";
     }
 
-    @GetMapping("/personal/workflow/unlock")
-    public RedirectView unlock(@RequestParam("personId") UUID personId, @RequestParam("workflowId")UUID workflowId) throws SQLException {
-        Workflow workflow = cache.getWorkflowService().getWorkflow(workflowId, personId).orElseThrow();
-
-        workflow.setWorkflowState(WorkflowAttributes.WorkflowState.PENDING);
-        cache.getWorkflowService().updateWorkflow(workflow);
-
-        return new RedirectView("/personal?q=profil&s=7&id=" + personId);
-    }
-
-
     @GetMapping("/personal/download")
-    public ResponseEntity<?> download(@RequestParam("q") String q, @RequestParam("id")String id) throws SQLException, FileNotFoundException {
+    public ResponseEntity<?> download(@RequestParam("q") String q, @RequestParam("id") String id) throws SQLException, FileNotFoundException {
 
         File file = getFile(q, id).orElseThrow();
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
@@ -258,7 +263,7 @@ public class PersonManagementController {
                 .body(resource);
     }
 
-    public Optional<File> getFile(String q, String id){
+    public Optional<File> getFile(String q, String id) {
         return Optional.of(new File("./cms_vx/person/" + id + "/" + q));
     }
 

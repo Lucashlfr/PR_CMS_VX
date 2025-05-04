@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Schließen...</title>
+    <script>
+        // Fenster nach kurzer Verzögerung automatisch schließen
+        window.onload = function () {
+            window.close();
+            // Optional: Elternseite refreshen
+            if (window.opener) {
+                window.opener.location.reload();
+            }
+        };
+    </script>
+</head>
+<body>
+<p>Fenster wird geschlossen...</p>
+</body>
+</html>

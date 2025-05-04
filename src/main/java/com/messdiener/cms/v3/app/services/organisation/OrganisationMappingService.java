@@ -1,6 +1,6 @@
 package com.messdiener.cms.v3.app.services.organisation;
 
-import com.messdiener.cms.v3.app.entities.event.OrganisationEvent;
+import com.messdiener.cms.v3.app.entities.organisation.OrganisationEvent;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
@@ -154,4 +154,25 @@ public class OrganisationMappingService {
         }
         return list;
     }
+
+    public List<OrganisationEvent> getNextEventsByPerson(UUID personId, OrganisationType organisationType, int response, int schedule) throws SQLException {
+        List<OrganisationEvent> list = new ArrayList<>();
+        String sql = "SELECT * FROM module_organisation_events, module_organisation_map WHERE module_organisation_events.id = module_organisation_map.eventId AND userId = ? AND type = ? AND response = ? AND schedule = ? AND startDate > ?";
+
+        try (Connection connection = databaseService.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, personId.toString());
+            preparedStatement.setString(2, organisationType.toString());
+            preparedStatement.setInt(3, response);
+            preparedStatement.setInt(4, schedule);
+            preparedStatement.setLong(5, System.currentTimeMillis());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    list.add(organisationEventService.getByResultSet(resultSet));
+                }
+            }
+        }
+        return list;
+    }
+
 }

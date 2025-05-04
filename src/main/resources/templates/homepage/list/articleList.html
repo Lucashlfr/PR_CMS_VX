@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark mb-4" style="background-color: rgb(0,0,100);">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="layers"></i></span>
+                                    <span>Homepage</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalten der Homepage
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+            <div class="container-fluid px-4 mt-4">
+                <div class="d-flex mb-3">
+                    <button class="btn text-white btn-sm flex-fill m-1" type="button" data-bs-toggle="modal" data-bs-target="#create" style="background-color: rgb(0,0,100)">+ Artikel erstellen</button>
+                </div>
+
+              <div class="card">
+                  <div class="card-body">
+                      <div class="tab-content" id="cardTabContent">
+                          <div class="text-center" id="load">
+                                    <span class="spinner-border card-img"
+                                          style="min-height: 200px; min-width: 200px;"></span>
+                          </div>
+                          <div class="d-none" id="content" style="overflow-y: scroll">
+                              <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
+                                  <thead>
+                                  <tr>
+                                      <th></th>
+                                      <th>Name</th>
+                                      <th>Ersteller</th>
+                                      <th>Letzes Update</th>
+                                  </tr>
+                                  </thead>
+                                  <tbody>
+
+                                  <tr th:each="a:${articles}">
+                                      <td th:text="${a.getLastUpdate().toLong()}"></td>
+                                      <td>
+                                          <a th:href="'/homepage?article=' + ${a.getId()}" th:text="${a.getTitle()}"></a>
+                                      </td>
+                                      <td></td>
+                                      <td th:text="${a.getLastUpdate().getGermanDate()}"></td>
+                                  </tr>
+
+
+                                  </tbody>
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+<form method="post" action="/homepage/create">
+    <div class="modal fade" id="create">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Artikel erstellen</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="titel" class="col-sm-2 col-form-label">Titel <span class="text-danger">*</span></label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="titel" name="title" required>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<script>
+    $(document).ready(function () {
+        $('#table_id').DataTable({
+            "columnDefs": [
+                {
+                    "targets": [0],
+                    "visible": false
+
+                },
+            ],
+            language: {
+                "decimal": ",",
+                "thousands": ".",
+                "infoPostFix": "",
+                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
+                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
+                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Zurück"
+                },
+                "processing": "Verarbeitung läuft ...",
+                "search": "Suche:",
+                "searchPlaceholder": "Suchbegriff",
+                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
+                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
+                "aria": {
+                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                },
+                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
+                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
+                "select": {
+                    "rows": {
+                        _: '%d Zeilen ausgewählt',
+                        0: 'Zeile anklicken um auszuwählen',
+                        1: 'Eine Zeile ausgewählt'
+                    }
+                }
+            }, paging: false,
+        });
+
+        setTimeout(function () {
+            document.getElementById("content").classList.remove("d-none");
+            document.getElementById("load").classList.add("d-none");
+        }, 0.1);
+    });
+</script>

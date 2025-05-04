@@ -1,5 +1,6 @@
 package com.messdiener.cms.v3.app.entities.person;
 
+import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.PersonAttributes;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,8 @@ public class Person {
 
     private PersonAttributes.Type type;
     private PersonAttributes.Rank rank;
+    private UUID principal;
+    private int fRank;
 
     private PersonAttributes.Salutation salutation;
     private String firstname;
@@ -59,12 +62,14 @@ public class Person {
     private boolean ob3;
     private boolean ob4;
 
+    private CMSDate preventionDate;
+
     public static Person empty(UUID tenantId) {
         return new Person(UUID.randomUUID(), tenantId,
-                PersonAttributes.Type.NULL, PersonAttributes.Rank.NULL, PersonAttributes.Salutation.NULL,
+                PersonAttributes.Type.NULL, PersonAttributes.Rank.NULL, Cache.SYSTEM_USER, 4, PersonAttributes.Salutation.NULL,
                 "", "", PersonAttributes.Gender.NOT_SPECIFIED, Optional.empty(),
                 "", "", "", "", "", "", "", Optional.empty(), Optional.empty(),
-                "", "", true, false, "", "", "", "", "", "", "", "", false, false, false, false);
+                "", "", true, false, "", "", "", "", "", "", "", "", false, false, false, false, CMSDate.of(0));
     }
 
     public String getReadName() {

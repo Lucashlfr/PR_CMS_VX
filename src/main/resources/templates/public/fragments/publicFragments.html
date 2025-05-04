@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:fragment="html_head">
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <title>Messdiener Knittelsheim</title>
+  <link th:href="@{/dist/css/styles_page.css}" rel="stylesheet"/>
+  <link rel="icon" type="image/x-icon" th:href="@{/img/favicon-96x96.ico}">
+  <script data-search-pseudo-elements defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js" crossorigin="anonymous"></script>
+  <script th:src="@{/dist/js/scriptspage.js}"></script>
+</head>
+
+<body>
+<nav th:fragment="navbar" class="navbar navbar-marketing navbar-expand-lg bg-white navbar-light">
+  <div class="container px-5">
+    <a class="navbar-brand text-dark" href="/">Messdiener Knittelsheim</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><i data-feather="menu"></i></button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto me-lg-5">
+        <li class="nav-item"><a class="nav-link" href="/">Startseite</a></li>
+        <li class="nav-item"><a class="nav-link" href="/about">Über uns</a></li>
+        <li class="nav-item"><a class="nav-link" href="/infos">Infos</a></li>
+        <li class="nav-item"><a class="nav-link" href="/contact">Ansprechpersonen</a></li>
+        <li class="nav-item"><a class="nav-link" href="/dashboard">CMS</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div th:fragment="footer">
+  <div id="layoutDefault_footer">
+    <footer class="footer mt-auto bg-dark footer-dark p-4">
+      <div class="container px-5 ">
+        <div class="row gx-5 align-items-center">
+          <div class="col-md-6 small">Copyright &copy; Messdiener Knittelsheim</div>
+          <div class="col-md-6 text-md-end small">
+            <a href="/impressum">Impressum</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+</body>
+</html>

@@ -7,7 +7,7 @@
     <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main>
-            <header class="page-header page-header-dark bg-purple mb-4">
+            <header class="page-header page-header-dark bg-info mb-4">
                 <div class="container-fluid px-4">
                     <div class="page-header-content pt-4">
                         <div class="row align-items-center justify-content-between">
@@ -52,37 +52,69 @@
                     </div>
                     <div class="card-body">
                         <div class="tab-content" id="cardTabContent">
-                            <div class="card mb-3" th:each="entry : ${privacyPolicies}">
-                                <div th:text="${entry.getFirstname()} + ' ' + ${entry.getLastname()}"></div>
-                                <table class="table">
+
+                            <div class="text-center" id="load">
+                                    <span class="spinner-border card-img"
+                                          style="min-height: 200px; min-width: 200px;"></span>
+                            </div>
+                            <div class="d-none" id="content" style="overflow-y: scroll">
+                                <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
+                                    <thead>
+                                    <tr>
+                                        <th>Name, Vorname</th>
+                                        <th>Adresse</th>
+                                        <th>Internet-Präsentationen</th>
+                                        <th>Weitergabe an andere Eltern</th>
+                                        <th>Print (int)</th>
+                                        <th>Print (ex)</th>
+                                        <th>Absprachen</th>
+                                        <th>Namens Nennung</th>
+                                        <th>Sorgerecht</th>
+                                        <th>Unterschrift</th>
+                                    </tr>
+                                    </thead>
                                     <tbody>
-                                    <tr>
-                                        <td>Adresse</td>
-                                        <td th:text="${entry.getStreet()} + ' ' + ${entry.getNumber()} + ${entry.getPlz()} + ' '+  ${entry.getCity()}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Einwilligung</td>
+
+                                    <tr th:each="entry : ${privacyPolicies}">
+                                        <td th:text="${entry.getFirstname()} + ' ' + ${entry.getLastname()}"></td>
                                         <td>
-                                            <span th:if="${entry.isCheck1()}" class="mdi mdi-check text-success">Internet-Präsentationen der Pfarrei / Gruppe verwendet</span>
-                                            <br th:if="${entry.isCheck1()}">
-                                            <span th:if="${entry.isCheck2()}" class="mdi mdi-check text-success">an andere Eltern - auch in der Form digitaler Speichermedien - weitergegeben werden dürfen,</span>
-                                            <br th:if="${entry.isCheck2()}">
-                                            <span th:if="${entry.isCheck3()}" class="mdi mdi-check text-success"> in Mitteilungen an die Mitglieder der katholischen Kirche wie z. B. dem Pfarrbrief wiedergegeben werden dürfen </span>
-                                            <br th:if="${entry.isCheck3()}">
-                                            <span th:if="${entry.isCheck4()}" class="mdi mdi-check text-success">an öffentliche Publikationsorgane zum Zwecke der Veröffentlichung weitergegeben werden dürfen.</span>
-                                            <br th:if="${entry.isCheck4()}">
-                                            <span th:if="${entry.isCheck5()}" class="mdi mdi-check text-success">Hiermit willigen wir / willige ich ein, der Name, die Telefonnummer und die Emailadresse des Ministranten an die anderen Ministranten und deren Leiter für dienstliche Absprachen weitergegeben werden dürfen.</span>
-                                            <br th:if="${entry.isCheck5()}">
-                                            <span th:if="${entry.isCheck6()}" class="mdi mdi-check text-success">Hiermit willigen wir / willige ich ein, der Name des Ministranten in Veröffentlichungen der Einrichtung genannt werden darf.</span>
-                                            <br th:if="${entry.isCheck6()}">
+                                            <span th:text="${entry.getStreet()} + ' ' + ${entry.getNumber()}"></span><br>
+                                            <span th:text="${entry.getPlz()} + ' '+  ${entry.getCity()}"></span>
+                                        </td>
+                                        <td th:class="${entry.isCheck1()} ? 'bg-green text-white' : 'bg-red text-white' ">
+                                            <span th:class="${entry.isCheck1()} ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"
+                                                  th:text="${entry.isCheck1()} ? 'Erteilt' : 'Nicht erteilt'"></span>
+                                        </td>
+                                        <td th:class="${entry.isCheck2()} ? 'bg-green text-white' : 'bg-red text-white' ">
+                                            <span th:class="${entry.isCheck2()} ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"
+                                                  th:text="${entry.isCheck2()} ? 'Erteilt' : 'Nicht erteilt'"></span>
+                                        </td>
+                                        <td th:class="${entry.isCheck3()} ? 'bg-green text-white' : 'bg-red text-white' ">
+                                            <span th:class="${entry.isCheck3()} ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"
+                                                  th:text="${entry.isCheck3()} ? 'Erteilt' : 'Nicht erteilt'"></span>
+                                        </td>
+                                        <td th:class="${entry.isCheck4()} ? 'bg-green text-white' : 'bg-red text-white' ">
+                                            <span th:class="${entry.isCheck4()} ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"
+                                                  th:text="${entry.isCheck4()} ? 'Erteilt' : 'Nicht erteilt'"></span>
+                                        </td>
+                                        <td th:class="${entry.isCheck5()} ? 'bg-green text-white' : 'bg-red text-white' ">
+                                            <span th:class="${entry.isCheck5()} ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"
+                                                  th:text="${entry.isCheck5()} ? 'Erteilt' : 'Nicht erteilt'"></span>
+                                        </td>
+                                        <td th:class="${entry.isCheck6()} ? 'bg-green text-white' : 'bg-red text-white' ">
+                                            <span th:class="${entry.isCheck6()} ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"
+                                                  th:text="${entry.isCheck6()} ? 'Erteilt' : 'Nicht erteilt'"></span>
+                                        </td>
+                                        <td th:class="${entry.isCheck7()} ? 'bg-green text-white' : 'bg-red text-white' ">
+                                            <span th:class="${entry.isCheck7()} ? 'mdi mdi-check-circle' : 'mdi mdi-alert-circle'"
+                                                  th:text="${entry.isCheck7()} ? 'Erteilt' : 'Nicht erteilt'"></span>
+                                        </td>
+                                        <td>
+                                            <img th:src="${entry.getSignature()}" class="img-fluid" alt="...">
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>Unterschrift</td>
-                                        <td>
-                                            <img th:src="${entry.getSignature()}" alt="...">
-                                        </td>
-                                    </tr>
+
+
                                     </tbody>
                                 </table>
                             </div>
@@ -115,3 +147,47 @@
     <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
 </div>
+<script>
+    $(document).ready(function () {
+        $('#table_id').DataTable({
+            language: {
+                "decimal": ",",
+                "thousands": ".",
+                "infoPostFix": "",
+                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
+                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
+                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Zurück"
+                },
+                "processing": "Verarbeitung läuft ...",
+                "search": "Suche:",
+                "searchPlaceholder": "Suchbegriff",
+                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
+                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
+                "aria": {
+                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                },
+                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
+                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
+                "select": {
+                    "rows": {
+                        _: '%d Zeilen ausgewählt',
+                        0: 'Zeile anklicken um auszuwählen',
+                        1: 'Eine Zeile ausgewählt'
+                    }
+                }
+            }, paging: false,
+        });
+
+        setTimeout(function () {
+            document.getElementById("content").classList.remove("d-none");
+            document.getElementById("load").classList.add("d-none");
+        }, 0.1);
+    });
+</script>
+

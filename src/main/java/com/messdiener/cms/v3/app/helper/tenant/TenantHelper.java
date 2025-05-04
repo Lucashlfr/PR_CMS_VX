@@ -1,6 +1,6 @@
 package com.messdiener.cms.v3.app.helper.tenant;
 
-import com.messdiener.cms.v3.app.entities.event.OrganisationEvent;
+import com.messdiener.cms.v3.app.entities.organisation.OrganisationEvent;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.tenant.Tenant;
 import com.messdiener.cms.v3.app.services.organisation.OrganisationAnalyticsService;

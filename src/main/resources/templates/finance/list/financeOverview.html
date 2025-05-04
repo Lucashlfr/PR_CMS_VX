@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-primary mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="layout"></i></span>
+                                    <span>Finanzen</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalte die Finanzen deiner Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+            <div class="container-fluid px-4 mt-4">
+                <div class="row">
+                    <div class="col-xl-2 col-md-6 mb-4">
+                        <!-- Dashboard info widget 1-->
+                        <div class="card border-start-lg border-start-green h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-green mb-1">Einnahmen in diesem Jahr</div>
+                                        <div class="h5" th:text="${incomeOfTheYear} + '€'"></div>
+                                    </div>
+                                    <div class="ms-2"><i class="mdi mdi-cash-plus mdi-48px text-green"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-6 mb-4">
+                        <!-- Dashboard info widget 2-->
+                        <div class="card border-start-lg border-start-red h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-red mb-1">Ausgaben in diesem Jahr</div>
+                                        <div class="h5" th:text="${expenditureOfTheYear} + '€'"></div>
+                                    </div>
+                                    <div class="ms-2"><i class="mdi mdi-cash-minus mdi-48px text-red"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-6 mb-4">
+                        <!-- Dashboard info widget 3-->
+                        <div class="card border-start-lg border-start-primary h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-primary mb-1">Volumen Barkasse</div>
+                                        <div class="h5" th:text="${volumeCash} + '€'"></div>
+                                    </div>
+                                    <div class="ms-2"><i class="mdi mdi-hand-coin mdi-48px text-primary"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-6 mb-4">
+                        <!-- Dashboard info widget 4-->
+                        <div class="card border-start-lg border-start-purple h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-purple mb-1">Volumen Konto</div>
+                                        <div class="h5" th:text="${volumeAccount} + '€'" ></div>
+                                    </div>
+                                    <div class="ms-2"><i class="mdi mdi-credit-card mdi-48px text-purple"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-6 mb-4">
+                        <!-- Dashboard info widget 1-->
+                        <div class="card border-start-lg border-start-yellow h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-yellow mb-1">Offenes Budget</div>
+                                        <div class="h5" th:text="${global} + '€'"></div>
+                                    </div>
+                                    <div class="ms-2"><i class="mdi mdi-cash-register mdi-48px text-yellow"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-2 col-md-6 mb-4">
+                        <!-- Dashboard info widget 1-->
+                        <div class="card border-start-lg border-start-info h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold text-info mb-1">Liquide Mittel</div>
+                                        <div class="h5" th:text="${liquid} + '€'"></div>
+                                    </div>
+                                    <div class="ms-2"><i class="mdi mdi-check-circle mdi-48px text-info"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex align-items-stretch mb-3">
+                    <!-- Project Documents -->
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="folder" class="text-red fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Kostenstellen & Budgets</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div>10 Uploads</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a class="btn btn-primary btn-sm mdi mdi-plus" href="/finance/budget" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;"></a>
+                                </div>
+                            </div>
+                            <div class="card-body p-1" style="max-height: 300px; overflow-y: scroll;">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>gep. Budget</th>
+                                        <th>aktueller Saldo</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    <tr th:each="b:${budgets}">
+                                        <td th:text="${b.getName()}">
+                                        </td>
+                                        <td>
+                                            <span th:text="${b.getPlannedIncome() - b.getPlannedExpenditure()} + '€'"></span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${financeHelper.getBudget(b.getId())} + '€'"></span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tasks -->
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="git-pull-request" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Transaktionen</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div>10 offene Aufgaben</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-primary btn-sm mdi mdi-plus" href="/finance/transaction/create"  onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;"></a>
+                                        <button class="btn btn-primary btn-sm mdi mdi-pencil" data-bs-toggle="modal" data-bs-target="#update"></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-1" style="max-height: 300px; overflow-y: scroll;">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Wert</th>
+                                        <th>Status</th>
+                                        <th>Datum</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    <tr th:each="t:${transactions}">
+                                        <td>
+                                            <a th:text="${t.getTitle()}" th:href="'/finance/transaction?s=1&id=' + ${t.getId()}" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;"></a>
+
+                                        </td>
+                                        <td>
+                                            <span th:if="${financeHelper.getSumm(t.getId())} > 0" class="text-green" th:text="${financeHelper.getSumm(t.getId())}+ '€'"></span>
+                                            <span th:if="${financeHelper.getSumm(t.getId())} < 0" class="text-red" th:text="${financeHelper.getSumm(t.getId())}+ '€'"></span>
+                                        </td>
+                                        <td th:text="${t.getTransactionState().label}"></td>
+                                        <td th:text="${t.getDate().getGermanDate()}"></td>
+                                    </tr>
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <style>
+                        .card-body.clamp-description {
+                            overflow: scroll;
+                            display: -webkit-box;
+                            -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                            -webkit-box-orient: vertical;
+                        }
+
+                        .card-limit-height {
+                            min-height: 400px;
+                        }
+
+                        .row.d-flex {
+                            align-items: stretch;
+                        }
+
+                    </style>
+                    <div class="col-xl-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="inbox" class="text-primary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Audit Log</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${audit.size()} + ' Meldungen'"> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body pt-3" style="max-height: 300px; overflow-y: scroll;">
+                                <!-- Fade In Animation -->
+                                <div class="timeline timeline-sm">
+                                    <div class="timeline-item" th:each="a:${audit}">
+                                        <div class="timeline-item-marker">
+                                            <div th:class="'timeline-item-marker-indicator fw-normal ' + ${a.getType().getColor()} + '-soft ' + ${a.getType().getTextColor()}"><i th:data-feather="${a.getType().getIcon()}"></i></div>
+                                        </div>
+                                        <div class="timeline-item-content"><span th:text="${a.getTimestamp().getGermanLongDate()}"></span> von <span class="text-primary" th:text="${personHelper.getName(a.userId)}"></span>: <span th:text="${a.title}"></span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <form th:action="@{/audit/create}" method="post">
+                                    <input type="hidden" name="connectedId" th:value="${user.getTenantId()}" class="d-none" />
+                                    <input type="hidden" name="category" th:value="'FINANCE'" class="d-none" />
+                                    <input type="hidden" name="description" th:value="'#'" class="d-none" />
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" name="title" placeholder="Something clever.." required>
+                                        <button class="btn btn-success mdi mdi-comment" type="submit"></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+<!-- The Modal -->
+
+
+<form th:action="@{/finance/createPdf}" th:method="post">
+    <div class="modal fade" id="update">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title text-blue">Abrechnung erstellen</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <div class="form-check" th:each="t : ${transactions}">
+                        <input class="form-check-input" type="checkbox" name="selected" th:value="${t.getId()}">
+                        <label class="form-check-label" th:text="${t.getTitle()} + ' vom ' + ${t.getDate().getGermanDate()}"></label>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer d-flex">
+                    <button class="btn btn-blue btn-sm flex-fill m-1" type="submit">Prozess starten</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</div>

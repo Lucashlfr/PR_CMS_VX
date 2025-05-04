@@ -5,6 +5,8 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.entities.table.CMSCell;
+import com.messdiener.cms.v3.app.entities.table.CMSRow;
 import com.messdiener.cms.v3.utils.other.Pair;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 
@@ -15,12 +17,13 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public class FileCreator {
 
-    private static final Font contentFont = FontFactory.getFont("ARIAL", 11);
+    private static final Font contentFont = FontFactory.getFont("ARIAL", 10);
     private final Document document;
 
     private final ArrayList<Pair<String, String>> table;
@@ -40,6 +43,12 @@ public class FileCreator {
     private String sender3;
     private String sender4;
     private String signature;
+    private String imageUrl;
+    private String abbreviation;
+    private String workflow;
+    private String manager;
+    private String approval;
+    private List<CMSRow> rows;
 
     public FileCreator() {
         this.document = new Document();
@@ -60,6 +69,12 @@ public class FileCreator {
         this.sender3 = "76756 Bellheim";
         this.sender4 = "lucas@messdiener.com";
         this.signature = "";
+        this.imageUrl = "https://i.ibb.co/zWJfCnHd/Logo-mit-Schrift-HL-Hildegard-Bellheim.png";
+        this.abbreviation = "-";
+        this.workflow = "-";
+        this.manager = "-";
+        this.approval = "Keine (F0)";
+        this.rows = new ArrayList<>();
     }
 
     public FileCreator setFolder(String... folder) {
@@ -84,6 +99,11 @@ public class FileCreator {
         String uuid = UUID.randomUUID().toString();
 
         this.fileName = CMSDate.current().getEnglishDate() + "_" + uuid.split("-")[0] + "_" + fileName;
+        return this;
+    }
+
+    public FileCreator setFileName(UUID uuid) {
+        this.fileName = uuid.toString() + ".pdf";
         return this;
     }
 
@@ -141,17 +161,45 @@ public class FileCreator {
         return this;
     }
 
-    private PdfPCell getCell(String text, int fontSize) {
+    public FileCreator setImageUrlKn() {
+        this.imageUrl = "https://messdiener-knittelsheim.de/wp-content/uploads/2025/04/Logo_mit_Schrift_Knittelsheim.png";
+        return this;
+    }
+
+    public FileCreator setInfoline(String abbreviation, String workflow, String manager, String approval) {
+        this.abbreviation = abbreviation;
+        this.workflow = workflow;
+        this.manager = manager;
+        this.approval = approval;
+        return this;
+    }
+
+    public FileCreator addRow(CMSRow row) {
+        this.rows.add(row);
+        return this;
+    }
+
+    private PdfPCell getCell(String text, int fontSize, boolean b) {
         Font font = FontFactory.getFont("ARIAL", fontSize);
         PdfPCell pdfPCell = new PdfPCell(new Paragraph(text, font));
-        pdfPCell.setBorder(PdfPCell.NO_BORDER);
+        if(b){
+            pdfPCell.setBorder(PdfPCell.BOX);
+        }else {
+            pdfPCell.setBorder(PdfPCell.NO_BORDER);
+        }
         return pdfPCell;
     }
 
-    private PdfPCell getBoldCell(String text, int fontSize) {
+
+
+    private PdfPCell getBoldCell(String text, int fontSize, boolean b) {
         Font boldFont = FontFactory.getFont("ARIAL", fontSize, Font.BOLD);
         PdfPCell pdfPCell = new PdfPCell(new Phrase(text, boldFont));
-        pdfPCell.setBorder(PdfPCell.NO_BORDER);
+        if(b){
+            pdfPCell.setBorder(PdfPCell.BOX);
+        }else {
+            pdfPCell.setBorder(PdfPCell.NO_BORDER);
+        }
         return pdfPCell;
     }
 
@@ -175,14 +223,14 @@ public class FileCreator {
         document.add(paragraph);
     }
 
+
     public Optional<File> createPdf() throws IOException, DocumentException {
 
         PdfWriter.getInstance(document, new FileOutputStream(folder + fileName));
         document.open();
 
-        String imageUrl = "https://i.ibb.co/zWJfCnHd/Logo-mit-Schrift-HL-Hildegard-Bellheim.png";
         Image image = Image.getInstance(new URL(imageUrl));
-        image.scalePercent(35);
+        image.scalePercent(25);
         image.setAlignment(Element.ALIGN_CENTER);
         document.add(image);
 
@@ -194,7 +242,7 @@ public class FileCreator {
         headerCell.setColspan(2);
         tableA.addCell(headerCell);
 
-        tableA.addCell(getCell(address1 + "\n" + address2 + "\n" + address3 + "\n" + address4, 10));
+        tableA.addCell(getCell(address1 + "\n" + address2 + "\n" + address3 + "\n" + address4, 10, false));
         PdfPCell cmsCell = new PdfPCell();
         cmsCell.setBorder(PdfPCell.NO_BORDER);
         Paragraph cmsContent = new Paragraph();
@@ -202,25 +250,39 @@ public class FileCreator {
         cmsContent.add(new Chunk("Central Management System\n", FontFactory.getFont("ARIAL", 10, Font.BOLD)));
         cmsContent.add(new Chunk(sender1 + "\n" + sender2 + "\n" + sender3 + "\n\nE-Mail: \n" + sender4, FontFactory.getFont("ARIAL", 10)));
 
-        cmsContent.add(Chunk.NEWLINE);
-        cmsContent.add(Chunk.NEWLINE);
-        cmsContent.add(Chunk.NEWLINE);
-        Paragraph dateParagraph = new Paragraph(CMSDate.current().getGermanDate(), FontFactory.getFont("ARIAL", 10));
-        dateParagraph.setAlignment(Element.ALIGN_RIGHT);
-
-        cmsContent.add(dateParagraph);
         cmsCell.addElement(cmsContent);
         tableA.addCell(cmsCell);
-
         document.add(tableA);
 
+        addNewLine();
+        addNewLine();
+        PdfPTable tableC = new PdfPTable(5);
+        tableC.setWidthPercentage(100);
+        tableC.setWidths(new float[]{2, 2,2,2,2});
+
+        tableC.addCell(getBoldCell("Kürzel", 8, false));
+        tableC.addCell(getBoldCell("Workflow", 8, false));
+        tableC.addCell(getBoldCell("Obermessdiener*in", 8, false));
+        tableC.addCell(getBoldCell("Freigabe", 8, false));
+        tableC.addCell(getBoldCell("Datum", 8, false));
+
+        tableC.addCell(getCell(abbreviation, 8, false));
+        tableC.addCell(getCell(workflow, 8, false));
+        tableC.addCell(getCell(manager, 8, false));
+        tableC.addCell(getCell(approval, 8, false));
+        tableC.addCell(getCell(CMSDate.current().getGermanDate(), 8, false));
+
+        document.add(tableC);
+
+        /*
         Paragraph infoParagraph = new Paragraph("– Erstellt über Central Management System –", FontFactory.getFont("ARIAL", 10, Font.BOLD, BaseColor.RED));
         infoParagraph.setAlignment(Element.ALIGN_CENTER);
         document.add(infoParagraph);
+         */
         addNewLine();
         addNewLine();
 
-        Font titleFont = FontFactory.getFont("ARIAL", 11, Font.BOLD);
+        Font titleFont = FontFactory.getFont("ARIAL", 10, Font.BOLD);
         Paragraph title = new Paragraph(subject, titleFont);
         title.setAlignment(Element.ALIGN_LEFT);
         document.add(title);
@@ -239,22 +301,39 @@ public class FileCreator {
             PdfPTable tableF = new PdfPTable(2);
             tableF.setWidthPercentage(100);
             tableF.setWidths(new float[]{1, 1});
-            tableF.addCell(getBoldCell("Feld", 11));
-            tableF.addCell(getBoldCell("Wert", 11));
+            tableF.addCell(getBoldCell("Feld", 10, true));
+            tableF.addCell(getBoldCell("Wert", 10, true));
 
             for (Pair<String, String> attribute : table) {
-                tableF.addCell(getCell(attribute.getFirst(), 11));
-                tableF.addCell(getCell(attribute.getSecond(), 11));
+                tableF.addCell(getCell(attribute.getFirst(), 10, true));
+                tableF.addCell(getCell(attribute.getSecond(), 10, true));
             }
 
             document.add(tableF);
             addNewLine();
-
-
         }
 
+        // **Neue Tabelle aus CMSRow-Liste einfügen**
+        if (rows != null && !rows.isEmpty()) {
+            // Anzahl der Spalten anhand der ersten Zeile ermitteln
+            int numCols = rows.getFirst().getCells().size();
+            PdfPTable dataTable = new PdfPTable(numCols);
+            dataTable.setWidthPercentage(100);
 
-        addParagraph("Beste Grüße,");
+            // Zeilen hinzufügen
+            for (CMSRow row : rows) {
+                if (row.check()) { // nur gültige Zeilen
+                    for (CMSCell cell : row.getCells()) {
+                        dataTable.addCell(getCell(cell.getContent(), 10, false));
+                    }
+                }
+            }
+
+            document.add(dataTable);
+            addNewLine();
+        }
+
+        addParagraph("Mit freundlichen Grüßen,");
         addNewLine();
 
         if (signature != null && !signature.isEmpty()) {
@@ -266,7 +345,9 @@ public class FileCreator {
             addNewLine();
         }
 
-        addParagraph(documentOwner);
+        Paragraph docOwner = new Paragraph(documentOwner, titleFont);
+        docOwner.setAlignment(Element.ALIGN_LEFT);
+        document.add(docOwner);
         addParagraph(rank);
 
         document.close();

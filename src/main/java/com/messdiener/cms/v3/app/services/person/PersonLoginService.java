@@ -35,11 +35,11 @@ public class PersonLoginService {
             }
 
             personService.updatePerson(person);
-            LOGGER.info("Login data updated for '{} {}'", person.getFirstname(), person.getLastname());
+            //LOGGER.info("Login data updated for '{} {}'", person.getFirstname(), person.getLastname());
         }
     }
 
-    public void createLogin(Person person) {
+    public void createLogin(Person person) throws SQLException {
         if (!person.isCanLogin()) return;
 
         if (isBlank(person.getUsername())) {
@@ -59,6 +59,7 @@ public class PersonLoginService {
                 LOGGER.info("Generated random password for '{} {}'", person.getFirstname(), person.getLastname());
             }
         }
+        personService.updatePerson(person);
     }
 
     public void matchPersonToUser() throws SQLException {

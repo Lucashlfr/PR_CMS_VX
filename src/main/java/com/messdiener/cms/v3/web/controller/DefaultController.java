@@ -42,7 +42,7 @@ public class DefaultController {
         LOGGER.info("DefaultController initialized.");
     }
 
-    @GetMapping("/")
+    @GetMapping("/dashboard")
     public String index(HttpSession httpSession, Model model) throws SQLException {
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));

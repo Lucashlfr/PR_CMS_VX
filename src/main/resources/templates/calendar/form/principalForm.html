@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body>
+<main>
+    <header class="page-header page-header-dark bg-yellow mb-4">
+        <div class="container px-4">
+            <div class="page-header-content pt-4">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-auto mt-4">
+                        <h1 class="page-header-title">
+                            <span class="page-header-icon text-white"><i data-feather="layout"></i></span>
+                            <span>Event</span>
+                        </h1>
+                        <div class="page-header-subtitle">Plane deine Aktionen für deine Messdienergruppe
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Main page content-->
+
+    <div class="container px-4 mt-4">
+        <div class="card">
+
+            <div class="card-header">Verantwortliche Personen auswählen</div>
+            <div class="card-body">
+
+                <form th:action="@{/planer/principal/save}" th:method="post">
+                    <input type="hidden" name="id" th:value="${event.getEventId()}">
+                    <input type="hidden" name="taskId" th:value="${task.getTaskId()}">
+                    <div class="form-check" th:each="p : ${persons}">
+                        <input class="form-check-input" type="checkbox" name="selectedPersons" th:value="${p.getId()}">
+                        <label class="form-check-label" th:text="${p.getName()}"></label>
+                    </div>
+                    <button class="btn btn-yellow btn-sm flex-fill m-1" type="submit">Speichern</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</main>
+<div th:insert="~{fragments :: script}"></div>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/script/main.js}"></script>
+
+</body>
+</html>

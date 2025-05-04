@@ -1,8 +1,8 @@
 package com.messdiener.cms.v3.web.controller;
 
-import com.messdiener.cms.v3.app.entities.event.OrganisationEvent;
+import com.messdiener.cms.v3.app.entities.organisation.OrganisationEvent;
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.helper.event.OrganisationEventHelper;
+import com.messdiener.cms.v3.app.helper.organisation.OrganisationEventHelper;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.helper.tenant.TenantHelper;
 import com.messdiener.cms.v3.security.SecurityHelper;
@@ -57,7 +57,7 @@ public class OrganisationController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(session);
 
-        if (!personHelper.hasPermission(person, "TEAM")) {
+        if (!personHelper.hasPermission(person, 1)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Zugriff verweigert.");
         }
 
@@ -70,6 +70,7 @@ public class OrganisationController {
         model.addAttribute("tenants", cache.getTenantService().getTenants());
         model.addAttribute("tenantHelper", tenantHelper);
         model.addAttribute("eventHelper", eventHelper);
+        model.addAttribute("person", person);
 
         String query = q.orElse("null");
         LOGGER.info("WorshipController: query = {}", query);

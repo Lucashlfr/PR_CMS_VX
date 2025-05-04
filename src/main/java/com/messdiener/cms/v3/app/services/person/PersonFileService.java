@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class PersonFileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonFileService.class);
-    private static final String BASE_PATH = "." + File.separator + "cms_v2" + File.separator + "messdienerDaten";
+    private static final String BASE_PATH = "." + File.separator + "cms_vx" + File.separator + "person";
 
     @PostConstruct
     public void init() {
@@ -29,7 +29,6 @@ public class PersonFileService {
         Path dirPath = Path.of(BASE_PATH, personId.toString());
 
         if (!Files.exists(dirPath) || !Files.isDirectory(dirPath)) {
-            LOGGER.info("Directory for user '{}' does not exist.", personId);
             return Collections.emptySet();
         }
 

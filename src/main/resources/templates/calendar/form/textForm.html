@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body>
+<main>
+    <header class="page-header page-header-dark bg-yellow pb-10">
+        <div class="container-fluid px-4">
+            <div class="page-header-content pt-4">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-auto mt-4">
+                        <h1 class="page-header-title">
+                            <div class="page-header-icon"><i data-feather="file-text"></i></div>
+                            <span th:text="'Dokument / ' + ${document.getTitle()}"></span>
+                        </h1>
+                        <div class="page-header-subtitle">Bearbeite das Dokument hier</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Main page content-->
+    <div class="container-fluid px-4 mt-n10">
+        <div class="card">
+            <div class="card-body">
+                <form th:action="@{/document/update}" th:method="post">
+                    <input type="hidden" name="id" th:value="${document.id}"/>
+                    <input type="hidden" name="owner" th:value="${document.owner}"/>
+                    <input type="hidden" name="target" th:value="${document.target}"/>
+                    <input type="hidden" name="title" th:value="${document.title}"/>
+                    <input type="hidden" name="permissions" th:value="${document.permissions}"/>
+                    <textarea class="form-control mb-3" id="comment" name="content" rows="3"
+                              placeholder="Beschreibung der Aktion" th:text="${document.content}"></textarea>
+                    <div class="d-flex mt-3">
+                        <button class="btn btn-yellow btn-sm flex-fill m-1" type="submit">Speichern</button>
+                        <a class="btn btn-yellow btn-sm flex-fill m-1" type="submit"  th:href="'/planer/task/check?eventId=' + ${event.getEventId()} + '&taskId=' + ${task.getTaskId()}">Abschließen</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+<div th:insert="~{fragments :: script}"></div>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/script/main.js}"></script>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<script src="https://cdn.tiny.cloud/1/cffl90sfi2w6v9p7qf819uqgaookf9q7jqhf5e83m8g0rbb5/tinymce/7/tinymce.min.js"
+        referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: 'textarea', // Wähle das Textarea-Element aus
+        plugins: 'advlist autolink lists link image charmap preview anchor table',
+        toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image table',
+        menubar: false, // Menüleiste deaktivieren (optional)
+        branding: false, // "Powered by TinyMCE" ausblenden (nur in Free-Version anpassbar)
+        height: 600, // Editor-Höhe einstellen
+        image_uploadtab: false, // Falls keine Bilder hochgeladen werden sollen
+        content_style: 'body { font-family: Arial, sans-serif; font-size: 14px; }'
+    });
+</script>
+</html>

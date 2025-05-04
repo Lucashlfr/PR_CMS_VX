@@ -58,19 +58,22 @@
                                 <td th:text="${p.getName()}"></td>
                                 <th th:each="event:${events}" class="text-center">
                                     <button
-                                            class="btn btn-info btn-sm mdi mdi-calendar-plus"
-                                            th:if="${p != null and p.isRegistered(event.getId())}"
+                                            class="btn btn-info btn-sm"
+                                            th:if="${p != null and eventHelper.isRegistered(p.getId(), event.getId())}"
                                             th:data-event-id="${event.getId()}"
                                             th:data-participant-id="${p.getId()}"
-                                            onclick="triggerAjax(this.getAttribute('data-event-id'), this.getAttribute('data-participant-id'), this)">
+                                            onclick="triggerAjax(this)">
+                                        <i class="mdi mdi-calendar-plus"></i>
                                     </button>
 
+
                                     <button
-                                            class="btn btn-green btn-sm mdi mdi-calendar-check"
-                                            th:if="${p != null and p.isScheduled(event.getId())}"
+                                            class="btn btn-green btn-sm"
+                                            th:if="${p != null and eventHelper.isScheduled(p.getId(), event.getId())}"
                                             th:data-event-id="${event.getId()}"
                                             th:data-participant-id="${p.getId()}"
                                             onclick="triggerAjax(this.getAttribute('data-event-id'), this.getAttribute('data-participant-id'), this)">
+                                        <i class="mdi mdi-calendar-check"></i>
                                     </button>
 
 
@@ -109,7 +112,11 @@
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
 </div>
 <script>
-    function triggerAjax(eventId, personId, buttonElement) {
+    function triggerAjax(buttonElement) {
+        const eventId = buttonElement.getAttribute("data-event-id");
+        const personId = buttonElement.getAttribute("data-participant-id");
+        const icon = buttonElement.querySelector("i");
+
         console.log("Sende Anfrage mit Event ID:", eventId, "Person ID:", personId);
 
         fetch(`/organisation/register-event?eventId=${encodeURIComponent(eventId)}&personId=${encodeURIComponent(personId)}`, {
@@ -124,20 +131,26 @@
             .then(data => {
                 console.log('Erfolgreich registriert:', data.message);
 
-                // Button ändern nach erfolgreicher Registrierung
-                if (data.message === 'true') {
-                    buttonElement.classList.remove('btn-info', 'mdi-calendar-plus');
-                    buttonElement.classList.add('btn-green', 'mdi-calendar-check');
+                if (data.message === "true") {
+                    buttonElement.classList.remove('btn-info');
+                    buttonElement.classList.add('btn-green');
+                    icon.classList.remove('mdi-calendar-plus');
+                    icon.classList.add('mdi-calendar-check');
                 } else {
-                    buttonElement.classList.add('btn-info', 'mdi-calendar-plus');
-                    buttonElement.classList.remove('btn-green', 'mdi-calendar-check');
+                    buttonElement.classList.add('btn-info');
+                    buttonElement.classList.remove('btn-green');
+                    icon.classList.add('mdi-calendar-plus');
+                    icon.classList.remove('mdi-calendar-check');
                 }
+
+                console.log("Klassen nach Umschaltung:", buttonElement.classList);
             })
             .catch(error => {
                 console.error('Fehler beim Request:', error);
                 alert('Registrierung fehlgeschlagen!');
             });
     }
+
 </script>
 
 

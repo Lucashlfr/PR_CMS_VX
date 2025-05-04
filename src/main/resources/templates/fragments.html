@@ -149,19 +149,21 @@
                 <!-- Sidenav Accordion (Dashboard)-->
 
                 <a class="nav-link" href="/"><div class="nav-link-icon"><i data-feather="home"></i></div>Startseite</a>
-                <a class="nav-link" href="/onboarding"><div class="nav-link-icon"><i data-feather="layers"></i></div>Onboarding</a>
-                <a class="nav-link" href="/workflows">
-                    <div class="nav-link-icon"><i data-feather="pocket"></i></div>Workflows
+                <a class="nav-link" href="/workflow/dashboard">
+                    <div class="nav-link-icon"><i data-feather="pocket"></i></div>Deine Workflows
                     <span class="badge bg-warning-soft text-warning ms-auto" th:text="${session.openWorkflows + ' offen'}"></span>
                 </a>
 
-                <div th:if="${session.permissionTag.contains('TEAM')}">
+                <div th:if="${session.fRank >= 1}">
                 <div class="sidenav-menu-heading">Organisation</div>
-                <a class="nav-link" href="/tasks"><div class="nav-link-icon"><i data-feather="command"></i></div>Tasks</a>
                     <a class="nav-link" href="/personal"><div class="nav-link-icon"><i data-feather="user"></i></div>Personen</a>
-                    <a class="nav-link" href="/organisation/worship"><div class="nav-link-icon"><i data-feather="calendar"></i></div>Gottesdienste</a>
-                    <a class="nav-link" href="/planer"><div class="nav-link-icon"><i data-feather="framer"></i></div>Aktionen</a>
-                    <a class="nav-link" href="/finance"><div class="nav-link-icon"><i data-feather="dollar-sign"></i></div>Finanzen</a>
+                    <a class="nav-link" href="/organisation/worship"><div class="nav-link-icon"><i data-feather="list"></i></div>Gottesdienste</a>
+                    <a class="nav-link" href="/event"><div class="nav-link-icon"><i data-feather="calendar"></i></div>Kalender</a>
+                    <a class="nav-link" href="/workflow"><div class="nav-link-icon"><i data-feather="zap"></i></div>Workflows</a>
+                    <a class="nav-link" href="/finance"><div class="nav-link-icon"><i data-feather="layout"></i></div>Finanzen</a>
+                    <a class="nav-link" href="/guard"><div class="nav-link-icon"><i data-feather="shield"></i></div>HildeGuard</a>
+                    <a class="nav-link" href="/homepage"><div class="nav-link-icon"><i data-feather="layers"></i></div>Homepage</a>
+                    <a class="nav-link" href="/cloud"><div class="nav-link-icon"><i data-feather="upload-cloud"></i></div>Cloud</a>
 
                 </div>
             </div>
@@ -198,5 +200,46 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
     <script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
 </div>
+
+
+
+<div th:fragment="createFile(target)">
+    <form method="post" action="/document/create">
+        <input type="hidden" name="target" th:value="${target}"/>
+        <div class="modal fade" id="createFile">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Dokument erstellen</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+
+                        <div class="row mb-3 align-items-center">
+                            <label for="titel" class="col-sm-2 col-form-label">Titel <span class="text-danger">*</span></label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="titel" name="title" required>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Speichern</button>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
 </body>
 </html>

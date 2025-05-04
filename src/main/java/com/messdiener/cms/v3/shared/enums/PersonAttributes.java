@@ -16,7 +16,7 @@ public class PersonAttributes {
 
 	@Getter
     public enum Connection {
-		PARENT("Elternteil"), HIERARCHIC("Hierarchisch"), SIBLING("Geschwister");
+		FRIEND("Befreundet"), SIBLING("Geschwister");
 
 		private final String name;
 

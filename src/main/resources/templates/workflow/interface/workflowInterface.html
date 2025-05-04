@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-purple mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="zap"></i></span>
+                                    <span>Workflows</span>
+                                </h1>
+                                <div class="page-header-subtitle">Workflows für deine Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-fluid px-4 mt-4">
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-8 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="rounded-3 d-flex align-items-center justify-content-center bg-purple-soft"
+                                             style="width: 48px; height: 48px;">
+                                            <i class="text-purple fs-4 "
+                                               data-feather="zap"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold" th:text="${workflow.getWorkflowType().getLabel()}"></h5>
+                                            <div class="d-flex flex-wrap gap-2 small text-muted">
+                                                <div>Typ: <span class="text-dark fw-semibold"
+                                                                th:text="${workflow.getWorkflowType().getLabel()}"></span></div>
+                                                <div>Schritt: <span class="text-dark fw-semibold"
+                                                                    th:text="${workflow.getCurrentNumber()}"></span>
+                                                </div>
+                                                <div>Status: <span class="text-dark fw-semibold"
+                                                                   th:text="${workflow.getCMSState().getLabel()}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body clamp-description">
+                                <span class="card-title text-lg fw-bold text-black">Beschreibung</span><br>
+                                <span th:text="${workflow.getWorkflowType().getDescription()}"></span><br><br>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-12 mb-4">
+                        <div class="card h-100" id="reference-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="info" class="text-info fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Zusatzinformationen</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                Füge weitere Informationen hinzu
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="table-responsive">
+                                    <table class="table text-nowrap align-middle">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="check-circle" class="me-2 text-info"></i> Status
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+
+                                            <td><span class="d-flex"><span
+                                                    class="badge bg-info-soft text-info flex-fill"
+                                                    th:text="${workflow.getCMSState().getLabel()}"></span></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="calendar" class="me-2 text-primary"></i> Timeline
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td th:text="${workflow.getCreationDate().getGermanDate()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                    <span class="d-flex align-items-center">
+                                        <i data-feather="user" class="me-2 text-primary"></i> Manager
+                                    </span>
+                                            </td>
+                                            <td>:</td>
+                                            <td></td>
+                                        </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex align-items-stretch mb-3">
+                    <!-- Project Documents -->
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="folder" class="text-red fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Dateien</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div>10 Uploads</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 250px; overflow-y: scroll;">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item text-muted">Keine Dateien vorhanden</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub Tasks -->
+                    <div class="col-xl-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="git-pull-request" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Modules</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div>10 offene Aufgaben</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-2" style="max-height: 250px; overflow-y: scroll;">
+                                <table class="table table-sm table-hover">
+                                    <tr th:each="s:${steps}">
+                                        <td>
+                                            <span th:if="${s.getStatus().toString().equals('OPEN')}" class="mdi mdi-circle text-yellow"></span>
+                                            <span th:if="${s.getStatus().toString().equals('IN_PROGRESS')}" class="mdi mdi-circle text-blue"></span>
+                                            <span th:if="${s.getStatus().toString().equals('COMPLETED')}" class="mdi mdi-check-circle text-green"></span>
+                                            <span th:if="${s.getStatus().toString().equals('SKIPPED')}" class="mdi mdi-arrow-u-down-right text-green"></span>
+                                            <span th:if="${s.getStatus().toString().equals('REJECTED')}" class="mdi mdi-alert-circle text-red"></span>
+                                            <span th:if="${s.getStatus().toString().equals('WAITING')}" class="mdi mdi-clock text-blue"></span>
+                                        </td>
+                                        <td th:text="${s.getNumber()}"></td>
+                                        <td>
+                                            <a th:href="'/workflow/module?id=' + ${s.getModuleId()} + '&wf=' + ${workflow.getWorkflowId()}" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;" th:text="${s.getName()}"></a>
+                                        </td>
+                                        <td th:text="${s.getName()}"></td>
+                                        <td th:text="${personHelper.getName(s.getOwner())}"></td>
+                                    </tr>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="inbox" class="text-primary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Audit Log</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${audit.size()} + ' Meldungen'"> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body pt-3" style="max-height: 300px; overflow-y: scroll;">
+                                <!-- Fade In Animation -->
+                                <div class="timeline timeline-sm">
+                                    <div class="timeline-item" th:each="a:${audit}">
+                                        <div class="timeline-item-marker">
+                                            <div th:class="'timeline-item-marker-indicator fw-normal ' + ${a.getType().getColor()} + '-soft ' + ${a.getType().getTextColor()}"><i th:data-feather="${a.getType().getIcon()}"></i></div>
+                                        </div>
+                                        <div class="timeline-item-content"><span th:text="${a.getTimestamp().getGermanLongDate()}"></span> von <span class="text-primary" th:text="${personHelper.getName(a.userId)}"></span>: <span th:text="${a.title}"></span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <form th:action="@{/audit/create}" method="post">
+                                    <input type="hidden" name="connectedId" th:value="${workflow.getWorkflowId()}" class="d-none" />
+                                    <input type="hidden" name="category" th:value="'WORKFLOW'" class="d-none" />
+                                    <input type="hidden" name="description" th:value="'#'" class="d-none" />
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" name="title" placeholder="Something clever.." required>
+                                        <button class="btn btn-success mdi mdi-comment" type="submit"></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+</html>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
+    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
+</div>
+<script>
+    function openMessageModal(element) {
+        const modal = new bootstrap.Modal(document.getElementById('messageDetailModal'));
+
+        document.getElementById('modalMessageTitle').textContent = element.dataset.title;
+        document.getElementById('modalMessageDate').textContent = element.dataset.date;
+        document.getElementById('modalMessageType').textContent = element.dataset.type;
+        document.getElementById('modalMessageCreator').textContent = element.dataset.creator || '–';
+        document.getElementById('modalMessageInfoTo').textContent = element.dataset.info;
+        document.getElementById('modalMessageDescription').textContent = element.dataset.description;
+        document.getElementById('mIcon').className = 'rounded-3 d-flex align-items-center justify-content-center ' + element.dataset.color + '-soft';
+        document.getElementById('mIconS').className = 'fs-4 ' + element.dataset.textcolor;
+        document.getElementById('mIconS').setAttribute('data-feather', element.dataset.icon);
+        feather.replace();
+        modal.show();
+    }
+</script>
+

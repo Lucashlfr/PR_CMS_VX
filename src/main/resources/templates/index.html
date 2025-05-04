@@ -14,13 +14,6 @@
                     <img src="https://messdiener-knittelsheim.de/wp-content/uploads/2025/04/Logo-Ohne-Bg-cms.png" class="img-fluid ">
                 </div>
 
-                <div class="alert alert-primary alert-icon mb-3" role="alert" th:if="${user.isOb1()} and ${user.isOb2()} and ${user.isOb3()} and ${user.isOb4()}">
-                    <div class="alert-icon-aside"><i data-feather="alert-circle"></i></div>
-                    <div class="alert-icon-content">
-                        Bitte beende das Onboarding.
-                    </div>
-                </div>
-
                 <div class="alert alert-primary alert-icon mb-3" role="alert" th:if="${session.openWorkflows > 0}">
                     <div class="alert-icon-aside"><i data-feather="alert-circle"></i></div>
                     <div class="alert-icon-content">

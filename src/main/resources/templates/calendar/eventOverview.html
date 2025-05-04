@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-yellow mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="calendar"></i></span>
+                                    <span>Termine</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalte die Termine deiner Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4 mt-4">
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-7 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="calendar" class="text-pink fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">
+                                                <span>Anstehende Termine</span>
+                                            </h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="'Insgesamt x Events'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-yellow btn-sm mdi mdi-plus" href="javascript:void(0);"
+                                           data-bs-toggle="modal" data-bs-target="#create">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body clamp-description " id="content"
+                                 style="overflow: scroll;">
+
+
+                                <ul class="list-group">
+                                    <li th:class="'list-group-item d-flex align-items-start ' + ${event.getState().getBg()}" th:each="event : ${events}">
+                                        <span th:class="'mdi mdi-circle me-2 '"></span>
+                                        <a class="w-100 text-black" th:href="'/event?q=info&id=' + ${event.getEventId()}">
+                                            <span class="fw-bold" th:text="${event.getTitle()} + ' am ' + ${event.getStartDate().getGermanDate()}"></span>:
+                                            <span class="" th:text="${event.getDescription()}"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-xl-5 col-12 mb-4">
+                        <div class="card h-100" id="reference-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="info" class="text-info fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Alle Gottesdienste in der Pfarrei</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                Alle aus der Pfarrei
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <table id="data" class="d-none">
+                                    <tbody>
+                                    <tr th:each="e:${events}">
+                                        <td th:text="${e.getStartDate().getEnglishDate()}"></td>
+                                        <td th:if="${e.getEndDate().isPresent()}" th:text="${e.getEndDate().get().getEnglishDate()}"></td>
+                                        <td th:unless="${e.getEndDate().isPresent()}" th:text="${e.getStartDate().getEnglishDate()}"></td>
+                                        <td th:text="${e.getState().getColor()}"></td>
+                                        <td th:text="${e.getTitle()}"></td>
+                                        <td th:text="'/event?q=info#id=' + ${e.getEventId()}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="card-body">
+                                    <div id="calendar" class=""></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+
+<form th:method="post" th:action="@{/event/create}">
+
+    <div class="modal fade" id="create">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Termin erstellen</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-floating mb-2 mt-3">
+                                <input type="text" class="form-control" id="description" placeholder="Enter description"
+                                       name="description" required>
+                                <label for="description">Titel</label>
+                            </div>
+
+                            <div class="form-floating mb-2">
+                                <select type="text" class="form-select" id="bz" name="info">
+
+                                        <option th:each="t:${types}" th:value="${t}" th:text="${t.label}"></option>
+                                </select>
+                                <label for="bz">Typ</label>
+                            </div>
+
+                        </div>
+                        <div class="col-6">
+
+                            <div class="form-floating mb-2 mt-3">
+                                <input type="datetime-local" class="form-control" id="startDate"
+                                       placeholder="Enter email"
+                                       name="startDate" required>
+                                <label for="startDate">Start-Datum</label>
+                            </div>
+                            <div class="form-floating mb-2">
+                                <input type="datetime-local" class="form-control" id="endDate" placeholder="Enter email"
+                                       name="endDate">
+                                <label for="endDate">End-Datum</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<div th:insert="~{fragments :: script}"></div>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/script/main.js}"></script>
+<script th:src="@{/script/imports/jquery.min.js}"></script>
+<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/responsive/2.2.10/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
+</div>
+<script>
+    let calendarEl = document.getElementById('calendar');
+    let calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'de',
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,basicWeek,basicDay'
+        },
+        navLinks: false, // can click day/week names to navigate views
+        editable: false,
+        eventLimit: true, // allow "more" link when too many events
+        firstDay: 1,
+
+        monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+        monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'November', 'Dic'],
+        dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+        dayNamesShort: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        //gets rows of table
+        let table = document.getElementById('data');
+        let rowLength = table.rows.length;
+
+        for (let i = 0; i < rowLength; i++) {
+
+            let cells = table.rows.item(i).cells;
+
+            //0 = date
+            //1 = color
+            //2 = name
+            //3 = link
+            calendar.addEvent({
+                start: cells.item(0).innerHTML,
+                end: cells.item(1).innerHTML,
+                color: cells.item(2).innerHTML,
+                title: cells.item(3).innerHTML,
+                url: cells.item(4).innerHTML.replace('#', '&'),
+            });
+        }
+        calendar.updateSize();
+        calendar.render();
+
+
+        if (document.getElementById('1')) {
+            // Set new default font family and font color to mimic Bootstrap's default styling
+            (Chart.defaults.global.defaultFontFamily = "Metropolis"),
+                '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+            Chart.defaults.global.defaultFontColor = "#858796";
+
+            let d1 = document.getElementById('1').innerHTML;
+            let d2 = document.getElementById('2').innerHTML;
+            let d3 = document.getElementById('3').innerHTML;
+
+            let ctx = document.getElementById("myPieChart");
+            let myPieChart = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Eingeteilt", "Verfügbar", "Abwesend"],
+                    datasets: [{
+                        data: [d1, d2, d3],
+                        backgroundColor: [
+                            "green",
+                            "orange",
+                            "red"
+                        ],
+                        hoverBackgroundColor: [
+                            "green",
+                            "orange",
+                            "red"
+                        ],
+                        hoverBorderColor: "rgba(234, 236, 244, 1)"
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    tooltips: {
+                        backgroundColor: "rgb(255,255,255)",
+                        bodyFontColor: "#858796",
+                        borderColor: "#dddfeb",
+                        borderWidth: 1,
+                        xPadding: 15,
+                        yPadding: 15,
+                        displayColors: false,
+                        caretPadding: 10
+                    },
+                    legend: {
+                        display: false
+                    },
+                    cutoutPercentage: 80
+                }
+            });
+        }
+    });
+
+</script>
+</html>

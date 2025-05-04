@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,6 +37,7 @@ public class PrivacyService {
     }
 
     public void create(PrivacyPolicy privacyPolicy) throws SQLException {
+        databaseService.delete("module_privacy_policy", "id", privacyPolicy.getId().toString());
         String sql = "INSERT INTO module_privacy_policy (id, date, firstname, lastname, street, houseNumber, plz, town, o1, o2, o3, o4, o5, o6, o7, signature) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, privacyPolicy.getId().toString());
@@ -90,5 +92,15 @@ public class PrivacyService {
         String signature = resultSet.getString("signature");
 
         return new PrivacyPolicy(id, date, firstname, lastname, street, number, plz, city, check1, check2, check3, check4, check5, check6, check7, signature);
+    }
+
+    public Optional<PrivacyPolicy> getById(UUID id) throws SQLException {
+        String sql = "SELECT * FROM module_privacy_policy where id = ?";
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, id.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next() ? Optional.of(getPrivacyPolicy(resultSet)) : Optional.empty();
+            }
+        }
     }
 }

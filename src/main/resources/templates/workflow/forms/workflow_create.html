@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body>
+<main>
+    <header class="page-header page-header-dark pb-15 bg-img-cover"
+            style="background-image: url('https://messdiener-knittelsheim.de/wp-content/uploads/2025/01/Handabdruck-scannen-scaled.jpg')">
+        <div class="container-xl px-4">
+            <div class="page-header-content pt-4">
+                <h1 class="page-header-title mt-4" th:text="'CMS Workflows'"></h1>
+                <div class="page-header-subtitle">Bei Fragen wende dich gerne direkt an Lucas!</div>
+            </div>
+        </div>
+    </header>
+    <!-- Main page content-->
+    <div class="container-xl px-4 mt-n10">
+
+
+        <a class="card mb-4 shadow-none lift" th:each="t:${types}" th:href="'/workflow/create?q=' + ${q} + '&t=' + ${t}" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">
+            <div class="row no-gutters">
+                <div class="col-md-2">
+                    <img class="img-fluid" th:src="${t.getImgUrl()}" alt="...">
+                </div>
+                <div class="col-md-10">
+
+                    <div class="card-body">
+                        <h3 class="card-title text-primary" th:text="'Erstelle ' + ${t.getLabel()}"></h3>
+                        <p class="card-text" th:text="${t.getDescription()}"></p>
+                    </div>
+                </div>
+            </div>
+        </a>
+
+    </div>
+</main>
+
+
+</body>
+</html>

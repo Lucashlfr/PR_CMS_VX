@@ -85,4 +85,8 @@ public class EmergencyContactService {
             LOGGER.info("Emergency contact '{}' marked as inactive.", id);
         }
     }
+
+    public void deleteEmergencyContactsByUser(UUID owner) {
+        databaseService.delete("module_person_emergency_contact", "person_id", owner.toString());
+    }
 }

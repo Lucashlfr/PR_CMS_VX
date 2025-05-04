@@ -1,9 +1,8 @@
 package com.messdiener.cms.v3.app.services.organisation;
 
-import com.messdiener.cms.v3.app.entities.event.OrganisationEvent;
+import com.messdiener.cms.v3.app.entities.organisation.OrganisationEvent;
 import com.messdiener.cms.v3.app.entities.tenant.Tenant;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
-import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.utils.time.DateUtils;
 import jakarta.annotation.PostConstruct;

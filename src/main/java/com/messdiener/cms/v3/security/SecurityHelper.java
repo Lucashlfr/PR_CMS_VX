@@ -3,7 +3,6 @@ package com.messdiener.cms.v3.security;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
-import com.messdiener.cms.v3.utils.other.CharacterConverter;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.Optional;
-import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
@@ -46,9 +44,9 @@ public class SecurityHelper {
                 httpSession.setAttribute("sessionUser", person);
                 httpSession.setAttribute("serviceName", "CMSX");
                 httpSession.setAttribute("tenantName", personHelper.getTenantName(person).orElse(""));
-                httpSession.setAttribute("img", personHelper.getImgAddress());
-                httpSession.setAttribute("openWorkflows", -1);
-                httpSession.setAttribute("permissionTag", "TEAM,ADMIN,GLT");
+                httpSession.setAttribute("img", personHelper.getImgAddress(person));
+                httpSession.setAttribute("openWorkflows", 0);
+                httpSession.setAttribute("fRank", person.getFRank());
             });
 
             return personOpt;

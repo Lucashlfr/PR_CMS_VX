@@ -1,14 +1,13 @@
 package com.messdiener.cms.v3.security;
 
-import com.messdiener.cms.v3.shared.cache.Cache;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,10 +36,10 @@ public class SecurityConfiguration {
                         .sessionFixation().migrateSession()
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                         .invalidSessionUrl("/login"))
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "/static/**", "/dist/**", "/img/**", "/css/**", "/script/**", "/download", "/output", "/public/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/go", "/infos","/about","/contact", "/impressum", "/static/**", "/dist/**", "/img/**", "/css/**", "/script/**", "/download", "/output", "/public/**", "/health").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/finance/file", "/public/**", "/register/**", "/error", "/favicon.ico").permitAll()
                         .anyRequest().authenticated())
@@ -49,7 +48,7 @@ public class SecurityConfiguration {
                         .passwordParameter("password")
                         .failureUrl("/login?error")
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/dashboard", true)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")

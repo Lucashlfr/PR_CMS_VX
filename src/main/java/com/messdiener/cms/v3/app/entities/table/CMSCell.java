@@ -6,7 +6,5 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class CMSCell {
-
     private String content;
-
 }

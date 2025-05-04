@@ -1,6 +1,6 @@
 package com.messdiener.cms.v3.web.controller;
 
-import com.messdiener.cms.v3.app.entities.event.OrganisationEvent;
+import com.messdiener.cms.v3.app.entities.organisation.OrganisationEvent;
 import com.messdiener.cms.v3.app.entities.tenant.Tenant;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.OrganisationType;

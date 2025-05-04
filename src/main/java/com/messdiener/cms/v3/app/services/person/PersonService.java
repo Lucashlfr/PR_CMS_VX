@@ -26,7 +26,7 @@ public class PersonService {
 
     @PostConstruct
     public void init() {
-        String sql = "CREATE TABLE IF NOT EXISTS module_person (person_id VARCHAR(255), tenant_id VARCHAR(255), type VARCHAR(255), person_rank VARCHAR(255), salutation VARCHAR(255), firstname VARCHAR(255), lastname VARCHAR(255), gender VARCHAR(255), birthdate LONG, street VARCHAR(255), houseNumber VARCHAR(255), postalCode VARCHAR(255), city VARCHAR(255), email VARCHAR(255), phone VARCHAR(255), mobile VARCHAR(255), accessionDate LONG, exitDate LONG, activityNote TEXT, notes TEXT, active BOOLEAN, canLogin BOOLEAN, username VARCHAR(255), password VARCHAR(255), iban VARCHAR(255), bic VARCHAR(255), bank VARCHAR(255), accountHolder VARCHAR(255), privacy_policy TEXT, signature LONGBLOB, ob1 BOOLEAN, ob2 BOOLEAN, ob3 BOOLEAN, ob4 BOOLEAN)";
+        String sql = "CREATE TABLE IF NOT EXISTS module_person (person_id VARCHAR(255), tenant_id VARCHAR(255), type VARCHAR(255), person_rank VARCHAR(255), principal VARCHAR(255), fRank int, salutation VARCHAR(255), firstname VARCHAR(255), lastname VARCHAR(255), gender VARCHAR(255), birthdate LONG, street VARCHAR(255), houseNumber VARCHAR(255), postalCode VARCHAR(255), city VARCHAR(255), email VARCHAR(255), phone VARCHAR(255), mobile VARCHAR(255), accessionDate LONG, exitDate LONG, activityNote TEXT, notes TEXT, active BOOLEAN, canLogin BOOLEAN, username VARCHAR(255), password VARCHAR(255), iban VARCHAR(255), bic VARCHAR(255), bank VARCHAR(255), accountHolder VARCHAR(255), privacy_policy TEXT, signature LONGBLOB, ob1 BOOLEAN, ob2 BOOLEAN, ob3 BOOLEAN, ob4 BOOLEAN, preventionDate long)";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
             LOGGER.info("PersonService initialized and person table ensured.");
@@ -47,6 +47,9 @@ public class PersonService {
 
         PersonAttributes.Type type = resultSet.getString("type") != null ? PersonAttributes.Type.valueOf(resultSet.getString("type")) : PersonAttributes.Type.NULL;
         PersonAttributes.Rank rank = resultSet.getString("person_rank") != null ? PersonAttributes.Rank.valueOf(resultSet.getString("person_rank")) : PersonAttributes.Rank.NULL;
+
+        UUID principal =  UUID.fromString(resultSet.getString("principal"));
+        int fRank = resultSet.getInt("fRank");
 
         PersonAttributes.Salutation salutation = resultSet.getString("salutation") != null ? PersonAttributes.Salutation.valueOf(resultSet.getString("salutation")) : PersonAttributes.Salutation.NULL;
         String firstname = resultSet.getString("firstname");
@@ -89,11 +92,13 @@ public class PersonService {
         boolean ob3 = resultSet.getBoolean("ob3");
         boolean ob4 = resultSet.getBoolean("ob4");
 
+        CMSDate preventionDate = CMSDate.of(resultSet.getLong("preventionDate"));
+
         return new Person(
-                id, tenantId, type, rank, salutation, firstname, lastname, gender, birthdate,
+                id, tenantId, type, rank, principal, fRank, salutation, firstname, lastname, gender, birthdate,
                 street, houseNumber, postalCode, city, email, phone, mobile, accessionDate,
                 exitDate, activityNote, notes, active, canLogin, username, password,
-                iban, bic, bank, accountHolder, privacyPolicy, signature, ob1, ob2, ob3, ob4
+                iban, bic, bank, accountHolder, privacyPolicy, signature, ob1, ob2, ob3, ob4, preventionDate
         );
     }
 
@@ -118,43 +123,46 @@ public class PersonService {
     public void updatePerson(Person person) throws SQLException {
         databaseService.delete("module_person", "person_id", person.getId().toString());
 
-        String sql = "INSERT INTO module_person (person_id, tenant_id, type, person_rank, salutation, firstname, lastname, gender, birthdate, street, houseNumber, postalCode, city, email, phone, mobile, accessionDate, exitDate, activityNote, notes, active, canLogin, username, password, iban, bic, bank, accountHolder, privacy_policy, signature, ob1, ob2, ob3, ob4) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO module_person (person_id, tenant_id, type, person_rank, principal, fRank, salutation, firstname, lastname, gender, birthdate, street, houseNumber, postalCode, city, email, phone, mobile, accessionDate, exitDate, activityNote, notes, active, canLogin, username, password, iban, bic, bank, accountHolder, privacy_policy, signature, ob1, ob2, ob3, ob4, preventionDate) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, person.getId().toString());
             preparedStatement.setString(2, person.getTenantId().toString());
             preparedStatement.setString(3, person.getType().toString());
             preparedStatement.setString(4, person.getRank().toString());
-            preparedStatement.setString(5, person.getSalutation().toString());
-            preparedStatement.setString(6, person.getFirstname());
-            preparedStatement.setString(7, person.getLastname());
-            preparedStatement.setString(8, person.getGender().toString());
-            preparedStatement.setLong(9, person.getBirthdate().map(CMSDate::toLong).orElse(0L));
-            preparedStatement.setString(10, person.getStreet());
-            preparedStatement.setString(11, person.getHouseNumber());
-            preparedStatement.setString(12, person.getPostalCode());
-            preparedStatement.setString(13, person.getCity());
-            preparedStatement.setString(14, person.getEmail());
-            preparedStatement.setString(15, person.getPhone());
-            preparedStatement.setString(16, person.getMobile());
-            preparedStatement.setLong(17, person.getAccessionDate().map(CMSDate::toLong).orElse(0L));
-            preparedStatement.setLong(18, person.getExitDate().map(CMSDate::toLong).orElse(0L));
-            preparedStatement.setString(19, person.getActivityNote());
-            preparedStatement.setString(20, person.getNotes());
-            preparedStatement.setBoolean(21, person.isActive());
-            preparedStatement.setBoolean(22, person.isCanLogin());
-            preparedStatement.setString(23, person.getUsername());
-            preparedStatement.setString(24, person.getPassword());
-            preparedStatement.setString(25, person.getIban());
-            preparedStatement.setString(26, person.getBic());
-            preparedStatement.setString(27, person.getBank());
-            preparedStatement.setString(28, person.getAccountHolder());
-            preparedStatement.setString(29, person.getPrivacyPolicy());
-            preparedStatement.setString(30, person.getSignature());
-            preparedStatement.setBoolean(31, person.isOb1());
-            preparedStatement.setBoolean(32, person.isOb2());
-            preparedStatement.setBoolean(33, person.isOb3());
-            preparedStatement.setBoolean(34, person.isOb4());
+            preparedStatement.setString(5, person.getPrincipal().toString());
+            preparedStatement.setInt(6, person.getFRank());
+            preparedStatement.setString(7, person.getSalutation().toString());
+            preparedStatement.setString(8, person.getFirstname());
+            preparedStatement.setString(9, person.getLastname());
+            preparedStatement.setString(10, person.getGender().toString());
+            preparedStatement.setLong(11, person.getBirthdate().map(CMSDate::toLong).orElse(0L));
+            preparedStatement.setString(12, person.getStreet());
+            preparedStatement.setString(13, person.getHouseNumber());
+            preparedStatement.setString(14, person.getPostalCode());
+            preparedStatement.setString(15, person.getCity());
+            preparedStatement.setString(16, person.getEmail());
+            preparedStatement.setString(17, person.getPhone());
+            preparedStatement.setString(18, person.getMobile());
+            preparedStatement.setLong(19, person.getAccessionDate().map(CMSDate::toLong).orElse(0L));
+            preparedStatement.setLong(20, person.getExitDate().map(CMSDate::toLong).orElse(0L));
+            preparedStatement.setString(21, person.getActivityNote());
+            preparedStatement.setString(22, person.getNotes());
+            preparedStatement.setBoolean(23, person.isActive());
+            preparedStatement.setBoolean(24, person.isCanLogin());
+            preparedStatement.setString(25, person.getUsername());
+            preparedStatement.setString(26, person.getPassword());
+            preparedStatement.setString(27, person.getIban());
+            preparedStatement.setString(28, person.getBic());
+            preparedStatement.setString(29, person.getBank());
+            preparedStatement.setString(30, person.getAccountHolder());
+            preparedStatement.setString(31, person.getPrivacyPolicy());
+            preparedStatement.setString(32, person.getSignature());
+            preparedStatement.setBoolean(33, person.isOb1());
+            preparedStatement.setBoolean(34, person.isOb2());
+            preparedStatement.setBoolean(35, person.isOb3());
+            preparedStatement.setBoolean(36, person.isOb4());
+            preparedStatement.setLong(37, person.getPreventionDate().toLong());
             preparedStatement.executeUpdate();
         }
     }
@@ -263,13 +271,11 @@ public class PersonService {
         return persons;
     }
 
-    public List<Person> getActivePersonsByPermission(UUID personId, String permission, UUID tenantId) throws SQLException {
+    public List<Person> getActivePersonsByPermission(int fRank, UUID tenantId) throws SQLException {
         List<Person> persons = new ArrayList<>();
         String sql;
 
-
-        //TODO: FIX
-        if (permission.equals("ORG")) {
+        if (fRank >= 3) {
             sql = "SELECT * FROM module_person WHERE type = 'MESSDIENER' AND active ORDER BY lastname";
             try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql);
                  ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -293,5 +299,41 @@ public class PersonService {
     }
 
 
+    public String getPersonName(UUID id) throws SQLException {
+        String sql = "SELECT firstname, lastname FROM module_person WHERE person_id = ?";
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, id.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next() ? resultSet.getString("firstname") + " " + resultSet.getString("lastname") : "null";
+            }
+        }
+    }
+
+    public List<Person> getManagers() throws SQLException {
+        List<Person> persons = new ArrayList<>();
+        String sql = "SELECT * FROM module_person WHERE active and fRank >= 2";
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    persons.add(getPersonByResultSet(resultSet));
+                }
+            }
+        }
+        return persons;
+    }
+
+    public int countActivePersonsByTenant(UUID tenantId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM module_person WHERE active AND tenant_id = ?";
+        try (Connection connection = databaseService.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, tenantId.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
 
 }

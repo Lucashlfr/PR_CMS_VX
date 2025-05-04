@@ -27,10 +27,10 @@ public class CustomErrorController implements ErrorController {
         if (status != null) {
             try {
                 int statusCode = Integer.parseInt(status.toString());
-                LOGGER.warn("Handling error with status code: {} / {}", statusCode, request.getContextPath());
+                //LOGGER.warn("Handling error with status code: {} / {}", statusCode, request.getContextPath());
                 return resolveErrorView(statusCode);
             } catch (NumberFormatException e) {
-                LOGGER.error("Invalid status code received: {}", status, e);
+                //LOGGER.error("Invalid status code received: {}", status, e);
             }
         }
 
