@@ -4,7 +4,7 @@
 <body>
 <main>
     <header class="page-header page-header-dark pb-15 bg-img-cover"
-            style="background-image: url('https://messdiener-knittelsheim.de/wp-content/uploads/2025/01/Handabdruck-scannen-scaled.jpg')">
+            th:style="|background-image: url('@{/img/hand.jpg}')|">
         <div class="container-xl px-4">
             <div class="page-header-content pt-4">
                 <h1 class="page-header-title mt-4" th:text="'CMS Workflows'"></h1>
@@ -19,8 +19,7 @@
                 <div class="step p-2">
                     <div th:each="s : ${steps}"
                          th:class="${workflow.getCurrentNumber() == s.getNumber()} ? 'step-item active' : 'step-item'">
-                        <a th:class="${workflow.getCurrentNumber() == s.getNumber()} ? 'step-item-link' : 'step-item-link disabled'"
-                           href "#!" th:text="${s.getName()}"></a>
+                        <a th:class="${workflow.getCurrentNumber() == s.getNumber()} ? 'step-item-link' : 'step-item-link disabled'" href="#!" th:text="${s.getName()}"></a>
                     </div>
                 </div>
             </div>

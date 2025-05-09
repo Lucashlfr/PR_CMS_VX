@@ -90,7 +90,7 @@ public class WorkflowHelper {
         for (Person user : users) {
             switch (workflowType) {
                 case SAE -> createWorkflow(user.getId(), WorkflowType.SAE, WorkflowModuleName.SAE);
-                case ONBOARDING -> createWorkflow(user.getId(), WorkflowType.ONBOARDING, WorkflowModuleName.DATA, WorkflowModuleName.PRIVACY_POLICY, WorkflowModuleName.EMERGENCY, WorkflowModuleName.APPROVAL);
+                case ONBOARDING -> createWorkflow(user.getId(), WorkflowType.ONBOARDING, WorkflowModuleName.DATA, WorkflowModuleName.PRIVACY_POLICY, WorkflowModuleName.EMERGENCY);
             }
         }
 

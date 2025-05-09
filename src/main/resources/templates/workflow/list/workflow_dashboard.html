@@ -16,7 +16,7 @@
     <div id="layoutSidenav_content">
         <main>
             <header class="page-header page-header-dark pb-15 bg-img-cover"
-                    style="background-image: url('https://messdiener-knittelsheim.de/wp-content/uploads/2025/01/Handabdruck-scannen-scaled.jpg')">
+                    th:style="|background-image: url('@{/img/hand.jpg}')|">
                 <div class="container-xl px-4">
                     <div class="page-header-content pt-4">
                         <h1 class="page-header-title mt-4"
@@ -50,53 +50,26 @@
                 </a>
 
                 <hr th:if="${workflows.size() > 0}">
-                <div class="row" th:if="${user.getFRank() > 2}">
-                    <div class="col-xl-4">
-                        <a class="card mb-4 shadow-none lift" th:href="'/workflow/create?q=me'" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">
+                <div th:if="${user.getFRank() > 2}">
+
+                        <div class="card mb-4 shadow-none">
                             <div class="row no-gutters">
-                                <div class="col-md-5">
-                                    <img class="img-fluid" src="https://messdiener-knittelsheim.de/wp-content/uploads/2025/04/wf_create.png" alt="...">
+                                <div class="col-md-3">
+                                    <img class="img-fluid" src="/img/wf_create.png" alt="...">
                                 </div>
                                 <div class="col-md-7">
 
                                     <div class="card-body">
-                                        <h3 class="card-title text-green">+ Workflow für dich erstellen</h3>
-
+                                        <h3 class="card-title text-green">+ Workflow erstellen</h3>
+                                        <div class="card-text">
+                                            <a href="/workflow/create?q=me" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Workflow für dich Erstellen</a><br>
+                                            <a href="/workflow/create?q=tenant" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Workflow für dein Tenant erstellen</a><br>
+                                            <a href="/workflow/create?q=all" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Workflow für alle erstellen</a><br>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </a>
-                    </div>
-                    <div class="col-xl-4">
-                        <a class="card mb-4 shadow-none lift" th:href="'/workflow/create?q=tenant'" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">
-                            <div class="row no-gutters">
-                                <div class="col-md-5">
-                                    <img class="img-fluid" src="https://messdiener-knittelsheim.de/wp-content/uploads/2025/04/wf_create.png" alt="...">
-                                </div>
-                                <div class="col-md-7">
-
-                                    <div class="card-body">
-                                        <h3 class="card-title text-green">+ Workflow für dein Tenant erstellen</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-xl-4">
-                        <a class="card mb-4 shadow-none lift" th:href="'/workflow/create?q=all'" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">
-                            <div class="row no-gutters">
-                                <div class="col-md-5">
-                                    <img class="img-fluid" src="https://messdiener-knittelsheim.de/wp-content/uploads/2025/04/wf_create.png" alt="...">
-                                </div>
-                                <div class="col-md-7">
-
-                                    <div class="card-body">
-                                        <h3 class="card-title text-green">+ Workflow für Alle erstellen</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
+                        </div>
                 </div>
 
             </div>

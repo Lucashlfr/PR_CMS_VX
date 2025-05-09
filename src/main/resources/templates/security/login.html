@@ -42,13 +42,13 @@
 </head>
 
 <body class="bg-img-cover"
-      style="background-image: url('https://messdiener-knittelsheim.de/wp-content/uploads/2024/11/DALL·E-2024-11-22-22.27.15-A-peaceful-summer-landscape-featuring-a-vibrant-green-village-with-a-beautiful-church-at-the-center.-The-church-is-surrounded-by-lush-trees-and-colorf.webp')">
+      th:style="|background-image: url('@{/img/cms_background.webp}')|">
 
 <div class="d-flex align-items-center  h-100 justify-content-center" style="height:150px">
     <div class="card w-25 d-xl-block d-none">
         <div class="card-body">
             <form th:action="@{/login}" method="post" class="was-validated">
-                <img src="https://messdiener-knittelsheim.de/wp-content/uploads/2025/03/logoCMS.png" class="card-img">
+                <img th:src="@{/img/cms_logo.png}" class="card-img">
                 <div class="form-floating mb-3 mt-3">
                     <input type="text" class="form-control" id="username" placeholder="Benutzername" name="username"
                            required>

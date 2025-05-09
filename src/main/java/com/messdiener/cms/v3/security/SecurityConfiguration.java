@@ -39,7 +39,7 @@ public class SecurityConfiguration {
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "/", "/go", "/infos","/about","/contact", "/impressum", "/static/**", "/dist/**", "/img/**", "/css/**", "/script/**", "/download", "/output", "/public/**", "/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/go/**", "/infos","/about","/contact", "/impressum", "/static/**", "/dist/**", "/img/**", "/css/**", "/script/**", "/download", "/output", "/public/**", "/health").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/finance/file", "/public/**", "/register/**", "/error", "/favicon.ico").permitAll()
                         .anyRequest().authenticated())
