@@ -6,9 +6,6 @@ import com.messdiener.cms.v3.app.entities.audit.AuditLog;
 import com.messdiener.cms.v3.app.entities.document.StorageFile;
 import com.messdiener.cms.v3.app.entities.finance.Transaction;
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.entities.table.CMSCell;
-import com.messdiener.cms.v3.app.entities.table.CMSRow;
-import com.messdiener.cms.v3.app.export.FileCreator;
 import com.messdiener.cms.v3.app.helper.finance.FinanceHelper;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.audit.AuditService;
@@ -17,7 +14,6 @@ import com.messdiener.cms.v3.app.services.event.EventService;
 import com.messdiener.cms.v3.app.services.finance.BudgetService;
 import com.messdiener.cms.v3.app.services.finance.TransactionService;
 import com.messdiener.cms.v3.app.services.person.PersonService;
-import com.messdiener.cms.v3.exception.StorageException;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.ActionCategory;
@@ -34,10 +30,8 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,12 +42,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -123,8 +114,9 @@ public class FinanceController {
         if (!(budgetYears.size() == costCenters.size() && income.size() == expenditure.size())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-
-        financeHelper.saveBudgetForm(budgetYears, costCenters, income, expenditure);
+        Person user = securityHelper.getPerson()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        financeHelper.saveBudgetForm(user, budgetYears, costCenters, income, expenditure);
 
         return "close-popup";
     }
@@ -265,7 +257,7 @@ public class FinanceController {
             transactionService.save(transaction);
         }else if(transaction.getTransactionState() == TransactionState.BILL && financeHelper.getSumm(transaction.getId()) != 0){
             transaction.setTransactionState(TransactionState.ACCOUNTING);
-            financeHelper.createPdf(transaction);
+            financeHelper.createPdf(user, transaction);
             auditService.createLog(AuditLog.of(MessageType.STEP_COMPLETED, ActionCategory.FINANCE, transaction.getId(), user.getId(), "Transaktion " + transaction.getTitle() + " wurde in den Status " + transaction.getTransactionState().getLabel() + " gesetzt.", ""));
             transactionService.save(transaction);
         }else if(transaction.getTransactionState() == TransactionState.ACCOUNTING){

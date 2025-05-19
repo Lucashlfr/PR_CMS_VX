@@ -48,30 +48,6 @@
                         </div>
                     </div>
                 </a>
-
-                <hr th:if="${workflows.size() > 0}">
-                <div th:if="${user.getFRank() > 2}">
-
-                        <div class="card mb-4 shadow-none">
-                            <div class="row no-gutters">
-                                <div class="col-md-3">
-                                    <img class="img-fluid" src="/img/wf_create.png" alt="...">
-                                </div>
-                                <div class="col-md-7">
-
-                                    <div class="card-body">
-                                        <h3 class="card-title text-green">+ Workflow erstellen</h3>
-                                        <div class="card-text">
-                                            <a href="/workflow/create?q=me" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Workflow für dich Erstellen</a><br>
-                                            <a href="/workflow/create?q=tenant" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Workflow für dein Tenant erstellen</a><br>
-                                            <a href="/workflow/create?q=all" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Workflow für alle erstellen</a><br>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </div>
-
             </div>
         </main>
 
@@ -81,6 +57,6 @@
 <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 <div th:insert="~{fragments :: script}"></div>
 <link th:href="@{/css/main.css}" rel="stylesheet"/>
-<script th:src="@{/script/main.js}"></script>
+<script th:src="@{/js/main.js}"></script>
 </body>
 </html>

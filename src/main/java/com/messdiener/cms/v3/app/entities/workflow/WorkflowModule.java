@@ -53,6 +53,7 @@ public interface WorkflowModule {
             case EMERGENCY -> new WFEmergencyContact(moduleId, status, number, endDate, results, owner);
             case INFO ->  new WFInformation(moduleId, status, number, endDate, results, owner);
             case SAE -> new WFSae(moduleId, status, number, endDate, results, owner);
+            case SCHEDULER -> new  WFScheduler(moduleId, status, number, endDate, results, owner);
             default -> throw new IllegalArgumentException("Unknown Workflow Module: " + uniqueName);
         };
     }

@@ -69,9 +69,9 @@
     <br>
 </main>
 <div th:insert="~{fragments :: script}"></div>
-<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<script th:src="@{/js/jquery.min.js}"></script>
 <link th:href="@{/css/main.css}" rel="stylesheet"/>
-<script th:src="@{/script/main.js}"></script>
+<script th:src="@{/js/main.js}"></script>
 
 </body>
 </html>

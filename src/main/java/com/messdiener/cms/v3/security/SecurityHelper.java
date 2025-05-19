@@ -2,6 +2,7 @@ package com.messdiener.cms.v3.security;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
+import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,8 @@ import java.util.Optional;
 public class SecurityHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityHelper.class);
-    private final Cache cache;
     private final PersonHelper personHelper;
+    private final PersonService personService;
 
     public String getUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -29,7 +30,7 @@ public class SecurityHelper {
 
     public Optional<Person> getPerson() {
         try {
-            return cache.getPersonService().getPersonByUsername(getUsername());
+            return personService.getPersonByUsername(getUsername());
         } catch (SQLException e) {
             LOGGER.error("Failed to fetch person by username: {}", e.getMessage(), e);
             return Optional.empty();

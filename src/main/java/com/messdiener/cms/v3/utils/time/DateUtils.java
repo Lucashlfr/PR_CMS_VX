@@ -65,7 +65,9 @@ public class DateUtils {
         TIME("HH:mm"),
         GERMAN_WITH_DAY_TIME("EEEE, dd.MM.yyyy HH:mm"),
         MONTH_NAMES("MMMM yyyy"),
-        SIMPLE_GERMAN("E, dd.MM.yy");
+        SIMPLE_GERMAN("E, dd.MM.yy"),
+        DAY("EEEE"),
+        GT("dd MMMM, yyyy HH:mm 'Uhr'");
 
         private final String pattern;
 

@@ -17,6 +17,8 @@ import com.messdiener.cms.v3.utils.time.DateUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,10 +32,10 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -112,54 +114,106 @@ public class DocumentController {
         return "document/document";
     }
 
-
     @GetMapping("/storage/file")
-    public ResponseEntity<InputStreamResource> getFile(
+    public ResponseEntity<ByteArrayResource> getFile(
             @RequestParam("id") UUID id,
-            @RequestParam(name = "download", defaultValue = "false") boolean downloadFlag) {
-
-        // Datei laden
+            @RequestParam(name = "download", defaultValue = "false") boolean downloadFlag,
+            @RequestParam(name = "w", required = false) Integer width,
+            @RequestParam(name = "h", required = false) Integer height
+    ) {
         File file;
         try {
             file = storageService.load(id.toString());
         } catch (StorageException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Datei nicht gefunden", e);
+            return getFallbackImage(width, height);
         }
 
-        // InputStreamResource vorbereiten
-        InputStreamResource resource;
+        // Default-Größe, falls nichts übergeben
+        int targetWidth  = (width  != null ? width  : 800);
+        int targetHeight = (height != null ? height : 600);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            resource = new InputStreamResource(new FileInputStream(file));
-        } catch (FileNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Datei nicht gefunden", e);
+            // Bild laden und skalieren
+            Thumbnails.of(file)
+                    .size(targetWidth, targetHeight)
+                    .outputFormat("jpg")      // oder png/webp
+                    .outputQuality(0.85f)     // 85% Qualität
+                    .toOutputStream(baos);
+        } catch (IOException e) {
+            return getFallbackImage(width, height);
         }
 
-        // MIME-Type ermitteln
-        MediaType mediaType;
+        byte[] imageBytes = baos.toByteArray();
+        ByteArrayResource resource = new ByteArrayResource(imageBytes);
+
+        // Content-Type ermitteln
+        MediaType mediaType = MediaType.IMAGE_JPEG;
         try {
             String mime = Files.probeContentType(file.toPath());
-            mediaType = (mime != null)
-                    ? MediaType.parseMediaType(mime)
-                    : MediaType.APPLICATION_OCTET_STREAM;
-        } catch (IOException e) {
-            mediaType = MediaType.APPLICATION_OCTET_STREAM;
-        }
-
-        // Content-Disposition: entweder inline oder attachment
-        String dispositionType = downloadFlag ? "attachment" : "inline";
+            if (mime != null) {
+                mediaType = MediaType.parseMediaType(mime);
+            }
+        } catch (IOException ignored) {}
 
         HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(mediaType);
+        headers.setContentLength(imageBytes.length);
         headers.add(HttpHeaders.CONTENT_DISPOSITION,
-                dispositionType + "; filename=\"" + file.getName() + "\"");
+                (downloadFlag ? "attachment" : "inline") +
+                        "; filename=\"" + file.getName() + "\"");
         headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
 
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentLength(file.length())
-                .contentType(mediaType)
                 .body(resource);
+    }
+
+
+    private ResponseEntity<ByteArrayResource> getFallbackImage(Integer width, Integer height) {
+        // Standard-Maße, falls nicht übergeben
+        int targetWidth  = (width  != null ? width  : 800);
+        int targetHeight = (height != null ? height : 600);
+
+        try {
+            // Laden des externen Bildes
+            URL url = new URL("https://messdiener.elementor.cloud/wp-content/uploads/2022/03/6-1536x864.png");
+            BufferedImage original = ImageIO.read(url);
+
+            // Resizing mit Thumbnailator
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Thumbnails.of(original)
+                    .size(targetWidth, targetHeight)
+                    .outputFormat("png")     // da der Fallback ein PNG ist
+                    .outputQuality(0.85f)    // 85% Qualität
+                    .toOutputStream(baos);
+
+            byte[] imageBytes = baos.toByteArray();
+            ByteArrayResource resource = new ByteArrayResource(imageBytes);
+
+            // Header aufbauen
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.IMAGE_PNG);
+            headers.setContentLength(imageBytes.length);
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"fallback.png\"");
+            headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
+            headers.add("Pragma", "no-cache");
+            headers.add("Expires", "0");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource);
+
+        } catch (IOException ioException) {
+            // Wenn Fallback nicht geladen/gescaled werden kann, 404
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Datei nicht gefunden und Fallback-Bild konnte nicht geladen werden",
+                    ioException
+            );
+        }
     }
 
 }

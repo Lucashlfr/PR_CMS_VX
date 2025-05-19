@@ -13,6 +13,7 @@ import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowModuleService;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowService;
 import com.messdiener.cms.v3.security.SecurityHelper;
+import com.messdiener.cms.v3.shared.LiturgieState;
 import com.messdiener.cms.v3.shared.enums.workflow.WorkflowModuleName;
 import com.messdiener.cms.v3.shared.enums.workflow.WorkflowType;
 import com.messdiener.cms.v3.utils.html.HTMLClasses;
@@ -122,6 +123,11 @@ public class WorkflowController {
             return "workflow/pages/infopage";
         }
 
+        if(module.getUniqueName() == WorkflowModuleName.SCHEDULER){
+            model.addAttribute("connections", personHelper.getConnections(user));
+            return "workflow/pages/workflow_scheduler";
+        }
+
         if (!module.getFLevel().equals("SELF")) {
             int f;
             try {
@@ -220,4 +226,27 @@ public class WorkflowController {
         }
         return "close-popup";
     }
+
+    @PostMapping("/workflow/scheduler/submit")
+    public RedirectView handleEventSubmission(@RequestParam("workflowId") UUID workflowId, @RequestParam("module") UUID moduleId,
+                                              @RequestParam Map<String, String> eventOptions) throws SQLException {
+        Person user = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        Workflow workflow = workflowService.getWorkflowById(workflowId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workflow not found"));
+        WorkflowModule module = workflowModuleService.getWorkflowModuleById(moduleId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "WorkflowModule not found"));
+
+        for (Map.Entry<String, String> entry : eventOptions.entrySet()) {
+            String key = entry.getKey();
+            if ("module".equals(key) || "workflowId".equals(key)) {
+                continue;
+            }
+            UUID eventId = UUID.fromString(entry.getKey().replace("event_", ""));
+            LiturgieState state = Integer.parseInt(entry.getValue()) == 0 ? LiturgieState.UNAVAILABLE : LiturgieState.AVAILABLE;
+
+            //organisationMappingService.setMapState(eventId, user.getId(), state);
+        }
+
+        workflowHelper.nextStep(module, workflow);
+        return new RedirectView("/workflow/jump?id=" + workflowId);
+    }
+
 }

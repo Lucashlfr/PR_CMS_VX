@@ -35,11 +35,11 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session
                         .sessionFixation().migrateSession()
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .invalidSessionUrl("/login"))
+                        .invalidSessionUrl("/"))
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "/", "/go/**", "/infos","/about","/contact", "/impressum", "/static/**", "/dist/**", "/img/**", "/css/**", "/script/**", "/download", "/output", "/public/**", "/health").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/", "/go/**", "/storage/file/**", "/infos","/about","/contact", "/impressum", "/static/**", "/dist/**", "/img/**", "/css/**", "/script/**", "/download", "/output", "/public/**", "/health", "/js/**").permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/finance/file", "/public/**", "/register/**", "/error", "/favicon.ico").permitAll()
                         .anyRequest().authenticated())
@@ -48,7 +48,7 @@ public class SecurityConfiguration {
                         .passwordParameter("password")
                         .failureUrl("/login?error")
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard", true)
+                        .defaultSuccessUrl("/dashboard")
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")

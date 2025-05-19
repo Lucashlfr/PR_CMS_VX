@@ -1,13 +1,16 @@
 package com.messdiener.cms.v3.web.controller.personal;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.person.data.connection.PersonConnection;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.audit.AuditService;
 import com.messdiener.cms.v3.app.services.document.DocumentService;
+import com.messdiener.cms.v3.app.services.person.PersonConnectionService;
 import com.messdiener.cms.v3.app.services.person.PersonFileService;
 import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.app.services.privacy.PrivacyService;
+import com.messdiener.cms.v3.app.services.user.UserService;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowService;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
@@ -48,7 +51,6 @@ import java.util.UUID;
 public class PersonManagementController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonManagementController.class);
-    private final Cache cache;
     private final SecurityHelper securityHelper;
     private final PersonHelper personHelper;
     private final PersonFileService personFileService;
@@ -57,6 +59,8 @@ public class PersonManagementController {
     private final WorkflowService workflowService;
     private final AuditService auditService;
     private final PrivacyService privacyService;
+    private final PersonConnectionService personConnectionService;
+    private final UserService userService;
 
     @PostConstruct
     public void init() {
@@ -90,10 +94,10 @@ public class PersonManagementController {
 
         if (query.equals("profil")) {
             UUID personUUID = UUID.fromString(idS);
-            Person person = cache.getPersonService().getPersonById(personUUID).orElseThrow();
+            Person person = personService.getPersonById(personUUID).orElseThrow();
             model.addAttribute("person", person);
             model.addAttribute("types", PersonAttributes.Connection.values());
-            model.addAttribute("persons", cache.getPersonService().getPersonsByTenant(tenantId));
+            model.addAttribute("persons", personService.getPersonsByTenant(tenantId));
             model.addAttribute("contacts", personHelper.getEmergencyContacts(person));
             model.addAttribute("connections", personHelper.getConnections(person));
             model.addAttribute("workflows", workflowService.getWorkflowsByUserId(personUUID));
@@ -111,19 +115,13 @@ public class PersonManagementController {
         model.addAttribute("step", step);
         model.addAttribute("htmlClasses", new HTMLClasses());
 
-        List<Person> persons = new ArrayList<>();
+        List<PersonOverviewDTO> persons = new ArrayList<>();
         switch (step) {
             case "1":
-                persons = cache.getPersonService().getActivePersonsByPermission(user.getFRank(), tenantId);
+                persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), tenantId);
                 break;
             case "2":
-                persons = cache.getPersonService().getActiveMessdienerByTenant(tenantId);
-                break;
-            case "3":
-                persons = cache.getPersonService().getPersonsByTenantAndType(tenantId, PersonAttributes.Type.NULL);
-                break;
-            case "4":
-                persons = cache.getPersonService().getInactiveMessdienerByTenant(tenantId);
+                persons = personService.getActiveMessdienerByTenantDTO(tenantId);
                 break;
             default:
                 break;
@@ -144,7 +142,7 @@ public class PersonManagementController {
                                      @RequestParam("mobile") String mobile, @RequestParam("accessionDate") Optional<String> accessionDateE,
                                      @RequestParam("exitDate") Optional<String> exitDateE) throws SQLException {
 
-        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        Person person = personService.getPersonById(id).orElseThrow();
         person.setType(PersonAttributes.Type.valueOf(type));
         person.setRank(PersonAttributes.Rank.valueOf(rank));
         person.setFRank(fRank);
@@ -161,7 +159,7 @@ public class PersonManagementController {
         person.setAccessionDate(CMSDate.generateOptionalString(accessionDateE, DateUtils.DateType.ENGLISH));
         person.setExitDate(CMSDate.generateOptionalString(exitDateE, DateUtils.DateType.ENGLISH));
 
-        cache.getPersonService().updatePerson(person);
+        personService.updatePerson(person);
 
         return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK);
 
@@ -173,7 +171,7 @@ public class PersonManagementController {
                                       @RequestParam("houseNumber") String houseNumber, @RequestParam("postalCode") String postalCode,
                                       @RequestParam("city") String city) throws SQLException {
 
-        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        Person person = personService.getPersonById(id).orElseThrow();
         person.setStreet(street);
         person.setHouseNumber(houseNumber);
         person.setPostalCode(postalCode);
@@ -188,7 +186,7 @@ public class PersonManagementController {
                                           @RequestParam("bic") String bic, @RequestParam("bank") String bank,
                                           @RequestParam("accountHolder") String accountHolder) throws SQLException {
 
-        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        Person person = personService.getPersonById(id).orElseThrow();
         person.setIban(iban);
         person.setBic(bic);
         person.setBank(bank);
@@ -201,30 +199,30 @@ public class PersonManagementController {
     @PostMapping("/personal/connection/create")
     public RedirectView createConnection(@RequestParam("host") UUID host, @RequestParam("sub") UUID sub, @RequestParam("type") String type) throws SQLException {
         PersonConnection personConnection = new PersonConnection(UUID.randomUUID(), host, sub, PersonAttributes.Connection.valueOf(type));
-        cache.getPersonConnectionService().createConnection(personConnection);
+        personConnectionService.createConnection(personConnection);
         return new RedirectView("/personal?q=profil&s=2&id=" + host);
     }
 
     @PostMapping("/personal/user/update")
     public RedirectView updateLogin(@RequestParam("id") UUID id, @RequestParam("user") String user, @RequestParam("passwort") String passwort) throws SQLException {
 
-        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        Person person = personService.getPersonById(id).orElseThrow();
         person.setUsername(user);
         person.setPassword(passwort);
-        cache.getPersonService().updatePerson(person);
+        personService.updatePerson(person);
 
-        cache.getUserService().initializeUsersAndPermissions();
+        userService.initializeUsersAndPermissions();
 
         return new RedirectView("/personal?s=6&q=profil&id=" + person.getId());
     }
 
     @GetMapping("/person/passwordReset")
     public RedirectView resetPW(@RequestParam("id") UUID id) throws SQLException {
-        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        Person person = personService.getPersonById(id).orElseThrow();
         person.setPassword(person.getBirthdate().isPresent() ? person.getBirthdate().get().getGermanDate() : "PASSWORT");
-        cache.getPersonService().updatePerson(person);
+        personService.updatePerson(person);
 
-        cache.getUserService().initializeUsersAndPermissions();
+        userService.initializeUsersAndPermissions();
 
         return new RedirectView("/personal?s=6&q=profil&id=" + person.getId());
     }
@@ -239,7 +237,7 @@ public class PersonManagementController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
 
 
-        model.addAttribute("privacyPolicies", cache.getPrivacyService().getAll());
+        model.addAttribute("privacyPolicies", privacyService.getAll());
         return "person/privacyOverwiew";
     }
 

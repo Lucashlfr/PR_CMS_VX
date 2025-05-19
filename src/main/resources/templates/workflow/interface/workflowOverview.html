@@ -38,10 +38,7 @@
                                 <a th:class="${htmlClasses.classesLink(step, '2')}"  href="/workflow?s=2">Alle Workflows</a>
                             </li>
                             <li class="nav-item">
-                                <a th:class="${htmlClasses.classesLink(step, '3')}"  th:href="'/workflow/types'" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Workflow-Typen</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#create">Workflow erstellen</a>
+                                <a class="nav-link" href="/workflow/wizard">Workflow erstellen</a>
                             </li>
 
                         </ul>
@@ -121,8 +118,8 @@
 
 
 </html>
-<script th:src="@{/script/imports/jquery.min.js}"></script>
-<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
 <div>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

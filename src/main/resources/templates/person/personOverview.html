@@ -38,12 +38,6 @@
                                 <a th:class="${htmlClasses.classesLink(step, '2')}"  href="/personal?s=2">Deine Gruppe</a>
                             </li>
                             <li class="nav-item">
-                                <a th:class="${htmlClasses.classesLink(step, '3')}"  href="/personal?s=3">Sonstige</a>
-                            </li>
-                            <li class="nav-item">
-                                <a th:class="${htmlClasses.classesLink(step, '4')}"  href="/personal?s=4">Inaktive Personen</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#create">Person erstellen</a>
                             </li>
                             <li class="nav-item">
@@ -68,55 +62,40 @@
                                         <th>Rang</th>
                                         <th>Geburtsdatum</th>
                                         <th>Activity Status</th>
-                                        <th>Dienste</th>
-                                        <th>Adresse</th>
-                                        <th>Telefon-Nummer</th>
-                                        <th>Handy</th>
-                                        <th>Mail</th>
                                     </tr>
                                     </thead>
                                     <tbody>
 
                                     <tr th:each="person:${persons}">
-                                        <td th:text="${person.getLastname() + ', ' + person.getFirstname()}"></td>
+                                        <td th:text="${person.lastName + ', ' + person.firstName}"></td>
                                         <td>
                                             <a class="d-flex align-items-center"
                                                th:href="'/personal?q=profil&s=1&id=' + ${person.getId()}">
                                                 <div class="avatar avatar-sm me-3 bg-gray-200"><img
                                                         class="avatar-img img-fluid"
-                                                        th:src="${personHelper.getImgAddress(person)}"
+                                                        th:src="${person.imgUrl}"
                                                         alt=""/></div>
-                                                <span th:text="${person.getLastname() + ', ' + person.getFirstname()}"></span>
+                                                <span th:text="${person.lastName + ', ' + person.firstName}"></span>
                                             </a>
                                         </td>
-                                        <td th:text="${personHelper.getTenantName(person).orElse('')}"></td>
-                                        <td th:text="${person.getRank().getName()}"></td>
-
-                                        <td th:if="${person.getBirthdate().isEmpty()}"></td>
-                                        <td  th:if="${person.getBirthdate().isPresent()}" th:text="${person.getBirthdate().get().getGermanDate()} + ' (' + ${person.getBirthdate().get().getAge()} + ')'"></td>
+                                        <td th:text="${person.tenantName}"></td>
+                                        <td th:text="${person.getRank()}"></td>
+                                        <td th:text="${person.birthdate}"></td>
                                         <td>
 
                                             <div class="progress">
                                                 <div class="progress-bar bg-success"
-                                                     th:style="'width:' + ${personHelper.getPersonStatistics(person).getDutyPercentage()} + '%'">
+                                                     th:style="'width:' + ${person.activity[0]} + '%'">
                                                 </div>
                                                 <div class="progress-bar bg-warning"
-                                                     th:style="'width:' + ${personHelper.getPersonStatistics(person).getAbsentPercentage()} + '%'">
+                                                     th:style="'width:' + ${person.activity[1]} + '%'">
                                                 </div>
                                                 <div class="progress-bar bg-danger"
-                                                     th:style="'width:' + ${personHelper.getPersonStatistics(person).getAvailabilityPercentage()} + '%'">
+                                                     th:style="'width:' + ${person.activity[2]} + '%'">
                                                 </div>
                                             </div>
 
                                         </td>
-                                        <td>
-
-
-                                        </td>
-                                        <td th:text="${person.getAddress()}"></td>
-                                        <td th:text="${person.getPhone()}"></td>
-                                        <td th:text="${person.getMobile()}"></td>
-                                        <td th:text="${person.getEmail()}"></td>
                                     </tr>
 
 
@@ -184,26 +163,14 @@
 </div>
 
 </html>
-<script th:src="@{/script/imports/jquery.min.js}"></script>
-<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
-<div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
-    <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
-    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
-    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
-</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
 <script>
     $(document).ready(function () {
         $('#table_id').DataTable({
             "columnDefs": [
                 {
-                    "targets": [0, 6, 7, 8, 9, 10],
+                    "targets": [0],
                     "visible": false
 
                 },
@@ -240,12 +207,6 @@
                     }
                 }
             }, paging: false,
-            dom: 'Bfrtip',
-            buttons: [{
-                extend: 'excel',
-                text: 'Liste als Excel herunterladen'
-
-            }]
         });
 
         setTimeout(function () {

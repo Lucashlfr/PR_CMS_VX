@@ -23,15 +23,13 @@ import com.messdiener.cms.v3.shared.enums.finance.CostCenter;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.web.request.FormFinanceEntry;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,17 +38,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FinanceHelper {
 
-    private final SecurityHelper securityHelper;
     private final BudgetService budgetService;
     private final TransactionService transactionService;
     private final StorageService storageService;
     private final PersonHelper personHelper;
     private final AuditService auditService;
 
-    public void saveBudgetForm(CostCenter costCenter, BudgetYear budgetYear, List<FormFinanceEntry> entries) throws SQLException {
-
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    public void saveBudgetForm(Person user, CostCenter costCenter, BudgetYear budgetYear, List<FormFinanceEntry> entries) throws SQLException {
 
         budgetService.deleteByCostCenter(costCenter);
         for (FormFinanceEntry formFinanceEntry : entries) {
@@ -59,17 +53,11 @@ public class FinanceHelper {
         }
     }
 
-    public double getBudget(UUID budgetId) throws SQLException {
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    public double getBudget(Person user, UUID budgetId) throws SQLException {
         return transactionService.getTransactionsSumByBudget(user.getTenantId(), budgetId);
     }
 
-    public void saveBudgetForm(List<BudgetYear> budgetYears, List<CostCenter> costCenters, List<Double> einnahmen, List<Double> ausgaben) throws SQLException {
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
-
+    public void saveBudgetForm(Person user, List<BudgetYear> budgetYears, List<CostCenter> costCenters, List<Double> einnahmen, List<Double> ausgaben) throws SQLException {
         for (int i = 0; i < budgetYears.size(); i++) {
             BudgetYear budgetYear = budgetYears.get(i);
             CostCenter costCenter = costCenters.get(i);
@@ -90,9 +78,7 @@ public class FinanceHelper {
         }
     }
 
-    public Budget getBudget(CostCenter costCenter, BudgetYear budgetYear) throws SQLException {
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    public Budget getBudget(Person user, CostCenter costCenter, BudgetYear budgetYear) throws SQLException {
         return budgetService.getBudgetsByCostCenterAndYear(user.getTenantId(), costCenter, budgetYear).orElse(new Budget(UUID.randomUUID(), 0, user.getTenantId(), costCenter, budgetYear, costCenter.getLabel(), "", 0,0));
     }
 
@@ -100,10 +86,7 @@ public class FinanceHelper {
         return storageService.getSumm(transactionId);
     }
 
-    public void createPdf(Transaction transaction) throws DocumentException, IOException, SQLException {
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
+    public void createPdf(Person user, Transaction transaction) throws DocumentException, IOException, SQLException {
 
         // 1) Transaktionen laden
         FileCreator fileCreator = new FileCreator().setFileName(transaction.getId())

@@ -49,7 +49,10 @@ public class DefaultController {
         securityHelper.addPersonToSession(httpSession);
         model.addAttribute("user", user);
         model.addAttribute("tenants", cache.getTenantService().getTenants());
-        return "index";
+        if(user.isCustomPassword()) {
+            return "index";
+        }
+        return "security/customPw";
     }
 
     @GetMapping("/download")

@@ -63,13 +63,14 @@ public class Person {
     private boolean ob4;
 
     private CMSDate preventionDate;
+    private boolean customPassword;
 
     public static Person empty(UUID tenantId) {
         return new Person(UUID.randomUUID(), tenantId,
                 PersonAttributes.Type.NULL, PersonAttributes.Rank.NULL, Cache.SYSTEM_USER, 4, PersonAttributes.Salutation.NULL,
                 "", "", PersonAttributes.Gender.NOT_SPECIFIED, Optional.empty(),
                 "", "", "", "", "", "", "", Optional.empty(), Optional.empty(),
-                "", "", true, false, "", "", "", "", "", "", "", "", false, false, false, false, CMSDate.of(0));
+                "", "", true, false, "", "", "", "", "", "", "", "", false, false, false, false, CMSDate.of(0), false);
     }
 
     public String getReadName() {

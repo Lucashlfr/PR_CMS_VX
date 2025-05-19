@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-pink mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="layers"></i></span>
+                                    <span>Gottesdienste</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalten der Gottesdienste
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4 mt-4">
+
+
+                <div class="d-flex justify-content-between align-items-sm-center flex-column flex-sm-row mb-4">
+                    <div class="me-4 mb-3 mb-sm-0">
+                        <h1 class="mb-0">Gottesdienst Dashboard</h1>
+                        <div class="small">
+                            <span class="fw-500 text-primary" th:text="${now.getDay()}"></span>
+                            &middot;
+                            <span th:text="${now.getGt()}"></span>
+                        </div>
+                    </div>
+                    <!-- Date range picker example-->
+                    <form id="dateRangeForm" th:action="@{/liturgie}" method="get" class="d-flex">
+                        <div class="input-group input-group-joined border-0 shadow" style="width: 16.5rem">
+                            <span class="input-group-text"><i data-feather="calendar"></i></span>
+                            <input
+                                    type="text"
+                                    class="form-control ps-0 pointer bg-white"
+                                    id="daterange"
+                                    placeholder="Zeitraum auswählen"
+                                    readonly
+                            />
+                        </div>
+                        <span id="startDateSpan" class="d-none" th:text="${startDate}"></span>
+                        <span id="endDateSpan"   class="d-none" th:text="${endDate}"></span>
+                        <input type="text" class="d-none" readonly id="startDate" name="startDate"/>
+                        <input type="text" class="d-none" readonly id="endDate" name="endDate"/>
+                    </form>
+
+                </div>
+
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-12 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="calendar" class="text-pink fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">
+                                                <span>Anstehende Gottesdienste</span>
+                                            </h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="' Gottesdienste'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-pink btn-sm mdi mdi-download-circle"
+                                           th:href="'/liturgie/export?startDate=' + ${startDate} + '&endDate=' + ${endDate}">
+                                        </a>
+                                        <a class="btn btn-pink btn-sm mdi mdi-plus" href="javascript:void(0);"
+                                           data-bs-toggle="modal" data-bs-target="#create">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th>Bezeichnung</th>
+                                            <th>Datum</th>
+                                            <th th:each="p:${persons}" th:text="${p.firstName}"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="v : ${liturgieViews}">
+                                            <td th:text="${v.typeLabel}"></td>
+                                            <td th:text="${v.date.germanLongDate}"></td>
+                                            <td th:each="p : ${persons}">
+                                                <button th:if="${v.personStates[p.id].toString().equals('DUTY')}"
+                                                        th:data-liturgie-id="${v.id}"
+                                                        th:data-participant-id="${p.getId()}"
+                                                        onclick="triggerAjax(this)"
+                                                        class="btn btn-sm btn-success">
+                                                    <i class="mdi mdi-check-circle"></i>
+                                                </button>
+                                                <button th:if="${v.personStates[p.id].toString().equals('AVAILABLE')}"
+                                                        th:data-liturgie-id="${v.id}"
+                                                        th:data-participant-id="${p.getId()}"
+                                                        onclick="triggerAjax(this)"
+                                                        class="btn btn-sm btn-yellow">
+                                                    <i class="mdi mdi-calendar"></i>
+                                                </button>
+                                                <button th:if="${v.personStates[p.id].toString().equals('UNAVAILABLE')}" class="btn btn-sm btn-danger mdi mdi-calendar-lock"></button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+<script>
+    $(function() {
+        var localeDE = {
+            format: 'DD.MM.YYYY',
+            separator: ' – ',
+            applyLabel: 'Übernehmen',
+            cancelLabel: 'Abbrechen',
+            fromLabel: 'Von',
+            toLabel: 'Bis',
+            customRangeLabel: 'Benutzerdefiniert',
+            daysOfWeek: ['So','Mo','Di','Mi','Do','Fr','Sa'],
+            monthNames: ['Januar','Februar','März','April','Mai','Juni',
+                'Juli','August','September','Oktober','November','Dezember'],
+            firstDay: 1
+        };
+
+        // 1) Aus Span-Text*en* lesen
+        var txtStart = $('#startDateSpan').text().trim();
+        var txtEnd   = $('#endDateSpan').text().trim();
+
+        // 2) Entscheiden, ob wir die Span-Werte nehmen oder Default (aktueller Monat)
+        var start = (txtStart && txtEnd)
+            ? moment(txtStart, 'YYYY-MM-DD')
+            : moment().startOf('month');
+        var end   = (txtStart && txtEnd)
+            ? moment(txtEnd,   'YYYY-MM-DD')
+            : moment().endOf('month');
+
+        // 3) Picker initialisieren
+        $('#daterange').daterangepicker({
+            opens:    'left',
+            locale:   localeDE,
+            startDate: start,
+            endDate:   end
+        }, function(start, end) {
+            // a) Hidden-Felder setzen
+            $('#startDate').val(start.format('YYYY-MM-DD'));
+            $('#endDate').val(end.format('YYYY-MM-DD'));
+            // b) Sichtbares Feld aktualisieren
+            $('#daterange').val(
+                start.format(localeDE.format) +
+                localeDE.separator +
+                end.format(localeDE.format)
+            );
+            // c) Formular abfeuern
+            $('#dateRangeForm').submit();
+        });
+
+        // 4) Direkt initial befüllen
+        $('#startDate').val(start.format('YYYY-MM-DD'));
+        $('#endDate').val(end.format('YYYY-MM-DD'));
+        $('#daterange').val(
+            start.format(localeDE.format) +
+            localeDE.separator +
+            end.format(localeDE.format)
+        );
+    });
+
+    function triggerAjax(buttonElement) {
+        const liturgieId = buttonElement.getAttribute("data-liturgie-id");
+        const personId   = buttonElement.getAttribute("data-participant-id");
+        const icon       = buttonElement.querySelector("i"); // kann jetzt auch null sein
+
+        console.log("Sende Anfrage mit Event ID:", liturgieId, "Person ID:", personId);
+
+        fetch(`/liturgie/ajax?liturgieId=${encodeURIComponent(liturgieId)}&personId=${encodeURIComponent(personId)}`, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Fehler: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Erfolgreich registriert:', data.message);
+
+                const registered = (data.message === "true");
+
+                // Button-Farben umschalten
+                buttonElement.classList.toggle('btn-success', registered);
+                buttonElement.classList.toggle('btn-yellow', !registered);
+
+                // Icon nur bearbeiten, wenn es existiert
+                if (icon) {
+                    icon.classList.toggle('mdi-check-circle', registered);
+                    icon.classList.toggle('mdi-calendar', !registered);
+                } else {
+                    console.warn("Icon-Element nicht gefunden in:", buttonElement);
+                }
+
+                console.log("Klassen nach Umschaltung:", buttonElement.classList);
+            })
+            .catch(error => {
+                console.error('Fehler beim Request oder in .then:', error);
+                alert('Registrierung fehlgeschlagen!');
+            });
+    }
+
+
+
+</script>
+
+
+

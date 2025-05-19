@@ -51,7 +51,7 @@
 <div th:insert="~{fragments :: script}"></div>
 <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 <link th:href="@{/css/main.css}" rel="stylesheet"/>
-<script th:src="@{/script/main.js}"></script>
+<script th:src="@{/js/main.js}"></script>
 </body>
 <form th:action="@{/planer/location/save}" th:method="post">
     <input type="hidden" name="taskId" th:value="${task.getTaskId()}">
@@ -122,8 +122,8 @@
     </div>
 </form>
 </html>
-<script th:src="@{/script/imports/jquery.min.js}"></script>
-<script th:src="@{/script/imports/jquery.dataTables.min.js}"></script>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
     var place = "[[${place}]]"; // Thymeleaf setzt die Adresse ein

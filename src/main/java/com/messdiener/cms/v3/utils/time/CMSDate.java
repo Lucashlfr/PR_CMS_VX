@@ -102,4 +102,13 @@ public class CMSDate {
         return convertTo(DateUtils.DateType.GERMAN_WITH_TIME);
     }
 
+    public String getDay(){
+        return convertTo(DateUtils.DateType.DAY);
+    }
+
+    public String getGt(){
+        return convertTo(DateUtils.DateType.GT);
+    }
+
+
 }
