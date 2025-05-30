@@ -4,6 +4,7 @@ package com.messdiener.cms.v3.web.controller.workflow;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.workflow.Workflow;
 import com.messdiener.cms.v3.app.entities.workflow.WorkflowModule;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
@@ -13,7 +14,7 @@ import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowModuleService;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowService;
 import com.messdiener.cms.v3.security.SecurityHelper;
-import com.messdiener.cms.v3.shared.LiturgieState;
+import com.messdiener.cms.v3.shared.enums.LiturgieState;
 import com.messdiener.cms.v3.shared.enums.workflow.WorkflowModuleName;
 import com.messdiener.cms.v3.shared.enums.workflow.WorkflowType;
 import com.messdiener.cms.v3.utils.html.HTMLClasses;
@@ -81,6 +82,10 @@ public class WorkflowController {
             return "workflow/interface/workflowInterface";
         }
 
+        model.addAttribute("types", WorkflowType.values());
+        model.addAttribute("persons", personService.getActivePersonsByPermissionDTO(user.getFRank(),user.getTenantId()));
+        if(step.equals("3"))
+            return "workflow/interface/createWorkflow";
         return "workflow/interface/workflowOverview";
     }
 
@@ -198,33 +203,23 @@ public class WorkflowController {
         return new RedirectView("/workflow/module?id=" + moduleId + "&wf=" + workflowId);
     }
 
-    @GetMapping("/workflow/create")
-    public String createWorkflow(Model model, @RequestParam("q") String q, @RequestParam("t") Optional<String> t) throws SQLException {
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        model.addAttribute("types", WorkflowType.values());
-        model.addAttribute("q", q);
+    @PostMapping("/workflow/create")
+    public RedirectView create(@RequestParam("type")WorkflowType type, @RequestParam("person")String person, @RequestParam("startDate")Optional<String> startDateE, @RequestParam("endDate")Optional<String> endDateE) throws SQLException {
+        Person user = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        List<PersonOverviewDTO> target = new ArrayList<>();
 
-        List<Person> users = new ArrayList<>();
-        if (t.isEmpty()) {
-            return "workflow/forms/workflow_create";
-        } else {
-
-            WorkflowType workflowType = WorkflowType.valueOf(t.get());
-
-            if(q.equals("all")){
-                users = personService.getActivePersonsByPermission(user.getFRank(), user.getTenantId());
-            }else if(q.equals("tenant")){
-                users = personService.getActiveMessdienerByTenant(user.getTenantId());
-            }else if(q.equals("me")){
-                users = List.of(user);
-            }else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Type not found");
-            }
-
-            workflowHelper.createWorkflow(users, workflowType);
+        if(person.equals("me")){
+            target.add(user.toPersonOverviewDTO());
+        }else if(person.equals("all")){
+            target.addAll(personService.getActivePersonsByPermissionDTO(user.getFRank(),user.getTenantId()));
+        }else if(person.equals("tenant")){
+            target.addAll(personService.getActiveMessdienerByTenantDTO(user.getTenantId()));
+        }else {
+            target.add(personService.getPersonById(UUID.fromString(person)).orElseThrow().toPersonOverviewDTO());
         }
-        return "close-popup";
+        workflowHelper.createWorkflow(target, type, startDateE, endDateE);
+
+        return new RedirectView("/workflow");
     }
 
     @PostMapping("/workflow/scheduler/submit")

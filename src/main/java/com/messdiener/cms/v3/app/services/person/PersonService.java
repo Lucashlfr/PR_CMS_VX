@@ -462,4 +462,21 @@ public class PersonService {
 
         return persons;
     }
+
+    public Optional<PersonOverviewDTO> getPersonDTO(Person targetPerson) throws SQLException {
+        String sql =
+                "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant_id, t.name " +
+                        "FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id " +
+                        "WHERE p.type = 'MESSDIENER' AND p.active AND p.person_id = ? ORDER BY p.lastname";
+
+        try (Connection conn = databaseService.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, targetPerson.getId().toString());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(mapToOverviewDTO(rs)) : Optional.empty();
+            }
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package com.messdiener.cms.v3.shared;
+package com.messdiener.cms.v3.shared.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

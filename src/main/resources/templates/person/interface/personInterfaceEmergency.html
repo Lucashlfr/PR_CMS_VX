@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-info mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="user"></i></span>
+                                    <span>Person / Lucas Helfer</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4">
+
+                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person})}"></div>
+
+                <div class="card card-limit-height h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="user" class="text-success fs-4"></i>
+                                </div>
+
+                                <!-- Text content -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold">
+                                        <span th:text="${person.getName()}"></span>
+                                        <span th:if="${person.getGender().toString().equals('MALE')}"
+                                              class="mdi mdi-gender-male text-blue"></span>
+                                        <span th:if="${person.getGender().toString().equals('FEMALE')}"
+                                              class="mdi mdi-gender-female text-pink"></span>
+                                        <span th:if="${person.getRank().toString().equals('OBERMESSDIENER')}"
+                                              class="mdi mdi-shield-account text-red"></span>
+                                        <span th:if="${person.getRank().toString().equals('LEITUNGSTEAM')}"
+                                              class="mdi mdi-account-group text-yellow"></span>
+                                        <span th:if="${person.getRank().toString().equals('MESSDIENER')}"
+                                              class="mdi mdi-circle text-info"></span>
+                                        <span th:if="${person.isActive()}"
+                                              class="mdi mdi-check-circle text-success"></span>
+                                        <span th:unless="${person.isActive()}"
+                                              class="mdi mdi-account-alert text-danger"></span>
+                                    </h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                        <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
+                                            10.04.2025
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body clamp-description">
+                        <h5 class="card-title">Notfallkontakte</h5>
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th>Vorname</th>
+                                <th>Nachname</th>
+                                <th>Typ</th>
+                                <th>Telefon</th>
+                                <th>E-Mail</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="contact : ${contacts}">
+                                <td th:text="${contact.getFirstName()}"></td>
+                                <td th:text="${contact.getLastName()}"></td>
+                                <td th:text="${contact.getType()}"></td>
+                                <td th:text="${contact.getPhoneNumber()}"></td>
+                                <td th:text="${contact.getMail()}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div th:insert="~{fragments :: sidebar}" id="layoutSidenav_nav"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-yellow mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title" th:text="'Termine / ' + ${event.getTitle()}">
+                                </h1>
+                                <div class="page-header-subtitle">Plane deine Aktionen für deine Messdienergruppe.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-fluid px-4 mt-4">
+
+                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
+
+                <input type="hidden" name="id" th:value="${event.getEventId()}">
+                <div class="card card-limit-height h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="bg-orange-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="settings" class="text-orange fs-4"></i>
+                                </div>
+
+                                <!-- Text content -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold"
+                                        th:text="${event.getTitle()} + ' / Einstellungen'"></h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                        <div><span
+                                                th:class="'badge ' + ${event.getState().getText()} + ' ' + ${event.getState().getBg()}"
+                                                th:text="${event.getState().getLabel()}"></span></div>
+                                        <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
+                                            10.04.2025
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-yellow btn-sm mdi mdi-calendar-sync" type="submit"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body clamp-description">
+                        <div class="row">
+                            <div class="col-xl-2 col-12">
+                                <h5>Titelbild</h5>
+                                <div class="card position-relative overflow-hidden border-0 text-center"
+                                     th:if="${event.getImgUrl().isEmpty()}">
+                                    <!-- Header-Hintergrund -->
+                                    <div class="bg-light" style="height:120px;"></div>
+                                    <!-- Avatar kreisrund und überlappt -->
+                                    <img src="/dist/assets/img/demo/user-placeholder.svg"
+                                         class="rounded-circle border border-white position-absolute top-0 start-50 translate-middle"
+                                         style="width:72px; height:72px; margin-top:60px;"
+                                         alt="Avatar">
+                                </div>
+
+                                <img th:src="${event.getImgUrl()}" alt="..." class="img-fluid"
+                                     th:unless="${event.getImgUrl().isEmpty()}">
+                                <div class="d-flex mt-3">
+                                    <button class="btn bg-yellow text-white btn-sm flex-fill m-1" data-bs-toggle="modal"
+                                            data-bs-target="#img">Bild ändern
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4 col-12">
+                            </div>
+
+                            <div class="col-xl-4 col-12">
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+<div class="modal fade" id="img">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Bild definieren</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <table class="table table-sm table-hover">
+                    <thead>
+                    <tr>
+                        <th>Nummer</th>
+                        <th>Name</th>
+                        <th>Erstellt von</th>
+                        <th>Bild</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="file : ${files}">
+                        <td th:text="${file.getTag()}"></td>
+                        <td>
+                            <a th:href="'/event/img?event=' + ${event.getEventId()} + '&img=' + ${file.getId()}" th:text="${file.getTitle()}">
+                            </a>
+                        </td>
+                        <td th:text="${personHelper.getName(file.getOwner())}"></td>
+                        <td>
+                            <img th:src="'/file?id=' + ${file.getId()}" class="img-fluid" style="max-height: 50px">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>

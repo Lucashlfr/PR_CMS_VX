@@ -1,6 +1,7 @@
 package com.messdiener.cms.v3.app.helper.workflow;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.workflow.Workflow;
 import com.messdiener.cms.v3.app.entities.workflow.WorkflowModule;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowModuleService;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,8 +26,12 @@ public class WorkflowHelper {
     private final WorkflowService workflowService;
     private final WorkflowModuleService workflowModuleService;
 
-    public void createWorkflow(UUID ownerId, WorkflowType workflowType, WorkflowModuleName... names) throws SQLException {
+    public void createWorkflow(UUID ownerId, WorkflowType workflowType, Optional<String> startDate, Optional<String> endDate, WorkflowModuleName... names) throws SQLException {
         Workflow workflow = new Workflow(UUID.randomUUID(), ownerId, workflowType, CMSState.ACTIVE, CMSDate.current(), CMSDate.of(0), 0, "");
+
+        startDate.ifPresent(s -> workflow.setMetadata("start:"+workflow.getMetadata() + s + ";"));
+        endDate.ifPresent(s -> workflow.setMetadata("end:"+workflow.getMetadata() + s + ";"));
+
         workflowService.saveWorkflow(workflow);
 
         boolean b = true;
@@ -85,13 +91,13 @@ public class WorkflowHelper {
         return s.toString();
     }
 
-    public void createWorkflow(List<Person> users, WorkflowType workflowType) throws SQLException {
+    public void createWorkflow(List<PersonOverviewDTO> users, WorkflowType workflowType, Optional<String> startDate, Optional<String> endDate) throws SQLException {
 
-        for (Person user : users) {
+        for (PersonOverviewDTO user : users) {
             switch (workflowType) {
-                case SAE -> createWorkflow(user.getId(), WorkflowType.SAE, WorkflowModuleName.SAE);
-                case ONBOARDING -> createWorkflow(user.getId(), WorkflowType.ONBOARDING, WorkflowModuleName.DATA, WorkflowModuleName.PRIVACY_POLICY, WorkflowModuleName.EMERGENCY);
-                case SCHEDULER -> createWorkflow(user.getId(), WorkflowType.SCHEDULER, WorkflowModuleName.SCHEDULER);
+                case SAE -> createWorkflow(user.getId(), WorkflowType.SAE, startDate, endDate, WorkflowModuleName.SAE);
+                case ONBOARDING -> createWorkflow(user.getId(), WorkflowType.ONBOARDING, startDate, endDate, WorkflowModuleName.DATA, WorkflowModuleName.PRIVACY_POLICY, WorkflowModuleName.EMERGENCY);
+                case SCHEDULER -> createWorkflow(user.getId(), WorkflowType.SCHEDULER, startDate, endDate, WorkflowModuleName.SCHEDULER);
             }
         }
 

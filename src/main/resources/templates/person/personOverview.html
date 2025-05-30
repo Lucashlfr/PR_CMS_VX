@@ -70,7 +70,7 @@
                                         <td th:text="${person.lastName + ', ' + person.firstName}"></td>
                                         <td>
                                             <a class="d-flex align-items-center"
-                                               th:href="'/personal?q=profil&s=1&id=' + ${person.getId()}">
+                                               th:href="'/personal?q=profil&s=overview&id=' + ${person.getId()}">
                                                 <div class="avatar avatar-sm me-3 bg-gray-200"><img
                                                         class="avatar-img img-fluid"
                                                         th:src="${person.imgUrl}"

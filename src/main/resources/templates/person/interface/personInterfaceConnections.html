@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-info mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="user"></i></span>
+                                    <span>Person / Lucas Helfer</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4">
+
+                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person})}"></div>
+
+                <div class="card card-limit-height h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="user" class="text-success fs-4"></i>
+                                </div>
+
+                                <!-- Text content -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold">
+                                        <span th:text="${person.getName()}"></span>
+                                        <span th:if="${person.getGender().toString().equals('MALE')}"
+                                              class="mdi mdi-gender-male text-blue"></span>
+                                        <span th:if="${person.getGender().toString().equals('FEMALE')}"
+                                              class="mdi mdi-gender-female text-pink"></span>
+                                        <span th:if="${person.getRank().toString().equals('OBERMESSDIENER')}"
+                                              class="mdi mdi-shield-account text-red"></span>
+                                        <span th:if="${person.getRank().toString().equals('LEITUNGSTEAM')}"
+                                              class="mdi mdi-account-group text-yellow"></span>
+                                        <span th:if="${person.getRank().toString().equals('MESSDIENER')}"
+                                              class="mdi mdi-circle text-info"></span>
+                                        <span th:if="${person.isActive()}"
+                                              class="mdi mdi-check-circle text-success"></span>
+                                        <span th:unless="${person.isActive()}"
+                                              class="mdi mdi-account-alert text-danger"></span>
+                                    </h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                        <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
+                                            10.04.2025
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-orange btn-sm mdi mdi-account-network"
+                                        href="javascript:void(0);"
+                                        data-bs-toggle="modal" data-bs-target="#create"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body clamp-description">
+                        <h5 class="card-title">Connections</h5>
+                        <div class="row">
+                            <div class="col-lg-4" th:each="connection : ${connections}">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-lg"><img class="avatar-img img-fluid"
+                                                                       src="https://i.ibb.co/B26W5pnb/Design-ohne-Titel.png"
+                                                                       alt="..."/>
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="fs-4 text-dark fw-500">
+                                            <span th:text="${personHelper.getPersonSubName(connection)}"></span>
+                                            <a th:href="'/personal/connection/delete?p=' + ${person.getId()} + '&id=' + ${connection.getId()}">(Löschen)</a>
+                                        </div>
+                                        <div class="small text-muted"
+                                             th:text="${connection.getConnectionType().getName()}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+<form method="post" action="/personal/connection/create">
+    <input class="d-none invisible" th:value="${person.getId()}" readonly name="host">
+    <div class="modal fade" id="create">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Connection Hinzufügen</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+
+                    <div class="form-floating mb-2">
+                        <select class="form-select" id="sel1" name="sub">
+                            <option th:each="p:${persons}" th:value="${p.getId()}"
+                                    th:text="${p.getReadName()}"></option>
+                        </select>
+                        <label for="sel1" class="form-label">Person:</label>
+                    </div>
+                    <div class="form-floating mb-2">
+                        <select class="form-select" id="t" name="type">
+                            <option th:each="t:${types}" th:value="${t}" th:text="${t.getName()}"></option>
+                        </select>
+                        <label for="t" class="form-label">Verbindung:</label>
+                    </div>
+
+                </div>
+
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+</html>

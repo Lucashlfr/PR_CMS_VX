@@ -93,5 +93,9 @@ public class Person {
         }
         return details;
     }
+
+    public PersonOverviewDTO toPersonOverviewDTO() {
+        return new  PersonOverviewDTO(id, firstname, lastname, "", rank.getName(), CMSDate.current().getGermanDate(), new double[0], "");
+    }
 }
 

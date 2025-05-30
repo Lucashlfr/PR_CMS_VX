@@ -43,7 +43,7 @@
 
                 </style>
                 <div class="row d-flex align-items-stretch">
-                    <div class="col-xl-8 col-12 mb-4">
+                    <div class="col-xl-4 col-12 mb-4">
                         <div class="card card-limit-height h-100">
                             <div class="card-header">
                                 <div class="d-flex align-items-center justify-content-between">
@@ -74,106 +74,10 @@
                             </div>
                             <div class="card-body clamp-description">
                                 <span class="card-title text-lg fw-bold text-black">Beschreibung</span><br>
-                                <span th:text="${workflow.getWorkflowType().getDescription()}"></span><br><br>
+                                <span th:utext="${workflow.getWorkflowType().getDescription()}" class="text-break"></span><br><br>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-4 col-12 mb-4">
-                        <div class="card h-100" id="reference-card">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 48px; height: 48px;">
-                                            <i data-feather="info" class="text-info fs-4"></i>
-                                        </div>
-
-                                        <!-- Text content -->
-                                        <div>
-                                            <h5 class="mb-1 fw-semibold">Zusatzinformationen</h5>
-                                            <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                Füge weitere Informationen hinzu
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body ">
-                                <div class="table-responsive">
-                                    <table class="table text-nowrap align-middle">
-                                        <tbody>
-                                        <tr>
-                                            <td>
-                                    <span class="d-flex align-items-center">
-                                        <i data-feather="check-circle" class="me-2 text-info"></i> Status
-                                    </span>
-                                            </td>
-                                            <td>:</td>
-
-                                            <td><span class="d-flex"><span
-                                                    class="badge bg-info-soft text-info flex-fill"
-                                                    th:text="${workflow.getCMSState().getLabel()}"></span></span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                    <span class="d-flex align-items-center">
-                                        <i data-feather="calendar" class="me-2 text-primary"></i> Timeline
-                                    </span>
-                                            </td>
-                                            <td>:</td>
-                                            <td th:text="${workflow.getCreationDate().getGermanDate()}"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                    <span class="d-flex align-items-center">
-                                        <i data-feather="user" class="me-2 text-primary"></i> Manager
-                                    </span>
-                                            </td>
-                                            <td>:</td>
-                                            <td></td>
-                                        </tr>
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row d-flex align-items-stretch mb-3">
-                    <!-- Project Documents -->
-                    <div class="col-xl-4 mb-4">
-                        <div class="card card-limit-height h-100">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 48px; height: 48px;">
-                                            <i data-feather="folder" class="text-red fs-4"></i>
-                                        </div>
-
-                                        <!-- Text content -->
-                                        <div>
-                                            <h5 class="mb-1 fw-semibold">Dateien</h5>
-                                            <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                <div>10 Uploads</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body p-0" style="max-height: 250px; overflow-y: scroll;">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item text-muted">Keine Dateien vorhanden</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sub Tasks -->
                     <div class="col-xl-4 mb-4">
                         <div class="card card-limit-height h-100">
                             <div class="card-header">
@@ -264,7 +168,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </main>
         <footer th:insert="~{fragments :: footer}"></footer>
@@ -272,37 +175,5 @@
 </div>
 <div th:insert="~{fragments :: script}"></div>
 </body>
-
 </html>
-<script th:src="@{/js/jquery.min.js}"></script>
-<script th:src="@{/js/jquery.dataTables.min.js}"></script>
-<div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
-    <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
-    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
-    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
-</div>
-<script>
-    function openMessageModal(element) {
-        const modal = new bootstrap.Modal(document.getElementById('messageDetailModal'));
-
-        document.getElementById('modalMessageTitle').textContent = element.dataset.title;
-        document.getElementById('modalMessageDate').textContent = element.dataset.date;
-        document.getElementById('modalMessageType').textContent = element.dataset.type;
-        document.getElementById('modalMessageCreator').textContent = element.dataset.creator || '–';
-        document.getElementById('modalMessageInfoTo').textContent = element.dataset.info;
-        document.getElementById('modalMessageDescription').textContent = element.dataset.description;
-        document.getElementById('mIcon').className = 'rounded-3 d-flex align-items-center justify-content-center ' + element.dataset.color + '-soft';
-        document.getElementById('mIconS').className = 'fs-4 ' + element.dataset.textcolor;
-        document.getElementById('mIconS').setAttribute('data-feather', element.dataset.icon);
-        feather.replace();
-        modal.show();
-    }
-</script>
 

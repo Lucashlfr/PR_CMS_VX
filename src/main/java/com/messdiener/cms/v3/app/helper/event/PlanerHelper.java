@@ -27,9 +27,6 @@ public class PlanerHelper {
     public void createSubTasks(UUID id, EventType eventType) throws SQLException {
 
         if(eventType == EventType.SMALL_ACTION ||eventType == EventType.BIG_ACTION){
-            plannerTaskService.updateTask(id, PlanerTask.createPlanerTask("Verantwortliche Personen", "Bearbeiten der Zuständigkeiten.", "PRINCIPAL"));
-            plannerTaskService.updateTask(id, PlanerTask.createPlanerTask("Veranstaltungsort", "Dokumentation und Verwaltung des Ortes der Aktion.", "LOCATION"));
-
             PlanerTask registration = PlanerTask.createPlanerTask("Anmeldung", "Formulierung und Bereitstellung des Anmeldungstextes.", "WEBSITE");
             plannerTaskService.updateTask(id, registration);
             articleService.saveArticle(Article.of(registration.getTaskId(), registration.getTaskName(), ArticleType.INTERN, id.toString()));
@@ -46,9 +43,6 @@ public class PlanerHelper {
             plannerTaskService.updateTask(id, concept);
             documentService.saveDocument(new Document(concept.getTaskId(), Cache.SYSTEM_USER, id, CMSDate.current(), "Hygiene- und Präventionskonzept", getContent(), "F1"));
         }
-        PlanerTask schedule = PlanerTask.createPlanerTask("Zeitplan", "Erstellen eines Zeitplans, Planen von Abläufen, Organisieren von Terminen.", "TEXT");
-        plannerTaskService.updateTask(id, schedule);
-        documentService.saveDocument(new Document(schedule.getTaskId(), Cache.SYSTEM_USER, id, CMSDate.current(), "Zeitplan", "", "F1"));
     }
 
     private String getContent() {

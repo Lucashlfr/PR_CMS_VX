@@ -4,6 +4,7 @@ import com.messdiener.cms.v3.app.entities.acticle.Article;
 import com.messdiener.cms.v3.app.entities.event.PlanerTask;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.services.article.ArticleService;
+import com.messdiener.cms.v3.app.services.event.EventService;
 import com.messdiener.cms.v3.app.services.event.PlannerTaskService;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
@@ -39,6 +40,7 @@ public class HomepageController {
     private final SecurityHelper securityHelper;
     private final ArticleService articleService;
     private final PlannerTaskService plannerTaskService;
+    private final EventService eventService;
 
     @PostConstruct
     public void init() {
@@ -53,8 +55,8 @@ public class HomepageController {
 
     @GetMapping("/infos")
     public String infos(HttpSession httpSession, Model model) throws SQLException {
-        model.addAttribute("articles", articleService.getArticlesByType(ArticleType.INTERN, ArticleState.PUBLISHED));
-        return "public/pages/infos";
+        model.addAttribute("events", eventService.getEvents());
+        return "public/pages/event_overview";
     }
 
     @GetMapping("/about")
@@ -77,8 +79,16 @@ public class HomepageController {
 
 
     @GetMapping("/go")
-    public String go(HttpSession httpSession, Model model, @RequestParam("id")UUID id) throws SQLException {
-        model.addAttribute("article", articleService.getArticleById(id).orElseThrow());
+    public String go(HttpSession httpSession, Model model, @RequestParam("id")UUID id, @RequestParam("type")Optional<String> t) throws SQLException {
+        model.addAttribute("article", articleService.getArticleById(id).orElse(Article.empty()));
+
+        String type = t.orElse("application");
+        if(type.equals("application")) {
+            model.addAttribute("event", eventService.getEventById(id).orElseThrow());
+            model.addAttribute("components", eventService.getComponents(id));
+            return "public/pages/event";
+        }
+
         return "public/pages/article";
     }
 

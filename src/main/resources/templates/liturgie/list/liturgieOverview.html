@@ -73,7 +73,7 @@
 
                 </style>
                 <div class="row d-flex align-items-stretch">
-                    <div class="col-xl-12 col-12 mb-4">
+                    <div class="col-xl-8 col-8 mb-4">
                         <div class="card card-limit-height h-100">
                             <div class="card-header">
                                 <div class="d-flex align-items-center justify-content-between">
@@ -107,8 +107,8 @@
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <thead>
+                                    <table class="table table-bordered table-responsive-sm table-sm">
+                                        <thead class="table-light">
                                         <tr>
                                             <th>Bezeichnung</th>
                                             <th>Datum</th>
@@ -119,7 +119,7 @@
                                         <tr th:each="v : ${liturgieViews}">
                                             <td th:text="${v.typeLabel}"></td>
                                             <td th:text="${v.date.germanLongDate}"></td>
-                                            <td th:each="p : ${persons}">
+                                            <td th:each="p : ${persons}" class="text-center">
                                                 <button th:if="${v.personStates[p.id].toString().equals('DUTY')}"
                                                         th:data-liturgie-id="${v.id}"
                                                         th:data-participant-id="${p.getId()}"
@@ -143,6 +143,54 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-xl-4 col-4 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="bar-chart-2" class="text-pink fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">
+                                                <span>Statistik</span>
+                                            </h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="' Gottesdienste'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-bordered table-responsive-sm table-sm mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>Datum</th>
+                                        <th class="text-center">Eingeteilt</th>
+                                        <th class="text-center">Verfügbar</th>
+                                        <th class="text-center">Nicht Verfügbar</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="ep : ${eventParticipations}">
+                                        <td th:text="${ep.getDate()}"></td>
+                                        <td class="text-center" th:text="${ep.dutyCount}"></td>
+                                        <td class="text-center" th:text="${ep.availableCount}"></td>
+                                        <td class="text-center" th:text="${ep.unavailableCount}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="chart-bar"><canvas id="myBarChart" width="100%" height="30"></canvas></div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </main>
@@ -158,6 +206,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script>
     $(function() {
         var localeDE = {
@@ -256,10 +305,77 @@
                 alert('Registrierung fehlgeschlagen!');
             });
     }
-
-
-
 </script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Thymeleaf-Projektion: aus List<EventParticipationDto> → JS-Array
+    var labels          = [[${eventParticipations.![date]}]];
+    var dutyData        = [[${eventParticipations.![dutyCount]}]];
+    var availableData   = [[${eventParticipations.![availableCount]}]];
+    var unavailableData = [[${eventParticipations.![unavailableCount]}]];
+    /*]]>*/
+
+    var ctx = document.getElementById("myBarChart").getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Eingeteilt',
+                    data: dutyData,
+                    backgroundColor: '#00ac69',
+                    borderColor:   '#00ac69',
+                },
+                {
+                    label: 'Verfügbar',
+                    data: availableData,
+                    backgroundColor: '#f4a100',
+                    borderColor:   '#f4a100',
+                },
+                {
+                    label: 'Nicht Verfügbar',
+                    data: unavailableData,
+                    backgroundColor: '#e81500',
+                    borderColor:   '#e81500',
+                }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            layout: {
+                padding: { left: 10, right: 25, top: 25, bottom: 0 }
+            },
+            scales: {
+                x: {
+                    grid: { display: false, drawBorder: false },
+                    ticks: { maxRotation: 0, autoSkip: true }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color:            "rgb(234, 236, 244)",
+                        borderDash:       [2],
+                        zeroLineBorderDash: [2]
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: true, position: 'bottom' },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
 
 
 

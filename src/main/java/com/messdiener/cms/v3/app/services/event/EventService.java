@@ -1,7 +1,9 @@
 package com.messdiener.cms.v3.app.services.event;
 
+import com.messdiener.cms.v3.app.entities.component.Component;
 import com.messdiener.cms.v3.app.entities.event.Event;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
+import com.messdiener.cms.v3.shared.enums.ComponentType;
 import com.messdiener.cms.v3.shared.enums.event.EventState;
 import com.messdiener.cms.v3.shared.enums.event.EventType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
@@ -31,13 +33,23 @@ public class EventService {
     @PostConstruct
     public void init() {
         try (Connection connection = databaseService.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events (eventId VARCHAR(255), tenantId VARCHAR(255), updateBy VARCHAR(255), updateDate long, title TEXT, description LONGTEXT, type VARCHAR(255), state VARCHAR(255), startDate LONG, endDate LONG, schedule TEXT, registrationRelease TEXT, targetGroup VARCHAR(255), location VARCHAR(255), imgUrl TEXT, rinkIndex INT, managerId VARCHAR(255), principals TEXT, expenditure DOUBLE, revenue DOUBLE, pressRelease LONGTEXT, preventionConcept LONGTEXT)")) {
+            PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events (eventId VARCHAR(255), tenantId VARCHAR(255), updateBy VARCHAR(255), updateDate long, title TEXT, description LONGTEXT, type VARCHAR(255), state VARCHAR(255), startDate LONG, endDate LONG, deadline LONG, schedule TEXT, registrationRelease TEXT, targetGroup VARCHAR(255), location VARCHAR(255), imgUrl TEXT, rinkIndex INT, managerId VARCHAR(255), principals TEXT, expenditure DOUBLE, revenue DOUBLE, pressRelease LONGTEXT, preventionConcept LONGTEXT, notes LONGTEXT, application LONGTEXT)")) {
             preparedStatement.executeUpdate();
-            LOGGER.info("Configuration table initialized successfully.");
+            LOGGER.info("module_events table initialized successfully.");
         } catch (SQLException e) {
             LOGGER.error("Error while initializing configuration table", e);
             throw new RuntimeException(e);
         }
+
+        try (Connection connection = databaseService.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events_components (eventId VARCHAR(255), number integer, type VARCHAR(255), name VARCHAR(255), label VARCHAR(255), value VARCHAR(255), options TEXT, required boolean)")) {
+            preparedStatement.executeUpdate();
+            LOGGER.info("module_events_components table initialized successfully.");
+        } catch (SQLException e) {
+            LOGGER.error("Error while initializing configuration table", e);
+            throw new RuntimeException(e);
+        }
+
     }
 
     private Event getByResultSet(ResultSet resultSet) throws SQLException {
@@ -53,7 +65,8 @@ public class EventService {
         CMSDate updatedDate = CMSDate.of(resultSet.getLong("updateDate"));
 
         CMSDate startDate = CMSDate.of(resultSet.getLong("startDate"));
-        Optional<CMSDate> endDate = resultSet.getLong("endDate") > 0 ? Optional.of(CMSDate.of(resultSet.getLong("endDate"))) : Optional.empty();
+        CMSDate endDate = CMSDate.of(resultSet.getLong("endDate"));
+        CMSDate deadline = CMSDate.of(resultSet.getLong("deadline"));
 
         String schedule = resultSet.getString("schedule");
         String registrationRelease = resultSet.getString("registrationRelease");
@@ -78,14 +91,17 @@ public class EventService {
 
         String pressRelease = resultSet.getString("pressRelease");
         String preventionConcept = resultSet.getString("preventionConcept");
+        String notes = resultSet.getString("notes");
+        String application = resultSet.getString("application");
 
-        return new Event(eventId, tenantId, updatedBy, updatedDate, title, description, type, state, startDate, endDate, schedule, registrationRelease, targetGroup, location, imgUrl, rinkIndex, managerId, principals, expenditure, revenue, pressRelease, preventionConcept);
+        return new Event(eventId, tenantId, updatedBy, updatedDate, title, description, type, state, startDate, endDate, deadline, schedule, registrationRelease, targetGroup, location, imgUrl, rinkIndex, managerId, principals, expenditure, revenue, pressRelease, preventionConcept, notes, application);
     }
 
     public void save(Event event) throws SQLException {
         databaseService.delete("module_events", "eventId", event.getEventId().toString());
+
         try (Connection connection = databaseService.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO module_events (eventId, tenantId, updateBy, updateDate, title, description, type, state, startDate, endDate, schedule, registrationRelease, targetGroup, location, imgUrl, rinkIndex, managerId, principals, expenditure, revenue, pressRelease, preventionConcept) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO module_events (eventId, tenantId, updateBy, updateDate, title, description, type, state, startDate, endDate, deadline, schedule, registrationRelease, targetGroup, location, imgUrl, rinkIndex, managerId, principals, expenditure, revenue, pressRelease, preventionConcept, notes,application) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
 
             preparedStatement.setString(1, event.getEventId().toString());
             preparedStatement.setString(2, event.getTenantId().toString());
@@ -96,19 +112,22 @@ public class EventService {
             preparedStatement.setString(7, event.getType().toString());
             preparedStatement.setString(8, event.getState().toString());
             preparedStatement.setLong(9, event.getStartDate().toLong());
-            preparedStatement.setLong(10, event.getEndDate().map(CMSDate::toLong).orElse(0L));
-            preparedStatement.setString(11, event.getSchedule());
-            preparedStatement.setString(12, event.getRegistrationRelease());
-            preparedStatement.setString(13, event.getTargetGroup());
-            preparedStatement.setString(14, event.getLocation());
-            preparedStatement.setString(15, event.getImgUrl());
-            preparedStatement.setInt(16, event.getRinkIndex());
-            preparedStatement.setString(17, event.getManagerId().toString());
-            preparedStatement.setString(18, event.getPrincipals().stream().map(UUID::toString).collect(Collectors.joining(",")));
-            preparedStatement.setDouble(19, event.getExpenditure());
-            preparedStatement.setDouble(20, event.getRevenue());
-            preparedStatement.setString(21, event.getPressRelease());
-            preparedStatement.setString(22, event.getPreventionConcept());
+            preparedStatement.setLong(10, event.getEndDate().toLong());
+            preparedStatement.setLong(11, event.getDeadline().toLong());
+            preparedStatement.setString(12, event.getSchedule());
+            preparedStatement.setString(13, event.getRegistrationRelease());
+            preparedStatement.setString(14, event.getTargetGroup());
+            preparedStatement.setString(15, event.getLocation());
+            preparedStatement.setString(16, event.getImgUrl());
+            preparedStatement.setInt(17, event.getRinkIndex());
+            preparedStatement.setString(18, event.getManagerId().toString());
+            preparedStatement.setString(19, event.getPrincipals().stream().map(UUID::toString).collect(Collectors.joining(",")));
+            preparedStatement.setDouble(20, event.getExpenditure());
+            preparedStatement.setDouble(21, event.getRevenue());
+            preparedStatement.setString(22, event.getPressRelease());
+            preparedStatement.setString(23, event.getPreventionConcept());
+            preparedStatement.setString(24, event.getNotes());
+            preparedStatement.setString(25, event.getApplication());
 
             preparedStatement.executeUpdate();
             LOGGER.info("Event saved: {}", event.getTitle());
@@ -164,4 +183,56 @@ public class EventService {
 
         return events;
     }
+
+    public void deleteComponent(UUID eventId, int number) throws SQLException {
+        String sql = "DELETE FROM module_events_components where eventId = ? and number = ?";
+        try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, eventId.toString());
+            preparedStatement.setInt(2, number);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public void saveComponent(UUID eventId, Component component) throws SQLException {
+        deleteComponent(eventId, component.getNumber());
+
+        String sql = "INSERT INTO module_events_components (eventId, number, type, name, label, value, options, required) VALUES (?,?,?,?,?,?,?,?)";
+        try(Connection connection = databaseService.getConnection();PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, eventId.toString());
+            preparedStatement.setInt(2, component.getNumber());
+            preparedStatement.setString(3, component.getType().toString());
+            preparedStatement.setString(4, component.getName());
+            preparedStatement.setString(5, component.getLabel());
+            preparedStatement.setString(6, component.getValue());
+            preparedStatement.setString(7, component.getOptions());
+            preparedStatement.setBoolean(8, component.isRequired());
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    private Component getComponentByResultSet(ResultSet resultSet) throws SQLException {
+        int number = resultSet.getInt("number");
+        ComponentType type = ComponentType.valueOf(resultSet.getString("type"));
+        String name =  resultSet.getString("name");
+        String label =   resultSet.getString("label");
+        String value =  resultSet.getString("value");
+        String options =   resultSet.getString("options");
+        boolean required =   resultSet.getBoolean("required");
+        return new Component(number, type, name, label, value, options, required, new ArrayList<>());
+    }
+
+    public List<Component> getComponents(UUID eventId) throws SQLException {
+        List<Component> components = new ArrayList<>();
+        String sql = "SELECT * FROM module_events_components WHERE eventId = ? ORDER BY number";
+        try(Connection connection = databaseService.getConnection();PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, eventId.toString());
+            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    components.add(getComponentByResultSet(resultSet));
+                }
+            }
+        }
+        return components;
+    }
+
 }

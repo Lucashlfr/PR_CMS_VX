@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.text.DocumentException;
+import com.messdiener.cms.v3.app.entities.document.StorageFile;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.person.data.EmergencyContact;
 import com.messdiener.cms.v3.app.entities.privacy.PrivacyPolicy;
@@ -15,6 +16,7 @@ import com.messdiener.cms.v3.app.entities.workflow.repository.scripts.WFInformat
 import com.messdiener.cms.v3.app.export.FileCreator;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.helper.workflow.WorkflowHelper;
+import com.messdiener.cms.v3.app.services.document.StorageService;
 import com.messdiener.cms.v3.app.services.person.EmergencyContactService;
 import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.app.services.privacy.PrivacyService;
@@ -22,15 +24,18 @@ import com.messdiener.cms.v3.app.services.workflow.WorkflowModuleService;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowService;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
+import com.messdiener.cms.v3.shared.enums.document.FileType;
 import com.messdiener.cms.v3.shared.enums.workflow.WorkflowModuleStatus;
 import com.messdiener.cms.v3.utils.other.JsonHelper;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.utils.time.DateUtils;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
@@ -48,6 +53,7 @@ public class WorkflowScripts {
     private final WorkflowHelper workflowHelper;
     private final WorkflowService workflowService;
     private final PersonHelper personHelper;
+    private final StorageService storageService;
 
     public void preApproval() {
 
@@ -263,7 +269,8 @@ public class WorkflowScripts {
 
         fileCreator.setSender(personService.getPersonById(Cache.SYSTEM_USER).orElseThrow(), "technischer Benutzer");
         try {
-            fileCreator.createPdf();
+            Optional<File> file = fileCreator.createPdf();
+            storageService.store(new StorageFile(UUID.randomUUID(), 0, user.getId(), user.getId(), CMSDate.current(), fileCreator.getFileName(), CMSDate.current(), 0, FileType.ONBOARDING, file.orElseThrow().getPath()));
         } catch (IOException | DocumentException e) {
             throw new RuntimeException(e);
         }

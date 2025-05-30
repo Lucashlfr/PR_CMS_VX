@@ -26,39 +26,69 @@
             <!-- Main page content-->
 
             <div class="container-fluid px-4 mt-4">
-                <div class="d-flex mb-3">
-                    <button class="btn text-white btn-sm flex-fill m-1 mdi mdi-upload" type="button" data-bs-toggle="modal" data-bs-target="#create" style="background-color: #084887"> Upload</button>
-                </div>
 
               <div class="card">
                   <div class="card-body">
-                      <div class="tab-content" id="cardTabContent">
-                          <div class="text-center" id="load">
-                                    <span class="spinner-border card-img"
-                                          style="min-height: 200px; min-width: 200px;"></span>
+                      <div class="row">
+                          <div class="col-xl-2">
+                              <style>
+                                  /* Custom Utility für gestrichelten Rahmen */
+                                  .border-dashed {
+                                      border-style: dashed !important;
+                                  }
+                                  /* Style beim Drag-Over */
+                                  #drop-zone.dragover {
+                                      background-color: #e9f7fe;
+                                      border-color: #0d6efd !important;
+                                      color: #0d6efd;
+                                  }
+                              </style>
+                              <div
+                                      id="drop-zone"
+                                      class="border border-primary border-dashed rounded p-5 text-center text-primary"
+                              >
+                                  <p class="mb-2">Ziehe Dateien hierher oder</p>
+                                  <button id="browse-btn" class="btn btn-primary">Durchsuchen</button>
+                                  <input type="text" class="d-none" name="target" id="target" th:value="${id}">
+                                  <input type="text" class="d-none" name="type" id="type" th:value="'WEBSITE'">
+                                  <input
+                                          type="file"
+                                          id="file-input"
+                                          name="files"
+                                          multiple
+                                          class="d-none"
+                                  >
+                              </div>
+                              <ul id="upload-list" class="d-none"></ul>
                           </div>
-                          <div class="d-none" id="content" style="overflow-y: scroll">
-                              <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
+                          <div class="col-xl-10">
+                              <table class="table table-sm table-hover">
                                   <thead>
                                   <tr>
+                                      <th>Nummer</th>
                                       <th>Name</th>
-                                      <th>Ersteller</th>
-                                      <th>Letzes Update</th>
-                                      <th></th>
+                                      <th>Erstellt am</th>
+                                      <th>Letztes Update</th>
+                                      <th>Erstellt von</th>
+                                      <th>Datei-Typ</th>
                                   </tr>
                                   </thead>
                                   <tbody>
-                                  <tr th:each="f:${files}">
+                                  <tr th:each="file : ${files}">
+                                      <td th:text="${file.getTag()}"></td>
                                       <td>
-                                          <a th:href="'/storage/file?id=' + ${f.getId()}" th:text="${f.getTitle()}"></a>
+                                          <a
+                                                  th:text="${file.getTitle()}"
+                                                  th:href="@{/file(id=${file.getId()})}"
+                                                  target="_blank"
+                                                  rel="noopener noreferrer">
+                                          </a>
                                       </td>
-                                      <td></td>
-                                      <td></td>
-                                      <td>
-                                          <img th:src="'/storage/file?id=' + ${f.getId()}" alt="..." class="img-fluid">
-                                      </td>
+                                      <td th:text="${file.getDate().getGermanDate()}"></td>
+                                      <td th:text="${file.getLastUpdate().getGermanDate()}"></td>
+                                      <td th:text="${personHelper.getName(file.getOwner())}"></td>
+                                      <td th:text="${file.getType()}"></td>
                                   </tr>
-
                                   </tbody>
                               </table>
                           </div>
@@ -75,98 +105,67 @@
 <div th:insert="~{fragments :: script}"></div>
 </body>
 
-<form method="post" action="/cloud/upload" enctype="multipart/form-data">
-    <div class="modal fade" id="create">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">Artikel erstellen</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <!-- Modal body -->
-                <div class="modal-body">
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="titel" class="col-sm-2 col-form-label">Titel <span class="text-danger">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="titel" name="title" required>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="img" class="col-sm-2 col-form-label">Bild<span
-                                class="text-danger">*</span></label>
-                        <div class="col-sm-10">
-                            <input
-                                    type="file"
-                                    class="form-control"
-                                    id="img"
-                                    name="img"
-                                    accept=".png,.jpg,.jpeg,.svg"
-                                    required/>
-                        </div>
-                    </div>
-
-                </div>
-
-
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Speichern</button>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-</form>
-
-</html>
-<script th:src="@{/js/jquery.min.js}"></script>
-<script th:src="@{/js/jquery.dataTables.min.js}"></script>
 <script>
-    $(document).ready(function () {
-        $('#table_id').DataTable({
-            language: {
-                "decimal": ",",
-                "thousands": ".",
-                "infoPostFix": "",
-                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
-                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
-                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
-                "paginate": {
-                    "first": "Erste",
-                    "last": "Letzte",
-                    "next": "Nächste",
-                    "previous": "Zurück"
-                },
-                "processing": "Verarbeitung läuft ...",
-                "search": "Suche:",
-                "searchPlaceholder": "Suchbegriff",
-                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
-                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
-                "aria": {
-                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
-                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
-                },
-                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
-                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
-                "select": {
-                    "rows": {
-                        _: '%d Zeilen ausgewählt',
-                        0: 'Zeile anklicken um auszuwählen',
-                        1: 'Eine Zeile ausgewählt'
-                    }
-                }
-            }, paging: false,
-        });
+    const dropZone  = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const targetInput = document.getElementById('target');
+    const typeInput = document.getElementById('type');
+    const browseBtn = document.getElementById('browse-btn');
 
-        setTimeout(function () {
-            document.getElementById("content").classList.remove("d-none");
-            document.getElementById("load").classList.add("d-none");
-        }, 0.1);
+    // Öffnet den Datei-Dialog
+    browseBtn.addEventListener('click', e => {
+        e.preventDefault();
+        fileInput.click();
     });
+
+    // Dateien vom Dialog verarbeiten
+    fileInput.addEventListener('change', () => {
+        handleFiles(fileInput.files);
+    });
+
+    // Browser-Default für Drag-Events verhindern
+    ['dragenter','dragover','dragleave','drop'].forEach(evt =>
+        dropZone.addEventListener(evt, e => {
+            e.preventDefault();
+            e.stopPropagation();
+        })
+    );
+
+    // Styling beim Drag-Over
+    ['dragenter','dragover'].forEach(evt =>
+        dropZone.addEventListener(evt, () => dropZone.classList.add('dragover'))
+    );
+    ['dragleave','drop'].forEach(evt =>
+        dropZone.addEventListener(evt, () => dropZone.classList.remove('dragover'))
+    );
+
+    // Dateien bei Drop verarbeiten
+    dropZone.addEventListener('drop', e => {
+        handleFiles(e.dataTransfer.files);
+    });
+
+    function handleFiles(files) {
+        const formData = new FormData();
+        // HIER das Event mitschicken:
+        formData.append('target', targetInput.value);
+        formData.append('type', typeInput.value);
+
+        Array.from(files).forEach(f => formData.append('files', f));
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => res.ok
+                ? res.text()
+                : Promise.reject(new Error('Upload fehlgeschlagen'))
+            )
+            .then(msg => {
+                console.log('Server-Antwort:', msg);
+                // Seite neu laden, damit z.B. die Liste der Dateien aktualisiert wird
+                window.location.reload();
+            })
+            .catch(err => console.error(err));
+    }
 </script>
+</html>

@@ -1,0 +1,23 @@
+<!-- templates/fragments/eventNav.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<!-- Definiere hier das Fragment „eventNav“ mit den Parametern s und event -->
+<div th:fragment="nav (s, person)">
+    <nav class="nav nav-pills nav-fill mb-3">
+        <a th:class="${s == 'overview'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='overview', id=${person.id})}">Übersicht</a>
+        <a th:class="${s == 'basisdata'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='basisdata', id=${person.id})}">Stammdaten</a>
+        <a th:class="${s == 'documents'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='documents', id=${person.id})}">Documents</a>
+        <a th:class="${s == 'liturgy'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='liturgy', id=${person.id})}">Gottesdienste</a>
+        <a th:class="${s == 'emergency'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='emergency', id=${person.id})}">Notfallkontakte</a>
+        <a th:class="${s == 'connection'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='connection', id=${person.id})}">Connections</a>
+        <a th:class="${s == 'workflows'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='workflows', id=${person.id})}">Workflows</a>
+    </nav>
+</div>
+</html>

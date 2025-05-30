@@ -9,6 +9,7 @@ import com.messdiener.cms.v3.app.entities.table.CMSCell;
 import com.messdiener.cms.v3.app.entities.table.CMSRow;
 import com.messdiener.cms.v3.utils.other.Pair;
 import com.messdiener.cms.v3.utils.time.CMSDate;
+import lombok.Getter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Getter
 public class FileCreator {
 
     private static final Font contentFont = FontFactory.getFont("ARIAL", 10);

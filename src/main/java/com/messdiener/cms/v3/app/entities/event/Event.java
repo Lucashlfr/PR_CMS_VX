@@ -1,5 +1,6 @@
 package com.messdiener.cms.v3.app.entities.event;
 
+import com.messdiener.cms.v3.app.entities.component.Component;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.event.EventState;
 import com.messdiener.cms.v3.shared.enums.event.EventType;
@@ -9,7 +10,6 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -31,7 +31,9 @@ public class Event {
 
     // Zeitliche Angaben
     private CMSDate startDate;
-    private Optional<CMSDate> endDate;
+    private CMSDate endDate;
+    private CMSDate deadline;
+
     private String schedule;
     private String registrationRelease;
 
@@ -52,10 +54,12 @@ public class Event {
     // Presse & Dokumentation
     private String pressRelease;
     private String preventionConcept;
+    private String notes;
+    private String application;
 
-    public static Event empty(UUID eventId, UUID tenantId, String title, EventType eventType, EventState eventState, CMSDate startDate, Optional<CMSDate> endDate) {
-        return new Event(eventId, tenantId, Cache.SYSTEM_USER, CMSDate.current(), title, "", eventType, eventState, startDate, endDate, "", "", "",
-                "", "", -1, Cache.SYSTEM_USER, new ArrayList<>(), 0, 0, "", "");
+    public static Event empty(UUID eventId, UUID tenantId, String title, EventType eventType, EventState eventState, CMSDate startDate, CMSDate endDate, CMSDate deadline) {
+        return new Event(eventId, tenantId, Cache.SYSTEM_USER, CMSDate.current(), title, "", eventType, eventState, startDate, endDate, deadline, "", "", "",
+                "", "", -1, Cache.SYSTEM_USER, new ArrayList<>(), 0, 0, "", "","", "");
 
     }
 

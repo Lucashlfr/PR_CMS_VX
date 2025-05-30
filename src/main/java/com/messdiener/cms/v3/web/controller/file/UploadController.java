@@ -1,126 +1,92 @@
-package com.messdiener.cms.v3.web.controller.document;
+package com.messdiener.cms.v3.web.controller.file;
 
-import com.messdiener.cms.v3.app.entities.audit.AuditLog;
-import com.messdiener.cms.v3.app.entities.document.Document;
 import com.messdiener.cms.v3.app.entities.document.StorageFile;
-import com.messdiener.cms.v3.app.entities.finance.Transaction;
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.services.document.DocumentService;
 import com.messdiener.cms.v3.app.services.document.StorageService;
 import com.messdiener.cms.v3.exception.StorageException;
 import com.messdiener.cms.v3.security.SecurityHelper;
-import com.messdiener.cms.v3.shared.cache.Cache;
-import com.messdiener.cms.v3.shared.enums.ActionCategory;
-import com.messdiener.cms.v3.shared.enums.MessageType;
+import com.messdiener.cms.v3.shared.enums.document.FileType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
-import com.messdiener.cms.v3.utils.time.DateUtils;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 
 @Controller
 @RequiredArgsConstructor
-public class DocumentController {
+public class UploadController {
 
-    private final DocumentService documentService;
     private final SecurityHelper securityHelper;
     private final StorageService storageService;
 
-    @GetMapping("/cloud")
-    public String cloud(HttpSession session, Model model) throws SQLException {
-        securityHelper.addPersonToSession(session);
-
-        model.addAttribute("files", storageService.loadFiles(Cache.WEBSITE));
-
-        return "cloud/list/cloudList";
-    }
-
-    @PostMapping(value = "/cloud/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public RedirectView saveTransaction(
-            @RequestParam("title") String title,
-            @RequestParam("img") MultipartFile img,
-            RedirectAttributes redirectAttributes,
-            HttpServletRequest request) throws SQLException {
-
+    @PostMapping(path = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<String> uploadFiles(@RequestParam("target") UUID targetId, @RequestParam("type")String type, @RequestParam("files") MultipartFile[] files) throws IOException {
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        storageService.store(img, new StorageFile(UUID.randomUUID(), 0, user.getId(), Cache.WEBSITE, CMSDate.current(), title, CMSDate.current(), 10));
-
-        redirectAttributes.addFlashAttribute("success", "Transaktion erfolgreich gespeichert.");
-        String referer = request.getHeader("Referer");
-        if (referer == null || referer.isEmpty()) {
-            referer = "/";
-        }
-        return new RedirectView(referer);
-    }
-
-
-    @PostMapping("/document/create")
-    public RedirectView createDocument(HttpServletRequest request, @RequestParam("target") UUID target, @RequestParam("title") String title) throws SQLException {
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
-        Document document = new Document(UUID.randomUUID(), user.getId(), target, CMSDate.current(), title, "", "");
-        documentService.saveDocument(document);
-
-        String referer = request.getHeader("Referer");
-        if (referer != null && !referer.isBlank()) {
-            return new RedirectView(referer);
+        Path uploadDir = Paths.get("./cms_vx/uploads");
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
         }
 
-        // Fallback falls kein Referer mitgegeben wurde
-        return new RedirectView("/");
+        StringBuilder sb = new StringBuilder();
+        UUID fileId = UUID.randomUUID();
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) continue;
+
+            String originalFilename = Objects.requireNonNull(file.getOriginalFilename());
+            String extension = StringUtils.getFilenameExtension(originalFilename);
+            String filename = fileId + (extension != null && !extension.isEmpty() ? "." + extension : "");
+
+            // Optional: Dateinamen eindeutiger machen
+            String ext = FilenameUtils.getExtension(filename);
+            String base = FilenameUtils.getBaseName(filename);
+            String storedName = base + "_" + System.currentTimeMillis() + "." + ext;
+
+            try {
+                Path target = uploadDir.resolve(storedName);
+                Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+                sb.append("Hochgeladen: ").append(storedName).append("\n");
+
+                storageService.store(new StorageFile(UUID.randomUUID(), 0, user.getId(), targetId, CMSDate.current(), filename, CMSDate.current(), 10, FileType.valueOf(type), "./cms_vx/uploads/"+storedName));
+
+            } catch (IOException | SQLException e) {
+                return ResponseEntity
+                        .status(500)
+                        .body("Fehler beim Speichern von " + filename + ": " + e.getMessage());
+            }
+        }
+        return ResponseEntity.ok(sb.toString());
     }
 
-    @PostMapping("/document/update")
-    public String save(HttpServletRequest request, @RequestParam("id") UUID id, @RequestParam("owner") UUID owner,
-                       @RequestParam("target") UUID target, @RequestParam("title") String title,
-                       @RequestParam("content") String content, @RequestParam("permissions") String permissions) throws SQLException {
-
-        Document document = new Document(id, owner, target, CMSDate.current(), title, content, permissions);
-        documentService.saveDocument(document);
-
-        return "close-popup";
-
-    }
-
-    @GetMapping("/document")
-    public String document(Model model, @RequestParam("id") UUID id) throws SQLException {
-        Document document = documentService.getDocument(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Document not found"));
-        model.addAttribute("document", document);
-        return "document/document";
-    }
-
-    @GetMapping("/storage/file")
-    public ResponseEntity<ByteArrayResource> getFile(
-            @RequestParam("id") UUID id,
+    @GetMapping("/img")
+    public ResponseEntity<ByteArrayResource> getFile(@RequestParam("id") UUID id,
             @RequestParam(name = "download", defaultValue = "false") boolean downloadFlag,
             @RequestParam(name = "w", required = false) Integer width,
-            @RequestParam(name = "h", required = false) Integer height
-    ) {
+            @RequestParam(name = "h", required = false) Integer height) {
         File file;
         try {
             file = storageService.load(id.toString());
@@ -171,7 +137,6 @@ public class DocumentController {
                 .body(resource);
     }
 
-
     private ResponseEntity<ByteArrayResource> getFallbackImage(Integer width, Integer height) {
         // Standard-Maße, falls nicht übergeben
         int targetWidth  = (width  != null ? width  : 800);
@@ -215,5 +180,53 @@ public class DocumentController {
             );
         }
     }
+
+    @GetMapping("/file")
+    public ResponseEntity<ByteArrayResource> getFile(@RequestParam("id") UUID id) throws SQLException {
+        // 1. Metadaten laden
+        StorageFile storageFile = storageService.getFile(id)
+                .orElseThrow(() -> new StorageException("Datei nicht gefunden: " + id));
+
+        // 2. Datei laden
+        byte[] data;
+        try {
+            File file = storageService.loadFile(storageFile.getPath());
+            data = Files.readAllBytes(file.toPath());
+        } catch (IOException | StorageException e) {
+            throw new StorageException("Datei nicht gefunden: " + id, e);
+        }
+
+        // 3. MIME-Type ermitteln (Fallback auf application/octet-stream)
+        String mimeType;
+        try {
+            mimeType = Files.probeContentType(Paths.get(storageFile.getPath()));
+        } catch (IOException e) {
+            mimeType = null;
+        }
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
+
+        // 4. Content-Disposition bestimmen
+        // Inline nur bei PDFs und Bildern
+        String dispositionType = mimeType.equals("application/pdf")
+                || mimeType.startsWith("image/")
+                ? "inline"
+                : "attachment";
+        String filename = storageFile.getTitle();
+        String contentDisposition = ContentDisposition.builder(dispositionType)
+                .filename(filename, StandardCharsets.UTF_8)
+                .build()
+                .toString();
+
+        // 5. Response aufbauen
+        ByteArrayResource resource = new ByteArrayResource(data);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(mimeType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+                .contentLength(data.length)
+                .body(resource);
+    }
+
 
 }

@@ -3,6 +3,7 @@ package com.messdiener.cms.v3.app.services.document;
 import com.messdiener.cms.v3.app.entities.document.StorageFile;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
 import com.messdiener.cms.v3.exception.StorageException;
+import com.messdiener.cms.v3.shared.enums.document.FileType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +23,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +35,7 @@ public class StorageService {
     @PostConstruct
     public void init() {
         try (Connection connection = databaseService.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_storage (documentId VARCHAR(255),  tag INT AUTO_INCREMENT PRIMARY KEY, owner VARCHAR(255), target VARCHAR(255), lastUpdate long, title TEXT, date long, meta double)")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_storage (documentId VARCHAR(255),  tag INT AUTO_INCREMENT PRIMARY KEY, owner VARCHAR(255), target VARCHAR(255), lastUpdate long, title TEXT, date long, meta double, type VARCHAR(30), path TEXT)")) {
             preparedStatement.executeUpdate();
             LOGGER.info("Configuration table initialized successfully.");
         } catch (SQLException e) {
@@ -51,7 +49,7 @@ public class StorageService {
             throw new StorageException("Leere Datei kann nicht gespeichert werden.");
         }
 
-        store(storageFile);
+
 
         String original = StringUtils.cleanPath(Objects.requireNonNull(receiptFile.getOriginalFilename()));
         String ext = "";
@@ -69,7 +67,8 @@ public class StorageService {
             try (InputStream in = receiptFile.getInputStream()) {
                 Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
             }
-
+            storageFile.setPath(target + filename);
+            store(storageFile);
             return filename;
         } catch (IOException e) {
             throw new StorageException("Fehler beim Speichern der Datei " + filename, e);
@@ -77,7 +76,7 @@ public class StorageService {
     }
 
     public void store(StorageFile storageFile) throws SQLException {
-        String sql = "INSERT INTO module_storage (documentId, tag, owner, target, lastUpdate, title, date, meta) VALUES (?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO module_storage (documentId, tag, owner, target, lastUpdate, title, date, meta, type, path) VALUES (?,?,?,?,?,?,?,?,?,?)";
         try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setString(1, storageFile.getId().toString());
             preparedStatement.setInt(2, storageFile.getTag());
@@ -87,6 +86,8 @@ public class StorageService {
             preparedStatement.setString(6, storageFile.getTitle());
             preparedStatement.setLong(7, storageFile.getDate().toLong());
             preparedStatement.setDouble(8, storageFile.getMeta());
+            preparedStatement.setString(9, storageFile.getType().toString());
+            preparedStatement.setString(10, storageFile.getPath());
             preparedStatement.executeUpdate();
         }
     }
@@ -104,6 +105,15 @@ public class StorageService {
         throw new StorageException("Datei nicht gefunden: " + filename);
     }
 
+    public File loadFile(String path) {
+        Path filePath = Path.of(path);
+        File file = filePath.toFile();
+        if (file.exists() && file.isFile()) {
+            return file;
+        }
+        throw new StorageException("Datei nicht gefunden: " + path);
+    }
+
     private StorageFile getByResultSet(ResultSet resultSet) throws SQLException {
         UUID id = UUID.fromString(resultSet.getString("documentId"));
         int tag =  resultSet.getInt("tag");
@@ -113,7 +123,9 @@ public class StorageService {
         String title =  resultSet.getString("title");
         CMSDate date =  CMSDate.of(resultSet.getLong("date"));
         double meta =   resultSet.getDouble("meta");
-        return new StorageFile(id, tag, owner, target, lastUpdate, title, date, meta);
+        FileType type = FileType.valueOf(resultSet.getString("type"));
+        String path =  resultSet.getString("path");
+        return new StorageFile(id, tag, owner, target, lastUpdate, title, date, meta, type, path);
     }
 
     public List<StorageFile> loadFiles(UUID target) throws SQLException {
@@ -130,6 +142,8 @@ public class StorageService {
         return storageFiles;
     }
 
+
+
     public double getSumm(UUID target) throws SQLException {
         String sql = "SELECT COALESCE(SUM(meta),0) AS sumAcc FROM module_storage WHERE target=?";
         try (Connection connection = databaseService.getConnection();
@@ -144,6 +158,31 @@ public class StorageService {
             LOGGER.error("Fehler beim Ermitteln der Summe für transactionType ACCOUNT für Tenant {}", target, e);
         }
         return 0.0;
+    }
+
+    public List<StorageFile> getFiles(UUID id, FileType fileTypeE) throws SQLException {
+        List<StorageFile> storageFiles = new ArrayList<>();
+        String sql = "SELECT * FROM module_storage WHERE target=? AND type = ?";
+        try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, id.toString());
+            preparedStatement.setString(2, fileTypeE.toString());
+            try(ResultSet resultSet = preparedStatement.executeQuery()){
+                while (resultSet.next()) {
+                    storageFiles.add(getByResultSet(resultSet));
+                }
+            }
+        }
+        return storageFiles;
+    }
+
+    public Optional<StorageFile> getFile(UUID id) throws SQLException {
+        String sql = "SELECT * FROM module_storage WHERE documentId = ?";
+        try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, id.toString());
+            try(ResultSet resultSet = preparedStatement.executeQuery()){
+                return resultSet.next() ? Optional.of(getByResultSet(resultSet)) : Optional.empty();
+            }
+        }
     }
 
 }

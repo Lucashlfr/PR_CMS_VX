@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-info mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="user"></i></span>
+                                    <span>Person / Lucas Helfer</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4">
+
+                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person})}"></div>
+
+
+                <div class="row">
+                    <div class="col-xl-3 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="git-pull-request" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Verknüpfte Workflows</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${workflows.size()} + ' verknüpfte Workflows'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: scroll;">
+                                <div class="overflow-scroll" style="max-height: 500px!important;">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Beschreibung</th>
+                                            <th>Status</th>
+                                            <th>Bearbeiter</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="w : ${workflows}">
+                                            <td></td>
+                                            <td>
+                                                <a th:text="${w.getWorkflowType().getLabel()}"
+                                                   th:href="'/workflow?q=info&id=' + ${w.getWorkflowId()}"></a>
+                                            </td>
+                                            <td th:text="${w.getCMSState().getLabel()}"></td>
+                                            <td th:text="${personHelper.getName(w.getOwnerId())}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <!-- Weitere Timeline-Items -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="git-pull-request" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Gottesdienste in diesem Monat</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${workflows.size()} + ' verknüpfte Workflows'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: scroll;">
+                                <div class="overflow-scroll" style="max-height: 500px!important;">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover table-bordered">
+                                            <thead>
+                                            <tr>
+                                                <th>Bezeichnung</th>
+                                                <th>Datum</th>
+                                                <th th:each="p:${persons}" th:text="${p.firstName}"></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="v : ${liturgieViews}">
+                                                <td th:text="${v.typeLabel}"></td>
+                                                <td th:text="${v.date.germanLongDate}"></td>
+                                                <td th:each="p : ${persons}">
+                                            <span th:if="${v.personStates[p.id].toString().equals('DUTY')}"
+                                                  class="text-success">Eingeteilt
+                                            </span>
+                                                    <span th:if="${v.personStates[p.id].toString().equals('AVAILABLE')}"
+                                                          class="text-yellow">Verfügbar
+                                            </span>
+                                                    <span th:if="${v.personStates[p.id].toString().equals('UNAVAILABLE')}"
+                                                          class="text-danger">Abwesend</span>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="git-pull-request" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Flags</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${workflows.size()} + ' verknüpfte Workflows'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: scroll;">
+                                <div class="overflow-scroll" style="max-height: 500px!important;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="git-pull-request" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Details</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${workflows.size()} + ' verknüpfte Workflows'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body" style="max-height: 300px; overflow-y: scroll;">
+                                <div class="overflow-scroll" style="max-height: 500px!important;">
+                                    <table class="table table-sm table-hover">
+                                        <tbody>
+                                        <tr>
+                                            <td>Adresse</td>
+                                            <td th:text="${person.getAddress()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>E-Mail</td>
+                                            <td th:text="${person.getEmail()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Telefon</td>
+                                            <td th:text="${person.getPhone()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Handynummer</td>
+                                            <td th:text="${person.getMobile()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bankdaten</td>
+                                            <td th:text="${person.getBankDetails()}"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Benutzername</td>
+                                            <td>
+                                                <span th:text="${person.getUsername()}"></span>
+                                                <span th:if="${person.getBirthdate().isPresent()} and ${person.getPassword().equals(person.getBirthdate().get().getGermanDate())}"
+                                                      class="text-green mdi mdi-security"></span>
+                                                <span th:unless="${person.getBirthdate().isPresent()} and ${person.getPassword().equals(person.getBirthdate().get().getGermanDate())}"
+                                                      class="text-red mdi mdi-security"></span>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+</html>

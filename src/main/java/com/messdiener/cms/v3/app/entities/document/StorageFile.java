@@ -1,5 +1,6 @@
 package com.messdiener.cms.v3.app.entities.document;
 
+import com.messdiener.cms.v3.shared.enums.document.FileType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,5 +19,7 @@ public class StorageFile {
     private String title;
     private CMSDate date;
     private double meta;
+    private FileType type;
+    private String path;
 
 }

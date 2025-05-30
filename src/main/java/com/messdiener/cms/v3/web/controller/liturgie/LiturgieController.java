@@ -1,28 +1,23 @@
 package com.messdiener.cms.v3.web.controller.liturgie;
 
-import com.itextpdf.text.DocumentException;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
-import com.messdiener.cms.v3.app.entities.table.CMSCell;
-import com.messdiener.cms.v3.app.entities.table.CMSRow;
+import com.messdiener.cms.v3.app.entities.worship.EventParticipationDto;
+import com.messdiener.cms.v3.app.entities.worship.HeatmapDto;
 import com.messdiener.cms.v3.app.entities.worship.Liturgie;
 import com.messdiener.cms.v3.app.entities.worship.LiturgieView;
-import com.messdiener.cms.v3.app.export.FileCreator;
 import com.messdiener.cms.v3.app.helper.liturgie.LiturgieHelper;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.liturgie.LiturgieMappingService;
 import com.messdiener.cms.v3.app.services.liturgie.LiturgieService;
 import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.security.SecurityHelper;
-import com.messdiener.cms.v3.shared.LiturgieState;
-import com.messdiener.cms.v3.shared.cache.Cache;
-import com.messdiener.cms.v3.utils.other.JsonHelper;
+import com.messdiener.cms.v3.shared.enums.LiturgieState;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.utils.time.DateUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,11 +26,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.view.RedirectView;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,36 +43,14 @@ public class LiturgieController {
     private final LiturgieService liturgieService;
     private final PersonService personService;
     private final LiturgieMappingService liturgieMappingService;
-    private final PersonHelper personHelper;
 
     @GetMapping("/liturgie")
     public String liturgie(HttpSession session, Model model, @RequestParam("startDate")Optional<String> startDateS,  @RequestParam("endDate")Optional<String> endDateS) throws SQLException {
         Person person = securityHelper.addPersonToSession(session).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        model.addAttribute("now", CMSDate.current());
+        liturgieHelper.extractedLoadMethod(model, startDateS, endDateS, person, Optional.empty());
 
-        String startDateE = startDateS.orElse("");
-        String endDateE = endDateS.orElse("");
-
-        CMSDate startDate = startDateS.isPresent() ? CMSDate.convert(startDateE, DateUtils.DateType.ENGLISH) : CMSDate.of(liturgieHelper.getStartOfCurrentMonthMillis());
-        CMSDate endDate = endDateS.isPresent() ? CMSDate.convert(endDateE, DateUtils.DateType.ENGLISH) : CMSDate.of(liturgieHelper.getEndOfCurrentMonthMillis());
-
-        List<Liturgie> liturgieList =  liturgieService.getLiturgies(person.getTenantId(), startDate.toLong(), endDate.toLong());
-        List<PersonOverviewDTO> persons = personService.getActiveMessdienerByTenantDTO(person.getTenantId());
-        model.addAttribute("liturgies",liturgieList);
-        model.addAttribute("persons", persons);
-        model.addAttribute("startDate", startDateE);
-        model.addAttribute("endDate", endDateE);
-
-        Map<UUID, Map<UUID, LiturgieState>> stateMap = liturgieMappingService.getStatesForLiturgies(liturgieList, persons);
-
-        List<LiturgieView> views = liturgieList.stream()
-                .map(l -> new LiturgieView(
-                        l.getLiturgieId(),
-                        l.getLiturgieType().getLabel(),
-                        l.getDate(),
-                        stateMap.get(l.getLiturgieId())))
-                .toList();
-        model.addAttribute("liturgieViews", views);
+        List<EventParticipationDto> participations = liturgieHelper.getEventParticipation(startDateS, endDateS, person, Optional.empty());
+        model.addAttribute("eventParticipations", participations);
 
         return "liturgie/list/liturgieOverview";
     }
@@ -140,6 +111,4 @@ public class LiturgieController {
 
         return "liturgie/list/liturgieExport";
     }
-
-
 }

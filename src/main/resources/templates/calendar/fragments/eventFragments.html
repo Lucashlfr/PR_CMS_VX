@@ -1,0 +1,25 @@
+<!-- templates/fragments/eventNav.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<!-- Definiere hier das Fragment „eventNav“ mit den Parametern s und event -->
+<div th:fragment="eventNav (s, event)">
+    <nav class="nav nav-pills nav-fill mb-3">
+        <a th:class="${s == 'info'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='info', id=${event.eventId})}">Home</a>
+        <a th:class="${s == 'tasks'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='tasks', id=${event.eventId})}">Aufgaben</a>
+        <a th:class="${s == 'timeline'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='timeline', id=${event.eventId})}">Timeline</a>
+        <a th:class="${s == 'notes'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='notes', id=${event.eventId})}">Notizen</a>
+        <a th:class="${s == 'files'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='files', id=${event.eventId})}">Dateien</a>
+        <a th:class="${s == 'application'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='application', id=${event.eventId})}">Anmeldung</a>
+        <a th:class="${s == 'pressrelease'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='pressrelease', id=${event.eventId})}">Pressemeldung</a>
+        <a th:class="${s == 'settings'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='settings', id=${event.eventId})}">Einstellungen</a>
+    </nav>
+</div>
+</html>

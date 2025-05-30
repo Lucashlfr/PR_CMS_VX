@@ -18,6 +18,7 @@ import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.ActionCategory;
 import com.messdiener.cms.v3.shared.enums.MessageType;
+import com.messdiener.cms.v3.shared.enums.document.FileType;
 import com.messdiener.cms.v3.shared.enums.finance.BudgetYear;
 import com.messdiener.cms.v3.shared.enums.finance.CostCenter;
 import com.messdiener.cms.v3.shared.enums.finance.TransactionState;
@@ -230,7 +231,7 @@ public class FinanceController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         Transaction transaction = transactionService.getById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transaction not found"));
-        storageService.store(receiptFile, new StorageFile(UUID.randomUUID(), 0, user.getId(), transaction.getId(), CMSDate.current(), title, CMSDate.convert(dateE, DateUtils.DateType.ENGLISH), amount));
+        storageService.store(receiptFile, new StorageFile(UUID.randomUUID(), 0, user.getId(), transaction.getId(), CMSDate.current(), title, CMSDate.convert(dateE, DateUtils.DateType.ENGLISH), amount, FileType.ACCOUNTING,""));
         transactionService.save(transaction);
 
 

@@ -68,4 +68,8 @@ public class PersonConnectionService {
 
         return connections;
     }
+
+    public void deleteConnection(UUID id) throws SQLException {
+        databaseService.delete("module_person_connection", "connection_id", id.toString());
+    }
 }

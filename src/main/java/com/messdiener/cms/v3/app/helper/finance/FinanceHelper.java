@@ -18,6 +18,7 @@ import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.ActionCategory;
 import com.messdiener.cms.v3.shared.enums.MessageType;
+import com.messdiener.cms.v3.shared.enums.document.FileType;
 import com.messdiener.cms.v3.shared.enums.finance.BudgetYear;
 import com.messdiener.cms.v3.shared.enums.finance.CostCenter;
 import com.messdiener.cms.v3.utils.time.CMSDate;
@@ -121,7 +122,7 @@ public class FinanceHelper {
         Optional<File> maybeFile = fileCreator.createPdf();
 
         File pdfFile = maybeFile.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "File not found"));
-        storageService.store(new StorageFile(transaction.getId(), 0, Cache.SYSTEM_USER, transaction.getId(), CMSDate.current(), "Transaction.pdf", CMSDate.current(), 0));
+        storageService.store(new StorageFile(transaction.getId(), 0, Cache.SYSTEM_USER, transaction.getId(), CMSDate.current(), "Transaction.pdf", CMSDate.current(), 0, FileType.ACCOUNTING, pdfFile.getPath()));
 
         auditService.createLog(AuditLog.of(MessageType.ATTACHMENT_UPLOADED, ActionCategory.FINANCE, transaction.getId(), Cache.SYSTEM_USER, "Abrechnung wurde hinzugefügt", ""));
     }

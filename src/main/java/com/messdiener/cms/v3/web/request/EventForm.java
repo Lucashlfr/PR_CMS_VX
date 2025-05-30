@@ -11,11 +11,5 @@ public class EventForm {
     private String titel;
     private String beschreibung;
     private String eventType;
-    private String eventState;
-    private String startDatum;
-    private Optional<String> endDatum;
-
     private String targetgroup;
-    private String manager;
-    private String imgUrl;
 }

@@ -1,5 +1,7 @@
 package com.messdiener.cms.v3.app.services.liturgie;
 
+import com.messdiener.cms.v3.app.entities.worship.EventParticipationDto;
+import com.messdiener.cms.v3.app.entities.worship.HeatmapDto;
 import com.messdiener.cms.v3.app.entities.worship.Liturgie;
 import com.messdiener.cms.v3.app.services.finance.BudgetService;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
@@ -16,9 +18,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 @Service
@@ -26,6 +33,7 @@ public class LiturgieService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LiturgieService.class);
     private final DatabaseService databaseService;
+    private final LiturgieMappingService liturgieMappingService;
 
     @PostConstruct
     public void init() {
