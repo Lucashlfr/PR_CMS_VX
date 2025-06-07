@@ -1,13 +1,16 @@
 package com.messdiener.cms.v3.app.helper.event;
 
 import com.messdiener.cms.v3.app.entities.acticle.Article;
+import com.messdiener.cms.v3.app.entities.component.Component;
 import com.messdiener.cms.v3.app.entities.document.Document;
 import com.messdiener.cms.v3.app.entities.event.PlanerTask;
 import com.messdiener.cms.v3.app.services.article.ArticleService;
 import com.messdiener.cms.v3.app.services.document.DocumentService;
+import com.messdiener.cms.v3.app.services.event.EventApplicationService;
 import com.messdiener.cms.v3.app.services.event.PlannerTaskService;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.ArticleType;
+import com.messdiener.cms.v3.shared.enums.ComponentType;
 import com.messdiener.cms.v3.shared.enums.event.EventType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import lombok.RequiredArgsConstructor;
@@ -23,18 +26,9 @@ public class PlanerHelper {
     private final PlannerTaskService plannerTaskService;
     private final DocumentService documentService;
     private final ArticleService articleService;
+    private final EventApplicationService eventApplicationService;
 
     public void createSubTasks(UUID id, EventType eventType) throws SQLException {
-
-        if(eventType == EventType.SMALL_ACTION ||eventType == EventType.BIG_ACTION){
-            PlanerTask registration = PlanerTask.createPlanerTask("Anmeldung", "Formulierung und Bereitstellung des Anmeldungstextes.", "WEBSITE");
-            plannerTaskService.updateTask(id, registration);
-            articleService.saveArticle(Article.of(registration.getTaskId(), registration.getTaskName(), ArticleType.INTERN, id.toString()));
-
-            PlanerTask pressRelease = PlanerTask.createPlanerTask("Pressemeldung", "Formulierung und Organisation von Pressemitteilungen.", "WEBSITE");
-            plannerTaskService.updateTask(id, pressRelease);
-            articleService.saveArticle(Article.of(pressRelease.getTaskId(), pressRelease.getTaskName(), ArticleType.BLOG, id.toString()));
-        }
 
         if(eventType == EventType.BIG_ACTION){
             plannerTaskService.updateTask(id, PlanerTask.createPlanerTask("Versicherung", "Hinterlegung und Verwaltung der gegebenenfalls erforderlichen Unterlagen.", "INSURANCE"));
@@ -43,6 +37,20 @@ public class PlanerHelper {
             plannerTaskService.updateTask(id, concept);
             documentService.saveDocument(new Document(concept.getTaskId(), Cache.SYSTEM_USER, id, CMSDate.current(), "Hygiene- und Präventionskonzept", getContent(), "F1"));
         }
+    }
+
+    public void createComponents(UUID id) throws SQLException {
+
+        Component cFirstName = Component.of(1, ComponentType.TEXT,  "firstname", "Vorname","",true);
+        Component cLastName = Component.of(2, ComponentType.TEXT,  "lastname", "Nachname","",true);
+        Component cBirthdate = Component.of(3, ComponentType.DATE,  "birthdate", "Geburtsdatum","",true);
+        Component cSignature = Component.of(99, ComponentType.SIGNATURE,  "signature", "Unterschrift","",true);
+
+        eventApplicationService.saveComponent(id, cFirstName);
+        eventApplicationService.saveComponent(id, cLastName);
+        eventApplicationService.saveComponent(id, cBirthdate);
+        eventApplicationService.saveComponent(id, cSignature);
+
     }
 
     private String getContent() {

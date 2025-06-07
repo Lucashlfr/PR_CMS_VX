@@ -42,7 +42,7 @@
                                         <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
                                         <div class="d-flex flex-wrap gap-3 small text-muted">
                                             <div><span
-                                                    th:class="'badge ' + ${event.getState().getText()} + ' ' + ${event.getState().getBg()}"
+                                                    th:class="'badge ' + ${event.getState().getColors()}"
                                                     th:text="${event.getState().getLabel()}"></span></div>
                                             <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
                                                 10.04.2025
@@ -52,6 +52,8 @@
                                 </div>
                                 <div>
                                     <button class="btn btn-yellow btn-sm mdi mdi-calendar-sync" type="submit"></button>
+                                    <a class="btn btn-yellow btn-sm mdi mdi-plus" href="javascript:void(0);"
+                                       data-bs-toggle="modal" data-bs-target="#edit"></a>
                                 </div>
                             </div>
                         </div>
@@ -83,11 +85,36 @@
                                     </div>
                                 </div>
 
-                                <div class="col-xl-4 col-12">
+                                <div class="col-xl-8 col-12">
+                                    <table class="table table-sm table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th>Titel</th>
+                                            <th>Beschreibung</th>
+                                            <th>Datum</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="i : ${timelineItems}">
+                                            <td>
+                                                <a href="#" class="edit-timeline"
+                                                   th:data-id="${i.getId().toString()}"
+                                                   th:data-title="${i.getTitle()}"
+                                                   th:data-description="${i.getDescription()}"
+                                                   th:data-date="${i.getDate().getEnglishDate()}"
+                                                   data-bs-toggle="modal"
+                                                   data-bs-target="#edit"
+                                                   th:text="${i.getTitle()}">
+                                                </a>
+
+                                            </td>
+                                            <td th:text="${i.getDescription()}"></td>
+                                            <td th:text="${i.getDate().getGermanDate()}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
 
-                                <div class="col-xl-4 col-12">
-                                </div>
 
 
                             </div>
@@ -102,5 +129,68 @@
 <div th:insert="~{fragments :: script}"></div>
 </body>
 
+<form th:method="post" th:action="@{/event/timeline}">
+    <input type="hidden" id="timelineId" name="id" />
+    <input type="hidden" id="eventId" name="eventId" th:value="${event.getEventId()}" />
+
+    <div class="modal fade" id="edit">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Timeline</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="title" class="col-sm-2 col-form-label">Titel</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-start">
+                        <label for="description" class="col-sm-2 col-form-label">Beschreibung</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control" id="description" name="description" rows="8"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="date" class="col-sm-2 col-form-label">Datum</label>
+                        <div class="col-sm-10">
+                            <input type="date" class="form-control" id="date" name="date">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
 </html>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.edit-timeline').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('timelineId').value = link.getAttribute('data-id');
+                document.getElementById('title').value = link.getAttribute('data-title');
+                document.getElementById('description').value = link.getAttribute('data-description');
+                document.getElementById('date').value = link.getAttribute('data-date');
+            });
+        });
+    });
+</script>
+
 <script th:src="@{/js/jquery.min.js}"></script>

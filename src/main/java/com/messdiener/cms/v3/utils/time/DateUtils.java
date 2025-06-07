@@ -60,6 +60,7 @@ public class DateUtils {
         ENGLISH("yyyy-MM-dd"),
         GERMAN("dd.MM.yyyy"),
         GERMAN_WITH_TIME("dd.MM.yyyy HH:mm"),
+        GERMAN_WITH_SECONDS("dd.MM.yyyy HH:mm:ss"),
         GERMAN_WITH_DAY_NAME("EEEE, dd.MM.yyyy"),
         ENGLISH_DATETIME("yyyy-MM-dd'T'HH:mm"),
         TIME("HH:mm"),
@@ -67,7 +68,8 @@ public class DateUtils {
         MONTH_NAMES("MMMM yyyy"),
         SIMPLE_GERMAN("E, dd.MM.yy"),
         DAY("EEEE"),
-        GT("dd MMMM, yyyy HH:mm 'Uhr'");
+        GT("dd MMMM, yyyy HH:mm 'Uhr'"),
+        GERMAN_WITH_DAY_NAME_S("EE, dd.MM.yyyy");
 
         private final String pattern;
 

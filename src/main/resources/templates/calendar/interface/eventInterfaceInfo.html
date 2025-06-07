@@ -41,7 +41,7 @@
                                     <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
                                     <div class="d-flex flex-wrap gap-3 small text-muted">
                                         <div><span
-                                                th:class="'badge ' + ${event.getState().getText()} + ' ' + ${event.getState().getBg()}"
+                                                th:class="'badge ' + ${event.getState().getColors()}"
                                                 th:text="${event.getState().getLabel()}"></span></div>
                                         <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
                                             10.04.2025
@@ -78,7 +78,7 @@
                                         </td>
                                         <td>:</td>
                                         <td>
-                                            <span th:class="${event.getState().getBg()}"
+                                            <span th:class="${event.getState().getColors()}"
                                                   th:text="${event.getState().getLabel()}"></span>
                                         </td>
                                     </tr>

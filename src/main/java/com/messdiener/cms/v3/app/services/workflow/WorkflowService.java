@@ -15,10 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +54,20 @@ public class WorkflowService {
         String sql = "SELECT * FROM module_workflow WHERE ownerId = ?";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, ownerId.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    workflows.add(mapResultToWorkflow(resultSet));
+                }
+            }
+        }
+        return workflows;
+    }
+
+    public List<Workflow> getAllWorkflowsByTenant(UUID tenantId) throws SQLException {
+        List<Workflow> workflows = new ArrayList<>();
+        String sql = "SELECT * FROM module_workflow, module_person WHERE module_person.person_id = ownerId AND module_person.tenant_id = ?";
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, tenantId.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     workflows.add(mapResultToWorkflow(resultSet));
@@ -115,4 +126,37 @@ public class WorkflowService {
         }
         return workflows;
     }
+
+    public Map<String, Integer> countWorkflowStates(UUID userId) throws SQLException {
+        String sql = "SELECT * FROM module_workflow WHERE ownerId = ?";
+        Map<String, Integer> stateCountMap = new HashMap<>();
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, userId.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    CMSState state = CMSState.valueOf(resultSet.getString("workflowState"));
+                    stateCountMap.put(state.toString(), stateCountMap.getOrDefault(state.toString(), 0) + 1);
+                }
+            }
+        }
+        return stateCountMap;
+    }
+
+    public Map<String, Integer> countWorkflowStatesByTenant(UUID tenantId) throws SQLException {
+        String sql = "SELECT workflowState FROM module_workflow, module_person WHERE module_person.person_id = ownerId AND module_person.tenant_id = ?";
+        Map<String, Integer> stateCountMap = new HashMap<>();
+
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, tenantId.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    CMSState state = CMSState.valueOf(resultSet.getString("module_workflow.workflowState"));
+                    stateCountMap.put(state.toString(), stateCountMap.getOrDefault(state.toString(), 0) + 1);
+                }
+            }
+        }
+        return stateCountMap;
+    }
+
+
 }

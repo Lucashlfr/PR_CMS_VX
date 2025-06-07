@@ -25,12 +25,14 @@
             </header>
             <div class="container-fluid px-4 mt-4">
 
+                <div th:replace="~{liturgie/fragments/liturgieFragments :: nav (${q})}"></div>
+
 
                 <div class="d-flex justify-content-between align-items-sm-center flex-column flex-sm-row mb-4">
                     <div class="me-4 mb-3 mb-sm-0">
                         <h1 class="mb-0">Gottesdienst Dashboard</h1>
                         <div class="small">
-                            <span class="fw-500 text-primary" th:text="${now.getDay()}"></span>
+                            <span class="fw-500 text-pink" th:text="${now.getDay()}"></span>
                             &middot;
                             <span th:text="${now.getGt()}"></span>
                         </div>
@@ -117,8 +119,10 @@
                                         </thead>
                                         <tbody>
                                         <tr th:each="v : ${liturgieViews}">
-                                            <td th:text="${v.typeLabel}"></td>
-                                            <td th:text="${v.date.germanLongDate}"></td>
+                                            <td>
+                                                <a th:text="${v.typeLabel}" th:href="'/liturgie?q=edit&id=' + ${v.id}"></a>
+                                            </td>
+                                            <td th:text="${v.date.getGermanShortDate()}"></td>
                                             <td th:each="p : ${persons}" class="text-center">
                                                 <button th:if="${v.personStates[p.id].toString().equals('DUTY')}"
                                                         th:data-liturgie-id="${v.id}"
@@ -199,6 +203,63 @@
 </div>
 <div th:insert="~{fragments :: script}"></div>
 </body>
+
+
+<form th:method="post" th:action="@{/liturgie/create}">
+
+    <div class="modal fade" id="create">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Gottesdienst erstellen</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="type" class="col-sm-2 col-form-label">Type</label>
+                        <div class="col-sm-10">
+                            <select class="form-select" id="type" name="type">
+                                <option th:each="t:${types}" th:text="${t.label}" th:value="${t}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="date" class="col-sm-2 col-form-label">Datum</label>
+                        <div class="col-sm-10">
+                            <input type="datetime-local" class="form-control" id="date"
+                                   name="date">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="overall" class="col-sm-2 col-form-label">Übergreifend</label>
+                        <div class="col-sm-10">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="overall" name="overall" value="true">
+                                <label class="form-check-label">Übergreifender Gottesdienst</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
 
 
 </html>

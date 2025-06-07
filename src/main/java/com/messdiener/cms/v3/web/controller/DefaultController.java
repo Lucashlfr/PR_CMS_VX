@@ -2,6 +2,8 @@ package com.messdiener.cms.v3.web.controller;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.privacy.PrivacyPolicy;
+import com.messdiener.cms.v3.app.services.privacy.PrivacyService;
+import com.messdiener.cms.v3.app.services.tenant.TenantService;
 import com.messdiener.cms.v3.app.utils.Utils;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
@@ -34,8 +36,9 @@ import java.util.UUID;
 public class DefaultController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultController.class);
-    private final Cache cache;
     private final SecurityHelper securityHelper;
+    private final TenantService tenantService;
+    private final PrivacyService privacyService;
 
     @PostConstruct
     public void init() {
@@ -48,7 +51,7 @@ public class DefaultController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(httpSession);
         model.addAttribute("user", user);
-        model.addAttribute("tenants", cache.getTenantService().getTenants());
+        model.addAttribute("tenants", tenantService.getTenants());
         if(user.isCustomPassword()) {
             return "index";
         }
@@ -131,7 +134,7 @@ public class DefaultController {
                 signature
         );
 
-        cache.getPrivacyService().create(privacyPolicy);
+        privacyService.create(privacyPolicy);
         return new RedirectView("/");
     }
 }

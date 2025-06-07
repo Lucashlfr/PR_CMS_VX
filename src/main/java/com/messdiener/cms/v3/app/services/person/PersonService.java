@@ -86,22 +86,13 @@ public class PersonService {
         String bank = resultSet.getString("bank");
         String accountHolder = resultSet.getString("accountHolder");
 
-        String privacyPolicy = resultSet.getString("privacy_policy");
-        String signature = resultSet.getString("signature");
-
-        boolean ob1 = resultSet.getBoolean("ob1");
-        boolean ob2 = resultSet.getBoolean("ob2");
-        boolean ob3 = resultSet.getBoolean("ob3");
-        boolean ob4 = resultSet.getBoolean("ob4");
-
-        CMSDate preventionDate = CMSDate.of(resultSet.getLong("preventionDate"));
         boolean customPassword = resultSet.getBoolean("customPassword");
 
         return new Person(
                 id, tenantId, type, rank, principal, fRank, salutation, firstname, lastname, gender, birthdate,
                 street, houseNumber, postalCode, city, email, phone, mobile, accessionDate,
                 exitDate, activityNote, notes, active, canLogin, username, password,
-                iban, bic, bank, accountHolder, privacyPolicy, signature, ob1, ob2, ob3, ob4, preventionDate, customPassword
+                iban, bic, bank, accountHolder, customPassword
         );
     }
 
@@ -126,7 +117,7 @@ public class PersonService {
     public void updatePerson(Person person) throws SQLException {
         databaseService.delete("module_person", "person_id", person.getId().toString());
 
-        String sql = "INSERT INTO module_person (person_id, tenant_id, type, person_rank, principal, fRank, salutation, firstname, lastname, gender, birthdate, street, houseNumber, postalCode, city, email, phone, mobile, accessionDate, exitDate, activityNote, notes, active, canLogin, username, password, iban, bic, bank, accountHolder, privacy_policy, signature, ob1, ob2, ob3, ob4, preventionDate, customPassword) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO module_person (person_id, tenant_id, type, person_rank, principal, fRank, salutation, firstname, lastname, gender, birthdate, street, houseNumber, postalCode, city, email, phone, mobile, accessionDate, exitDate, activityNote, notes, active, canLogin, username, password, iban, bic, bank, accountHolder,customPassword) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, person.getId().toString());
@@ -159,14 +150,7 @@ public class PersonService {
             preparedStatement.setString(28, person.getBic());
             preparedStatement.setString(29, person.getBank());
             preparedStatement.setString(30, person.getAccountHolder());
-            preparedStatement.setString(31, person.getPrivacyPolicy());
-            preparedStatement.setString(32, person.getSignature());
-            preparedStatement.setBoolean(33, person.isOb1());
-            preparedStatement.setBoolean(34, person.isOb2());
-            preparedStatement.setBoolean(35, person.isOb3());
-            preparedStatement.setBoolean(36, person.isOb4());
-            preparedStatement.setLong(37, person.getPreventionDate().toLong());
-            preparedStatement.setBoolean(38, person.isCustomPassword());
+            preparedStatement.setBoolean(31, person.isCustomPassword());
             preparedStatement.executeUpdate();
         }
     }
@@ -473,6 +457,23 @@ public class PersonService {
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, targetPerson.getId().toString());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(mapToOverviewDTO(rs)) : Optional.empty();
+            }
+        }
+    }
+
+    public Optional<PersonOverviewDTO> getPersonDTO(UUID personId) throws SQLException {
+        String sql =
+                "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant_id, t.name " +
+                        "FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id " +
+                        "WHERE p.type = 'MESSDIENER' AND p.active AND p.person_id = ? ORDER BY p.lastname";
+
+        try (Connection conn = databaseService.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, personId.toString());
 
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(mapToOverviewDTO(rs)) : Optional.empty();

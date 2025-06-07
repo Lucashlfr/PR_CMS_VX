@@ -43,7 +43,7 @@
                                         th:text="${event.getTitle()} + ' / Einstellungen'"></h5>
                                     <div class="d-flex flex-wrap gap-3 small text-muted">
                                         <div><span
-                                                th:class="'badge ' + ${event.getState().getText()} + ' ' + ${event.getState().getBg()}"
+                                                th:class="'badge ' + ${event.getState().getColors()}"
                                                 th:text="${event.getState().getLabel()}"></span></div>
                                         <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
                                             10.04.2025
@@ -81,6 +81,17 @@
                             </div>
 
                             <div class="col-xl-4 col-12">
+                                <h5 class="">Status</h5>
+                                <div class="timeline timeline-sm">
+                                    <div class="timeline-item" th:each="s:${states}">
+                                        <div class="timeline-item-marker">
+                                            <div th:class="'timeline-item-marker-indicator ' + ${s.getColors()}"><i th:data-feather="${s.toString().equals(event.getState().toString()) ? 'check' : 'circle'}"></i></div>
+                                        </div>
+                                        <a th:class="${s.toString().equals(event.getState().toString()) ? 'timeline-item-content text-green' : 'timeline-item-content text-black'}"
+                                           th:text="${s.getLabel()}"
+                                           th:href="'/event/state?event=' + ${event.getEventId()} + '&state=' + ${s}"></a>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="col-xl-4 col-12">
@@ -120,7 +131,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="file : ${files}">
+                    <tr th:each="file : ${files}" th:if="${imgUtils.isImageFile(file.getTitle())}">
                         <td th:text="${file.getTag()}"></td>
                         <td>
                             <a th:href="'/event/img?event=' + ${event.getEventId()} + '&img=' + ${file.getId()}" th:text="${file.getTitle()}">
@@ -128,7 +139,7 @@
                         </td>
                         <td th:text="${personHelper.getName(file.getOwner())}"></td>
                         <td>
-                            <img th:src="'/file?id=' + ${file.getId()}" class="img-fluid" style="max-height: 50px">
+                            <img alt="..." th:src="'/file?id=' + ${file.getId()}" class="img-fluid" style="max-height: 50px">
                         </td>
                     </tr>
                     </tbody>

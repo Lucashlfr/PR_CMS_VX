@@ -7,22 +7,8 @@
     <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main>
-            <header class="page-header page-header-dark bg-info mb-4">
-                <div class="container-fluid px-4">
-                    <div class="page-header-content pt-4">
-                        <div class="row align-items-center justify-content-between">
-                            <div class="col-auto mt-4">
-                                <h1 class="page-header-title">
-                                    <span class="page-header-icon text-white"><i data-feather="user"></i></span>
-                                    <span>Person / Lucas Helfer</span>
-                                </h1>
-                                <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
+
+            <div th:replace="~{person/fragments/personFragments :: header (${person})}"></div>
             <div class="container-fluid px-4">
 
                 <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person})}"></div>

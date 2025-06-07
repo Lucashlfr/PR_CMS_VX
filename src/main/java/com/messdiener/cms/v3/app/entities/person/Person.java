@@ -54,15 +54,6 @@ public class Person {
     private String bank;
     private String accountHolder;
 
-    private String privacyPolicy;
-    private String signature;
-
-    private boolean ob1;
-    private boolean ob2;
-    private boolean ob3;
-    private boolean ob4;
-
-    private CMSDate preventionDate;
     private boolean customPassword;
 
     public static Person empty(UUID tenantId) {
@@ -70,7 +61,7 @@ public class Person {
                 PersonAttributes.Type.NULL, PersonAttributes.Rank.NULL, Cache.SYSTEM_USER, 4, PersonAttributes.Salutation.NULL,
                 "", "", PersonAttributes.Gender.NOT_SPECIFIED, Optional.empty(),
                 "", "", "", "", "", "", "", Optional.empty(), Optional.empty(),
-                "", "", true, false, "", "", "", "", "", "", "", "", false, false, false, false, CMSDate.of(0), false);
+                "", "", true, false, "", "", "", "", "", "", false);
     }
 
     public String getReadName() {

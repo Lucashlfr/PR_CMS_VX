@@ -2,22 +2,19 @@ package com.messdiener.cms.v3.web.controller.liturgie;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
-import com.messdiener.cms.v3.app.entities.worship.EventParticipationDto;
-import com.messdiener.cms.v3.app.entities.worship.HeatmapDto;
-import com.messdiener.cms.v3.app.entities.worship.Liturgie;
-import com.messdiener.cms.v3.app.entities.worship.LiturgieView;
+import com.messdiener.cms.v3.app.entities.worship.*;
 import com.messdiener.cms.v3.app.helper.liturgie.LiturgieHelper;
-import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.liturgie.LiturgieMappingService;
+import com.messdiener.cms.v3.app.services.liturgie.LiturgieRequestService;
 import com.messdiener.cms.v3.app.services.liturgie.LiturgieService;
 import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.enums.LiturgieState;
+import com.messdiener.cms.v3.shared.enums.LiturgieType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.utils.time.DateUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,13 +23,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Controller
@@ -43,14 +37,38 @@ public class LiturgieController {
     private final LiturgieService liturgieService;
     private final PersonService personService;
     private final LiturgieMappingService liturgieMappingService;
+    private final LiturgieRequestService liturgieRequestService;
 
     @GetMapping("/liturgie")
-    public String liturgie(HttpSession session, Model model, @RequestParam("startDate")Optional<String> startDateS,  @RequestParam("endDate")Optional<String> endDateS) throws SQLException {
+    public String liturgie(HttpSession session, Model model, @RequestParam("startDate")Optional<String> startDateS,  @RequestParam("endDate")Optional<String> endDateS, @RequestParam("q")Optional<String> q, @RequestParam("id")Optional<String> idS) throws SQLException {
         Person person = securityHelper.addPersonToSession(session).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         liturgieHelper.extractedLoadMethod(model, startDateS, endDateS, person, Optional.empty());
 
-        List<EventParticipationDto> participations = liturgieHelper.getEventParticipation(startDateS, endDateS, person, Optional.empty());
-        model.addAttribute("eventParticipations", participations);
+        List<EventParticipationDto> participation = liturgieHelper.getEventParticipation(startDateS, endDateS, person, Optional.empty());
+        model.addAttribute("eventParticipations", participation);
+
+        model.addAttribute("types", LiturgieType.values());
+        model.addAttribute("q", q.orElse("list"));
+
+        if(q.isPresent() && q.get().equals("edit") && idS.isPresent()) {
+            Liturgie liturgie = liturgieService.getLiturgie(UUID.fromString(idS.get())).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Liturgie not found"));
+            model.addAttribute("liturgie", liturgie);
+            return "liturgie/interface/liturgieInfo";
+        }else if(q.isPresent() && q.get().equals("request")) {
+            model.addAttribute("current", liturgieRequestService.currentRequest(person.getTenantId()).isPresent());
+
+            Optional<LiturgieRequest> request = liturgieRequestService.currentRequest(person.getTenantId());
+            model.addAttribute("currentRequest", request.orElse(null));
+
+            Map<String, Boolean> status = new HashMap<>();
+            if(request.isPresent()) {
+                status = liturgieRequestService.getPersonStatusMap(person.getTenantId(), request.get().getRequestId());
+            }
+            model.addAttribute("status", status);
+
+
+            return "liturgie/list/liturgieRequest";
+        }
 
         return "liturgie/list/liturgieOverview";
     }
@@ -111,4 +129,23 @@ public class LiturgieController {
 
         return "liturgie/list/liturgieExport";
     }
+
+    @PostMapping("/liturgie/create")
+    public RedirectView createLiturgie(@RequestParam("type")LiturgieType type, @RequestParam("date")String dateE, @RequestParam("overall")Optional<String> overall) throws SQLException {
+        Person person = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        Liturgie liturgie = new Liturgie(UUID.randomUUID(), 0, person.getTenantId(), type, CMSDate.convert(dateE, DateUtils.DateType.ENGLISH_DATETIME), overall.isEmpty());
+        liturgieService.save(liturgie);
+        return new RedirectView("/liturgie?state=created");
+    }
+
+    @PostMapping("/liturgie/update")
+    public RedirectView updateLiturgie(@RequestParam("id") UUID id, @RequestParam("type")LiturgieType type, @RequestParam("date")String dateE, @RequestParam("overall")Optional<String> overall) throws SQLException {
+        Liturgie liturgie = liturgieService.getLiturgie(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Liturgie not found"));
+        liturgie.setLiturgieType(type);
+        liturgie.setDate(CMSDate.convert(dateE, DateUtils.DateType.ENGLISH_DATETIME));
+        liturgie.setLocal(overall.isEmpty());
+        liturgieService.save(liturgie);
+        return new RedirectView("/liturgie?q=edit&state=updated&id=" + id);
+    }
+
 }

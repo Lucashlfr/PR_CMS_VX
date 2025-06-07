@@ -1,0 +1,15 @@
+<!-- templates/fragments/eventNav.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<!-- Definiere hier das Fragment „eventNav“ mit den Parametern s und event -->
+<div th:fragment="nav (s)">
+    <nav class="nav nav-pills nav-fill mb-3">
+        <a th:class="${s == 'me'} ? 'nav-link active bg-purple' : 'nav-link text-purple'"
+           th:href="@{/workflow(s='me')}">Deine Workflows</a>
+        <a th:class="${s == 'all'} ? 'nav-link active bg-purple' : 'nav-link text-purple'"
+           th:href="@{/workflow(s='all')}">Alle Workflows</a>
+        <a th:class="${s == 'create'} ? 'nav-link active bg-purple' : 'nav-link text-purple'"
+           th:href="@{/workflow(s='create')}">Workflow erstellen</a>
+    </nav>
+</div>
+</html>

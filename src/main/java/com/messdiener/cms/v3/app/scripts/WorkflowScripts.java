@@ -113,7 +113,6 @@ public class WorkflowScripts {
             user.setBirthdate(Optional.empty());
         }
         user.setNotes(params.getOrDefault("comment", ""));
-        user.setOb1(true);
         personService.updatePerson(user);
 
         createPDF(module);
@@ -191,7 +190,6 @@ public class WorkflowScripts {
 
             Person user = securityHelper.getPerson()
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-            user.setOb3(true);
             personService.updatePerson(user);
         }
 
@@ -210,7 +208,6 @@ public class WorkflowScripts {
         PrivacyPolicy privacyPolicy = new PrivacyPolicy(module.getOwner(), CMSDate.current(), user.getFirstname(), user.getLastname(), user.getStreet(), user.getHouseNumber(), user.getPostalCode(), user.getCity(), JsonHelper.hasNameInJson(module.getResults(), "check1"),JsonHelper.hasNameInJson(module.getResults(), "check2"), JsonHelper.hasNameInJson(module.getResults(), "check3"), JsonHelper.hasNameInJson(module.getResults(), "check4"), JsonHelper.hasNameInJson(module.getResults(), "check5"), JsonHelper.hasNameInJson(module.getResults(), "check6"), JsonHelper.hasNameInJson(module.getResults(), "check7"), JsonHelper.getValueFromJson(module.getResults(), "signature"));
         privacyService.create(privacyPolicy);
 
-        user.setOb2(true);
         personService.updatePerson(user);
 
         createPDF(module);
@@ -244,7 +241,6 @@ public class WorkflowScripts {
     public void postSae(WFSae wfSae) throws SQLException {
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        user.setOb4(true);
         personService.updatePerson(user);
 
         createPDF(wfSae);

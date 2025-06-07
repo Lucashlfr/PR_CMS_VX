@@ -33,18 +33,9 @@ public class EventService {
     @PostConstruct
     public void init() {
         try (Connection connection = databaseService.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events (eventId VARCHAR(255), tenantId VARCHAR(255), updateBy VARCHAR(255), updateDate long, title TEXT, description LONGTEXT, type VARCHAR(255), state VARCHAR(255), startDate LONG, endDate LONG, deadline LONG, schedule TEXT, registrationRelease TEXT, targetGroup VARCHAR(255), location VARCHAR(255), imgUrl TEXT, rinkIndex INT, managerId VARCHAR(255), principals TEXT, expenditure DOUBLE, revenue DOUBLE, pressRelease LONGTEXT, preventionConcept LONGTEXT, notes LONGTEXT, application LONGTEXT)")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events (eventId VARCHAR(255), tenantId VARCHAR(255), updateBy VARCHAR(255), updateDate long, title TEXT, description LONGTEXT, type VARCHAR(255), state VARCHAR(255), startDate LONG, endDate LONG, deadline LONG, schedule TEXT, registrationRelease TEXT, targetGroup VARCHAR(255), location VARCHAR(255), imgUrl TEXT, rinkIndex INT, managerId VARCHAR(255), principals TEXT, expenditure DOUBLE, revenue DOUBLE, pressRelease LONGTEXT, preventionConcept LONGTEXT, notes LONGTEXT, application LONGTEXT)")) {
             preparedStatement.executeUpdate();
             LOGGER.info("module_events table initialized successfully.");
-        } catch (SQLException e) {
-            LOGGER.error("Error while initializing configuration table", e);
-            throw new RuntimeException(e);
-        }
-
-        try (Connection connection = databaseService.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events_components (eventId VARCHAR(255), number integer, type VARCHAR(255), name VARCHAR(255), label VARCHAR(255), value VARCHAR(255), options TEXT, required boolean)")) {
-            preparedStatement.executeUpdate();
-            LOGGER.info("module_events_components table initialized successfully.");
         } catch (SQLException e) {
             LOGGER.error("Error while initializing configuration table", e);
             throw new RuntimeException(e);
@@ -172,67 +163,34 @@ public class EventService {
         try (Connection connection = databaseService.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setString(1, tenantId.toString());
-                    try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
-                        while (resultSet.next()) {
-                            events.add(getByResultSet(resultSet));
-                        }
+                    while (resultSet.next()) {
+                        events.add(getByResultSet(resultSet));
                     }
+                }
             }
         }
 
         return events;
     }
 
-    public void deleteComponent(UUID eventId, int number) throws SQLException {
-        String sql = "DELETE FROM module_events_components where eventId = ? and number = ?";
-        try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setString(1, eventId.toString());
-            preparedStatement.setInt(2, number);
-            preparedStatement.executeUpdate();
-        }
-    }
+    public List<Event> getEventsAtDeadline() throws SQLException {
+        List<Event> events = new ArrayList<>();
+        String sql = "SELECT * FROM module_events WHERE deadline > ?";
 
-    public void saveComponent(UUID eventId, Component component) throws SQLException {
-        deleteComponent(eventId, component.getNumber());
+        try (Connection connection = databaseService.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-        String sql = "INSERT INTO module_events_components (eventId, number, type, name, label, value, options, required) VALUES (?,?,?,?,?,?,?,?)";
-        try(Connection connection = databaseService.getConnection();PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setString(1, eventId.toString());
-            preparedStatement.setInt(2, component.getNumber());
-            preparedStatement.setString(3, component.getType().toString());
-            preparedStatement.setString(4, component.getName());
-            preparedStatement.setString(5, component.getLabel());
-            preparedStatement.setString(6, component.getValue());
-            preparedStatement.setString(7, component.getOptions());
-            preparedStatement.setBoolean(8, component.isRequired());
-            preparedStatement.executeUpdate();
-        }
-    }
-
-    private Component getComponentByResultSet(ResultSet resultSet) throws SQLException {
-        int number = resultSet.getInt("number");
-        ComponentType type = ComponentType.valueOf(resultSet.getString("type"));
-        String name =  resultSet.getString("name");
-        String label =   resultSet.getString("label");
-        String value =  resultSet.getString("value");
-        String options =   resultSet.getString("options");
-        boolean required =   resultSet.getBoolean("required");
-        return new Component(number, type, name, label, value, options, required, new ArrayList<>());
-    }
-
-    public List<Component> getComponents(UUID eventId) throws SQLException {
-        List<Component> components = new ArrayList<>();
-        String sql = "SELECT * FROM module_events_components WHERE eventId = ? ORDER BY number";
-        try(Connection connection = databaseService.getConnection();PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setString(1, eventId.toString());
-            try(ResultSet resultSet = preparedStatement.executeQuery()) {
+            preparedStatement.setLong(1, System.currentTimeMillis());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    components.add(getComponentByResultSet(resultSet));
+                    events.add(getByResultSet(resultSet));
                 }
             }
         }
-        return components;
+
+        return events;
     }
 
 }

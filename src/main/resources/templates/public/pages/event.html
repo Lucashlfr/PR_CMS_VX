@@ -19,10 +19,17 @@
                                 <div class="single-post-text my-5">
                                     <div th:utext="${event.getApplication()}"></div>
                                     <hr class="my-5" />
+                                    <div class="alert alert-success alert-dismissible" th:if="${state.equals('success')}">
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        Anmeldung wurde erfolgreich gespeichert!
+                                    </div>
                                     <div class="card">
                                         <div class="card-header">Anmeldeformular</div>
                                         <div class="card-body">
-                                            <form id="dynamicForm" enctype="multipart/form-data">
+                                            <p>
+                                                Bei Anmeldung wird der <a href="https://messdiener.elementor.cloud/go/datenschutz-haftungsausschluss/">Disclaimer</a> zur Kenntnis genommen.
+                                            </p>
+                                            <form id="dynamicForm" enctype="multipart/form-data" action="/application"  method="POST" class="was-validated">
 
                                                 <input type="text" class="d-none" readonly name="id" th:value="${event.getEventId()}"/>
 
@@ -47,7 +54,7 @@
                                                             <div th:case="'SELECT'">
                                                                 <select class="form-select" th:id="${component.name}" th:name="${component.name}"
                                                                         th:required="${component.required}">
-                                                                    <option th:each="opt : ${component.options}" th:value="${opt}"
+                                                                    <option th:each="opt : ${component.options.split(';')}" th:value="${opt}"
                                                                             th:text="${opt}"></option>
                                                                 </select>
                                                             </div>
@@ -76,20 +83,36 @@
                                                                 </div>
                                                             </div>
 
-                                                            <div th:case="'FILE'">
-                                                                <input type="file" class="form-control" th:name="${component.name}"
-                                                                       th:id="${component.name}" th:required="${component.required}"/>
-                                                            </div>
-
                                                             <!-- Weitere Eingabetypen -->
                                                             <div th:case="'EMAIL'"><input type="email" class="form-control"
-                                                                                          th:name="${component.name}"
+                                                                                          th:name="${component.name}" th:required="${component.required}"
                                                                                           th:value="${component.value}"/></div>
-                                                            <div th:case="'DATE'"><input type="date" class="form-control"
+                                                            <div th:case="'DATE'"><input type="date" class="form-control" th:required="${component.required}"
                                                                                          th:name="${component.name}" th:value="${component.value}"/>
                                                             </div>
-                                                            <div th:case="'TIME'"><input type="time" class="form-control"
+                                                            <div th:case="'TIME'"><input type="time" class="form-control" th:required="${component.required}"
                                                                                          th:name="${component.name}" th:value="${component.value}"/>
+                                                            </div>
+                                                            <div th:case="'SIGNATURE'">
+                                                                <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+                                                                <style type="text/css">
+                                                                    .m-signature-pad--body canvas {
+                                                                        position: relative;
+                                                                        left: 0;
+                                                                        top: 0;
+                                                                        width: 100%;
+                                                                        height: 250px;
+                                                                        border: 1px solid #CCCCCC;
+                                                                    }
+                                                                </style>
+                                                                <div id="signature-pad" class="m-signature-pad">
+                                                                    <div class="m-signature-pad--body">
+                                                                        <canvas class="bg-danger-soft"></canvas>
+                                                                        <input type="hidden" id="signature" class="d-none"
+                                                                               th:name="${component.name}" th:value="${component.value}"
+                                                                               required/>
+                                                                    </div>
+                                                                </div>
                                                             </div>
 
                                                         </div>
@@ -117,69 +140,113 @@
 
     <div th:insert="~{public/fragments/publicFragments :: footer}"></div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-<script src="js/scripts.js"></script>
+<div th:insert="~{fragments :: script}"></div>
 </body>
 </html>
 
 <script>
+    let signaturePad;
+
+    function resizeCanvas() {
+        if (!signaturePad) return;
+        const canvas = signaturePad.canvas;
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        const data = signaturePad.toData();
+        signaturePad.clear();
+        signaturePad.fromData(data);
+    }
+
+    function save() {
+        const content = document.getElementById('content');
+        const load = document.getElementById('load');
+        if (content) content.classList.add('d-none');
+        if (load) load.classList.remove('d-none');
+    }
+
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // Nur initialisieren, wenn eine SIGNATURE-Komponente existiert und SignaturePad geladen ist
+        const wrapper = document.getElementById('signature-pad');
+        if (!wrapper || typeof SignaturePad === 'undefined') return;
+        const canvas = wrapper.querySelector('canvas');
+        if (!canvas) return;
+        signaturePad = new SignaturePad(canvas, {
+            minWidth: 1,
+            maxWidth: 5,
+            penColor: '#000000',
+            backgroundColor: '#fff2cc'
+        });
+        signaturePad.onBeginStroke = () => console.log('Signature started');
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    });
+
     function submitForm() {
-        const form = document.getElementById("dynamicForm");
-        const formData = new FormData(form);
-        let valid = true;
-        let missingFields = [];
-
-        // Alle Pflichtfelder prüfen
-        form.querySelectorAll("[name]").forEach(el => {
-            const isRequired = el.hasAttribute("required");
-            const type = el.getAttribute("type");
-
-            // Datei-Upload prüfen
-            if (isRequired && type === "file") {
-                if (!el.files || el.files.length === 0) {
-                    valid = false;
-                    missingFields.push(el.name);
-                    markInvalid(el);
-                } else {
-                    clearInvalid(el);
-                }
+        // Wenn kein SignaturePad vorhanden, keine Prüfung durchführen
+        if (document.getElementById('signature-pad')) {
+            if (!signaturePad) {
+                alert('Signatur-Pad nicht verfügbar.');
+                return false;
             }
-
-            // Text, Email, Select, etc.
-            else if (isRequired && !el.value.trim()) {
-                valid = false;
-                missingFields.push(el.name);
-                markInvalid(el);
-            } else {
-                clearInvalid(el);
+            if (signaturePad.isEmpty()) {
+                alert('Bitte zuerst unterschreiben.');
+                return false;
             }
-        });
-
-        if (!valid) {
-            return;
+            document.getElementById('signature').value = signaturePad.toDataURL();
         }
-
-        // Wenn alles OK, dann absenden
-        fetch("/event/application/save", {
-            method: "POST",
-            body: formData
-        }).then(response => response.json())
-            .then(data => {
-                if (data.redirectUrl) {
-                    window.location.href = data.redirectUrl;
-                }
-            }).catch(error => {
-            console.error("Fehler beim Upload:", error);
-            alert("Fehler beim Hochladen!");
+        save();
+        const form = document.getElementById('dynamicForm');
+        // Matrix-Handling
+        document.querySelectorAll('table[data-comp-name]').forEach(table => {
+            const cols = table.getAttribute('data-col-names').split(',');
+            const compName = table.getAttribute('data-comp-name');
+            const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr => {
+                const obj = {};
+                tr.querySelectorAll('input[type="text"]').forEach((inp, i) => {
+                    obj[cols[i]] = inp.value;
+                    inp.disabled = true;
+                });
+                return obj;
+            });
+            let hidden = form.querySelector(`input[name="${compName}"]`);
+            if (!hidden) {
+                hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = compName;
+                form.appendChild(hidden);
+            }
+            hidden.value = JSON.stringify(rows);
         });
-
+        const formData = new FormData(form);
+        fetch('/application/save', {method: 'POST', body: formData})
+            .then(res => res.json())
+            .then(data => {
+                // Popup: parent refresh and popup redirect
+                if (window.opener && !window.opener.closed) {
+                    // Parent window aktualisieren
+                    window.opener.location.reload();
+                    // Popup weiterleiten oder neu laden
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    // Fallback: normales Verhalten im selben Fenster
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Fehler beim Hochladen!');
+            });
     }
 
-    function markInvalid(el) {
-        el.classList.add("is-invalid");
-    }
-
-    function clearInvalid(el) {
-        el.classList.remove("is-invalid");
-    }
 </script>

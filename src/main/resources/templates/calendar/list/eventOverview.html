@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-yellow mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="calendar"></i></span>
+                                    <span>Termine</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalte die Termine deiner Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4 mt-4">
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-6 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="calendar" class="text-pink fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">
+                                                <span>Anstehende Termine</span>
+                                            </h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="'Insgesamt x Events'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <a class="btn btn-yellow btn-sm mdi mdi-plus" href="javascript:void(0);"
+                                           data-bs-toggle="modal" data-bs-target="#create">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body clamp-description " id="content"
+                                 style="overflow: scroll;">
+
+
+                                <div class="row">
+                                    <div class="col-xl-6">
+                                        <ul class="list-group">
+                                            <li th:class="'list-group-item d-flex align-items-start ' + ${event.getState().getTextColor()}" th:each="event : ${events}">
+                                                <span th:class="'mdi mdi-circle me-2 '"></span>
+                                                <a class="w-100 text-black" th:href="'/event?q=info&id=' + ${event.getEventId()} + '&s=info'">
+                                                    <span class="fw-bold" th:text="${event.getTitle()} + ' am ' + ${event.getStartDate().getGermanDate()}"></span>:
+                                                    <span class="" th:text="${event.getDescription()}"></span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-12 mb-4">
+                        <div class="card h-100" id="reference-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="info" class="text-info fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Terminübersicht</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                Alle aus der Pfarrei
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <table id="data" class="d-none">
+                                    <tbody>
+                                    <tr th:each="e:${events}">
+                                        <td th:text="${e.getStartDate().getEnglishDayDate()}"></td>
+                                        <td th:text="${e.getEndDate().getEnglishDayDate()}"></td>
+                                        <td th:text="${e.getState().getCalendarColor()}"></td>
+                                        <td th:text="${e.getTitle()}"></td>
+                                        <td th:text="'/event?q=info#id=' + ${e.getEventId()} + '!s=info'"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="card-body">
+                                    <div id="calendar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+
+<form th:method="post" th:action="@{/event/create}">
+
+    <div class="modal fade" id="create">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Termin erstellen</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="titel" class="col-sm-2 col-form-label">Titel</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="titel" name="titel" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="eventType" class="col-sm-2 col-form-label">Event Type</label>
+                        <div class="col-sm-10">
+                            <select class="form-select" id="eventType" name="eventType">
+                                <option th:each="t:${types}" th:text="${t.label}" th:value="${t}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="startDate" class="col-sm-2 col-form-label">Start-Datum</label>
+                        <div class="col-sm-10">
+                            <input type="datetime-local" class="form-control" id="startDate"
+                                   name="startDate">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="endDatum" class="col-sm-2 col-form-label">End-Datum</label>
+                        <div class="col-sm-10">
+                            <input type="datetime-local" class="form-control" id="endDatum"
+                                   name="endDate">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3 align-items-center">
+                        <label for="deadline" class="col-sm-2 col-form-label">Anmelde-Schluss</label>
+                        <div class="col-sm-10">
+                            <input type="date" class="form-control" id="deadline" name="deadline">
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="submit" class="btn btn-success">Speichern</button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<div th:insert="~{fragments :: script}"></div>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/js/main.js}"></script>
+<script>
+    let calendarEl = document.getElementById('calendar');
+    let calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'de',
+        header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,basicWeek,basicDay'
+        },
+        navLinks: false, // can click day/week names to navigate views
+        editable: false,
+        eventLimit: true, // allow "more" link when too many events
+        firstDay: 1,
+
+        monthNames: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],
+        monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'November', 'Dic'],
+        dayNames: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+        dayNamesShort: ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'],
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        //gets rows of table
+        let table = document.getElementById('data');
+        let rowLength = table.rows.length;
+
+        for (let i = 0; i < rowLength; i++) {
+
+            let cells = table.rows.item(i).cells;
+            //0 = date
+            //1 = color
+            //2 = name
+            //3 = link
+            calendar.addEvent({
+                start: cells.item(0).innerHTML,
+                end: cells.item(1).innerHTML,
+                color: cells.item(2).innerHTML,
+                title: cells.item(3).innerHTML,
+                url: cells.item(4).innerHTML.replace('#', '&').replace('!', '&'),
+            });
+        }
+        calendar.updateSize();
+        calendar.render();
+
+
+    });
+
+</script>
+</html>

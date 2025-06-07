@@ -1,5 +1,6 @@
 package com.messdiener.cms.v3.web.request;
 
+import com.messdiener.cms.v3.shared.enums.event.EventState;
 import lombok.Data;
 
 import java.util.Optional;
@@ -12,4 +13,5 @@ public class EventForm {
     private String beschreibung;
     private String eventType;
     private String targetgroup;
+    private String eventState;
 }

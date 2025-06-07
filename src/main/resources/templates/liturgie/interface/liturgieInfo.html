@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div th:insert="~{fragments :: sidebar}" id="layoutSidenav_nav"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-pink mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title" th:text="${liturgie.getLiturgieType().getLabel()} + ' ' + ${liturgie.getDate().getGermanDate()}">
+                                </h1>
+                                <div class="page-header-subtitle">Verwalten der Gottesdienste
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-fluid px-4 mt-4">
+
+                <div class="d-flex mb-3">
+                    <button class="btn btn-pink btn-sm flex-fill m-1 mdi mdi-arrow-left" onclick="history.back()">Zurück</button>
+                </div>
+
+
+                <div class="card card-limit-height h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="calendar" class="text-pink fs-4"></i>
+                                </div>
+
+                                <!-- Text content -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold" th:text="${liturgie.getLiturgieType().getLabel()}"></h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                        <div>
+                                            <span th:text="${liturgie.getDate().getGermanLongDate()}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body clamp-description">
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <form th:method="post" th:action="@{/liturgie/update}">
+                                    <input type="text" class="d-none" readonly id="id" name="id" th:value="${liturgie.getLiturgieId().toString()}"/>
+                                    <div class="row mb-3 align-items-center">
+                                        <label for="type" class="col-sm-2 col-form-label">Type</label>
+                                        <div class="col-sm-10">
+                                            <select class="form-select" id="type" name="type">
+                                                <option th:each="t:${types}" th:text="${t.label}" th:value="${t}" th:selected="${t.toString().equals(liturgie.getLiturgieType().toString())}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3 align-items-center">
+                                        <label for="date" class="col-sm-2 col-form-label">Datum</label>
+                                        <div class="col-sm-10">
+                                            <input type="datetime-local" class="form-control" id="date"
+                                                   name="date" th:value="${liturgie.getDate().getEnglishDayDate()}"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3 align-items-center">
+                                        <label for="overall" class="col-sm-2 col-form-label">Übergreifend</label>
+                                        <div class="col-sm-10">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="overall" name="overall" value="true" th:checked="${!liturgie.isLocal()}"/>
+                                                <label class="form-check-label">Übergreifender Gottesdienst</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex">
+                                        <button class="btn btn-pink btn-sm flex-fill" type="submit">Speichern</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>

@@ -1,0 +1,14 @@
+<!-- templates/fragments/eventNav.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<!-- Definiere hier das Fragment „eventNav“ mit den Parametern s und event -->
+
+<div th:fragment="nav (q)">
+    <nav class="nav nav-pills nav-fill mb-3">
+        <a th:class="${q == 'list'} ? 'nav-link active bg-blue' : 'nav-link text-blue'"
+           th:href="@{/finance(q='list')}">Übersicht</a>
+        <a th:class="${q == 'bill'} ? 'nav-link active bg-blue' : 'nav-link text-blue'"
+           th:href="@{/finance(q='bill')}">Belege</a>
+    </nav>
+</div>
+</html>

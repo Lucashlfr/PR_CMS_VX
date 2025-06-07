@@ -2,6 +2,26 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
 <!-- Definiere hier das Fragment „eventNav“ mit den Parametern s und event -->
+
+<div th:fragment="header (person)">
+    <header class="page-header page-header-dark bg-info mb-4">
+        <div class="container-fluid px-4">
+            <div class="page-header-content pt-4">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col-auto mt-4">
+                        <h1 class="page-header-title">
+                            <span class="page-header-icon text-white"><i data-feather="user"></i></span>
+                            <span th:text="'Person / ' + ${person.getName()}"></span>
+                        </h1>
+                        <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+</div>
+
 <div th:fragment="nav (s, person)">
     <nav class="nav nav-pills nav-fill mb-3">
         <a th:class="${s == 'overview'} ? 'nav-link active bg-info' : 'nav-link text-info'"
@@ -18,6 +38,8 @@
            th:href="@{/personal(q='profil', s='connection', id=${person.id})}">Connections</a>
         <a th:class="${s == 'workflows'} ? 'nav-link active bg-info' : 'nav-link text-info'"
            th:href="@{/personal(q='profil', s='workflows', id=${person.id})}">Workflows</a>
+        <a th:class="${s == 'flags'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='flags', id=${person.id})}">Flags</a>
     </nav>
 </div>
 </html>

@@ -4,6 +4,7 @@ import com.messdiener.cms.v3.app.entities.document.StorageFile;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.person.data.connection.PersonConnection;
+import com.messdiener.cms.v3.app.entities.person.data.flags.PersonFlag;
 import com.messdiener.cms.v3.app.helper.liturgie.LiturgieHelper;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.audit.AuditService;
@@ -12,6 +13,7 @@ import com.messdiener.cms.v3.app.services.document.StorageService;
 import com.messdiener.cms.v3.app.services.liturgie.LiturgieService;
 import com.messdiener.cms.v3.app.services.person.PersonConnectionService;
 import com.messdiener.cms.v3.app.services.person.PersonFileService;
+import com.messdiener.cms.v3.app.services.person.PersonFlagService;
 import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.app.services.privacy.PrivacyService;
 import com.messdiener.cms.v3.app.services.user.UserService;
@@ -69,6 +71,7 @@ public class PersonManagementController {
     private final StorageService storageService;
     private final LiturgieHelper liturgieHelper;
     private final LiturgieService liturgieService;
+    private final PersonFlagService personFlagService;
 
     @PostConstruct
     public void init() {
@@ -123,7 +126,7 @@ public class PersonManagementController {
             model.addAttribute("privacy", privacyService.getById(person.getId()));
 
             model.addAttribute("audit", auditService.getLogsByConnectId(person.getId()));
-
+            model.addAttribute("flags", personFlagService.getAllFlagsByPerson(personUUID));
 
             switch (step) {
                 case "overview" ->
@@ -148,6 +151,9 @@ public class PersonManagementController {
                 }
                 case "workflows" -> {
                     return "person/interface/personInterfaceWorkflows";
+                }
+                case "flags" -> {
+                    return "person/interface/personInterfaceFlags";
                 }
                 default -> throw new IllegalStateException("Unknown step: " + step);
             }
@@ -218,7 +224,7 @@ public class PersonManagementController {
 
         personService.updatePerson(person);
 
-        return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK +"&s=2");
+        return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK +"&s=basisdata");
 
     }
 
@@ -264,37 +270,27 @@ public class PersonManagementController {
 
 
         model.addAttribute("privacyPolicies", privacyService.getAll());
-        return "person/privacyOverwiew";
+        return "person/privacyOverview";
     }
 
-    @GetMapping("/personal/download")
-    public ResponseEntity<?> download(@RequestParam("q") String q, @RequestParam("id") String id) throws SQLException, FileNotFoundException {
-
-        File file = getFile(q, id).orElseThrow();
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-
-        HttpHeaders header = new HttpHeaders();
-        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
-        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
-        header.add("Pragma", "no-cache");
-        header.add("Expires", "0");
-
-
-        return ResponseEntity.ok()
-                .headers(header)
-                .contentLength(file.length())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(resource);
-    }
-
-    public Optional<File> getFile(String q, String id) {
-        return Optional.of(new File("./cms_vx/person/" + id + "/" + q));
-    }
 
     @GetMapping("/personal/connection/delete")
     public RedirectView deleteConnection(@RequestParam("id") UUID id, @RequestParam("p")UUID p) throws SQLException {
         personConnectionService.deleteConnection(id);
-        return new  RedirectView("/personal?q=profil&id=" + p + "&s=7");
+        return new  RedirectView("/personal?q=profil&id=" + p + "&s=connection");
+    }
+
+    @PostMapping("/personal/flag")
+    public RedirectView flag(@RequestParam("personId")UUID personId, @RequestParam("id") UUID id, @RequestParam("flagDetails")String flagDetails, @RequestParam("additionalInformation")String additionalInformation, @RequestParam("flagDate")String flagDateE) throws SQLException {
+
+        PersonFlag personFlag = personFlagService.getFlag(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Flag not found"));
+        personFlag.setFlagDetails(flagDetails);
+        personFlag.setAdditionalInformation(additionalInformation);
+        personFlag.setFlagDate(CMSDate.convert(flagDateE, DateUtils.DateType.ENGLISH));
+        personFlag.setComplained(true);
+        personFlagService.saveFlag(personId, personFlag);
+
+        return new RedirectView("/personal?q=profil&s=flags&id=" + personId);
     }
 
 }

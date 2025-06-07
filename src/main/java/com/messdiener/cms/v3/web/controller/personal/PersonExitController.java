@@ -2,6 +2,7 @@ package com.messdiener.cms.v3.web.controller.personal;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
+import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.utils.time.CMSDate;
@@ -26,9 +27,9 @@ import java.util.UUID;
 public class PersonExitController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonExitController.class);
-    private final Cache cache;
     private final PersonHelper personHelper;
     private final SecurityHelper securityHelper;
+    private final PersonService personService;
 
     @PostConstruct
     public void init() {
@@ -37,11 +38,11 @@ public class PersonExitController {
 
     @PostMapping("/personal/deregister")
     public RedirectView deregister(@RequestParam("id") UUID id, @RequestParam("reason") String reason) throws SQLException {
-        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        Person person = personService.getPersonById(id).orElseThrow();
 
         person.setActive(false);
 
-        cache.getPersonService().updatePerson(person);
+        personService.updatePerson(person);
         return new RedirectView("/personal?q=profil&id=" + person.getId());
     }
 
@@ -49,21 +50,21 @@ public class PersonExitController {
     public RedirectView quit(@RequestParam("id") UUID id, @RequestParam("reason") String reason) throws SQLException {
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        Person person = personService.getPersonById(id).orElseThrow();
 
         person.setActive(false);
         person.setActivityNote("[" + user.getName() + "] [" + CMSDate.current().getGermanDate() + "] " + reason);
-        cache.getPersonService().updatePerson(person);
+        personService.updatePerson(person);
 
         return new RedirectView("/personal?q=profil&s=1&id=" + id);
     }
 
     @GetMapping("/personal/join")
     public RedirectView join(@RequestParam("id") UUID id) throws SQLException {
-        Person person = cache.getPersonService().getPersonById(id).orElseThrow();
+        Person person = personService.getPersonById(id).orElseThrow();
 
         person.setActive(true);
-        cache.getPersonService().updatePerson(person);
+        personService.updatePerson(person);
         return new RedirectView("/personal?q=profil&s=1&id=" + id);
     }
 

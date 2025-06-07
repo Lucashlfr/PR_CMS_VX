@@ -1,9 +1,11 @@
 package com.messdiener.cms.v3.web.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.messdiener.cms.v3.app.entities.acticle.Article;
 import com.messdiener.cms.v3.app.entities.event.PlanerTask;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.services.article.ArticleService;
+import com.messdiener.cms.v3.app.services.event.EventApplicationService;
 import com.messdiener.cms.v3.app.services.event.EventService;
 import com.messdiener.cms.v3.app.services.event.PlannerTaskService;
 import com.messdiener.cms.v3.security.SecurityHelper;
@@ -13,6 +15,7 @@ import com.messdiener.cms.v3.shared.enums.ArticleType;
 import com.messdiener.cms.v3.shared.enums.workflow.CMSState;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -28,6 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,6 +45,7 @@ public class HomepageController {
     private final ArticleService articleService;
     private final PlannerTaskService plannerTaskService;
     private final EventService eventService;
+    private final EventApplicationService eventApplicationService;
 
     @PostConstruct
     public void init() {
@@ -55,7 +60,8 @@ public class HomepageController {
 
     @GetMapping("/infos")
     public String infos(HttpSession httpSession, Model model) throws SQLException {
-        model.addAttribute("events", eventService.getEvents());
+        model.addAttribute("events", eventService.getEventsAtDeadline());
+        model.addAttribute("now", System.currentTimeMillis());
         return "public/pages/event_overview";
     }
 
@@ -79,13 +85,14 @@ public class HomepageController {
 
 
     @GetMapping("/go")
-    public String go(HttpSession httpSession, Model model, @RequestParam("id")UUID id, @RequestParam("type")Optional<String> t) throws SQLException {
+    public String go(HttpSession httpSession, Model model, @RequestParam("id")UUID id, @RequestParam("type")Optional<String> t, @RequestParam("state")Optional<String> state) throws SQLException {
         model.addAttribute("article", articleService.getArticleById(id).orElse(Article.empty()));
+        model.addAttribute("state", state.orElse("null"));
 
         String type = t.orElse("application");
         if(type.equals("application")) {
             model.addAttribute("event", eventService.getEventById(id).orElseThrow());
-            model.addAttribute("components", eventService.getComponents(id));
+            model.addAttribute("components", eventApplicationService.getComponents(id));
             return "public/pages/event";
         }
 

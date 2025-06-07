@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-blue mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="layers"></i></span>
+                                    <span>Gottesdienste</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalten der Gottesdienste
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4 mt-4">
+
+                <div th:replace="~{finance/fragments/financeFragments :: nav (${q})}"></div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="info" class="text-info fs-4"></i>
+                                </div>
+
+                                <!-- Text content -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold">Belege</h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                        x Einträge
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body ">
+                        <div class="row">
+                            <div class="col-xl-2">
+                                <style>
+                                    /* Custom Utility für gestrichelten Rahmen */
+                                    .border-dashed {
+                                        border-style: dashed !important;
+                                    }
+
+                                    /* Style beim Drag-Over */
+                                    #drop-zone.dragover {
+                                        background-color: #e9f7fe;
+                                        border-color: #0d6efd !important;
+                                        color: #0d6efd;
+                                    }
+                                </style>
+                                <div
+                                        id="drop-zone"
+                                        class="border border-blue border-dashed rounded p-5 text-center text-blue"
+                                >
+                                    <p class="mb-2">Ziehe Dateien hierher oder</p>
+                                    <button id="browse-btn" class="btn btn-blue">Durchsuchen</button>
+                                    <input type="text" class="d-none" name="target" id="target"
+                                           th:value="${person.getId()}">
+                                    <input type="text" class="d-none" name="type" id="type" th:value="'TRANSACTION'">
+                                    <input
+                                            type="file"
+                                            id="file-input"
+                                            name="files"
+                                            multiple
+                                            class="d-none"
+                                    >
+                                </div>
+                                <ul id="upload-list" class="d-none"></ul>
+                            </div>
+                            <div class="col-xl-10">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Nummer</th>
+                                        <th>Name</th>
+                                        <th>Erstellt am</th>
+                                        <th>Letztes Update</th>
+                                        <th>Erstellt von</th>
+                                        <th>Datei-Typ</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="file : ${files}">
+                                        <td th:text="${file.getTag()}"></td>
+                                        <td>
+                                            <a
+                                                    th:text="${file.getTitle()}"
+                                                    th:href="@{/file(id=${file.getId()})}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer">
+                                            </a>
+                                        </td>
+                                        <td th:text="${file.getDate().getGermanWithSeconds()}"></td>
+                                        <td th:text="${file.getLastUpdate().getGermanWithSeconds()}"></td>
+                                        <td th:text="${personHelper.getName(file.getOwner())}"></td>
+                                        <td th:text="${file.getType()}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const targetInput = document.getElementById('target');
+    const typeInput = document.getElementById('type');
+    const browseBtn = document.getElementById('browse-btn');
+
+    // Öffnet den Datei-Dialog
+    browseBtn.addEventListener('click', e => {
+        e.preventDefault();
+        fileInput.click();
+    });
+
+    // Dateien vom Dialog verarbeiten
+    fileInput.addEventListener('change', () => {
+        handleFiles(fileInput.files);
+    });
+
+    // Browser-Default für Drag-Events verhindern
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt =>
+        dropZone.addEventListener(evt, e => {
+            e.preventDefault();
+            e.stopPropagation();
+        })
+    );
+
+    // Styling beim Drag-Over
+    ['dragenter', 'dragover'].forEach(evt =>
+        dropZone.addEventListener(evt, () => dropZone.classList.add('dragover'))
+    );
+    ['dragleave', 'drop'].forEach(evt =>
+        dropZone.addEventListener(evt, () => dropZone.classList.remove('dragover'))
+    );
+
+    // Dateien bei Drop verarbeiten
+    dropZone.addEventListener('drop', e => {
+        handleFiles(e.dataTransfer.files);
+    });
+
+    function handleFiles(files) {
+        const formData = new FormData();
+        // HIER das Event mitschicken:
+        formData.append('target', targetInput.value);
+        formData.append('type', typeInput.value);
+
+        Array.from(files).forEach(f => formData.append('files', f));
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => res.ok
+                ? res.text()
+                : Promise.reject(new Error('Upload fehlgeschlagen'))
+            )
+            .then(msg => {
+                console.log('Server-Antwort:', msg);
+                // Seite neu laden, damit z.B. die Liste der Dateien aktualisiert wird
+                window.location.reload();
+            })
+            .catch(err => console.error(err));
+    }
+</script>
+
+
+

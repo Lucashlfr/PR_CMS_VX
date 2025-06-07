@@ -45,6 +45,10 @@ public class CMSDate {
     public String getGermanLongDate(){
         return DateUtils.convertLongToDate(date, DateUtils.DateType.GERMAN_WITH_DAY_NAME);
     }
+    public String getGermanShortDate(){
+        return DateUtils.convertLongToDate(date, DateUtils.DateType.GERMAN_WITH_DAY_NAME_S);
+    }
+
 
     public String getDayDate() {
         return DateUtils.convertLongToDate(date, DateUtils.DateType.GERMAN_WITH_DAY_TIME);
@@ -110,5 +114,8 @@ public class CMSDate {
         return convertTo(DateUtils.DateType.GT);
     }
 
+    public String getGermanWithSeconds(){
+        return convertTo(DateUtils.DateType.GERMAN_WITH_SECONDS);
+    }
 
 }

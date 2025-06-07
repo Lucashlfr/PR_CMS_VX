@@ -25,7 +25,7 @@
             <div class="container-fluid px-4 mt-4">
                 <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
 
-                <form th:action="@{/event/edit/timeline}" th:method="post">
+                <form th:action="@{/event/edit/application}" th:method="post">
                     <input type="hidden" name="id" th:value="${event.getEventId()}">
                     <div class="card card-limit-height h-100">
                         <div class="card-header">
@@ -42,7 +42,7 @@
                                         <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
                                         <div class="d-flex flex-wrap gap-3 small text-muted">
                                             <div><span
-                                                    th:class="'badge ' + ${event.getState().getText()} + ' ' + ${event.getState().getBg()}"
+                                                    th:class="'badge ' + ${event.getState().getColors()}"
                                                     th:text="${event.getState().getLabel()}"></span></div>
                                             <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
                                                 10.04.2025
@@ -64,7 +64,7 @@
                                                        th:text="${event.getApplication()}"></textarea>
                                 </div>
                                 <div class="col-xl-6 col-12">
-                                    <table class="table table-sm table-hover">
+                                    <table class="table table-sm table-hover mb-3">
                                         <thead>
                                         <tr>
                                             <th>Nummer</th>
@@ -88,10 +88,48 @@
                                         </tr>
                                         </tbody>
                                     </table>
+
+                                    <style>
+                                        .equal-column-table td, .equal-column-table th {
+                                            width: 1%;              /* wichtig: gleichmäßige Breite */
+                                            white-space: nowrap;    /* Zeilenumbruch verhindern */
+                                            text-align: left;
+                                            vertical-align: middle;
+                                        }
+
+                                        .equal-column-table img.table-preview {
+                                            max-width: 120px;
+                                            max-height: 60px;
+                                        }
+                                    </style>
+
+                                    <table class="table equal-column-table table-sm">
+                                        <thead>
+                                        <tr>
+                                            <th th:each="header : ${exportRows[0]}" th:text="${header}">Header</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="row, rowStat : ${exportRows}" th:if="${rowStat.index > 0}">
+                                            <td th:each="cell : ${row}">
+                                               <span th:if="${#strings.startsWith(cell, 'data:image/')}" >
+                                                   <a th:href="${cell}" target="_blank">
+                                                       <img th:src="${cell}" class="table-preview" alt="Bildvorschau"/>
+                                                   </a>
+                                               </span>
+
+                                                <span th:unless="${#strings.startsWith(cell, 'data:image/')}" th:text="${cell}">Text</span>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+
+
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </form>
             </div>
         </main>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-pink mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="layers"></i></span>
+                                    <span>Gottesdienste / Abfrage</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verwalten der Gottesdienste
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="container-fluid px-4 mt-4">
+
+                <div th:replace="~{liturgie/fragments/liturgieFragments :: nav (${q})}"></div>
+
+
+                <div class="d-flex justify-content-between align-items-sm-center flex-column flex-sm-row mb-4">
+                    <div class="me-4 mb-3 mb-sm-0">
+                        <h1 class="mb-0">Gottesdienst Abfrage</h1>
+                        <div class="small">
+                            <span class="fw-500 text-pink" th:text="${now.getDay()}"></span>
+                            &middot;
+                            <span th:text="${now.getGt()}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+
+                </style>
+                <div class="card card-limit-height h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="calendar" class="text-pink fs-4"></i>
+                                </div>
+
+                                <!-- Text content -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold">
+                                        <span>Gottesdienst Abfrage</span>
+                                    </h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                        <div th:text="' Gottesdienste'">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" th:unless="${current}">
+                        <div class="alert alert-success alert-icon mb-3" role="alert">
+                            <div class="alert-icon-aside">
+                                <i data-feather="check"></i>
+                            </div>
+                            <div class="alert-icon-content">
+                                <span class="alert-heading fw-bold">Laufende Abfrage:</span>
+                                Keine laufende Abfrage
+                            </div>
+                        </div>
+
+                        <form th:action="@{/liturgie/request/create}" method="post">
+                            <div class="row mb-3 align-items-center">
+                                <label for="name" class="col-sm-2 col-form-label">Name (der Abfrage)</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="name"
+                                           name="name" required>
+                                </div>
+                            </div>
+                            <div class="row mb-3 align-items-center">
+                                <label for="startDate" class="col-sm-2 col-form-label">Zeitraum (Start)</label>
+                                <div class="col-sm-10">
+                                    <input type="date" class="form-control" id="startDate"
+                                           name="startDate" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label for="endDatum" class="col-sm-2 col-form-label">Zeitraum (Ende)</label>
+                                <div class="col-sm-10">
+                                    <input type="date" class="form-control" id="endDatum"
+                                           name="endDate" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label for="deadline" class="col-sm-2 col-form-label">Abfrage läuft bis</label>
+                                <div class="col-sm-10">
+                                    <input type="date" class="form-control" id="deadline" name="deadline" required>
+                                </div>
+                            </div>
+                            <div class="d-flex mt-3 mb-3">
+                                <button class="btn btn-pink btn-sm flex-fill m-1" type="submit">Abfrage erstellen
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-body" th:if="${current}">
+                        <div class="alert alert-primary alert-icon mb-3" role="alert">
+                            <div class="alert-icon-aside">
+                                <i data-feather="info"></i>
+                            </div>
+                            <div class="alert-icon-content">
+                                <span class="alert-heading fw-bold">Laufende Abfrage:</span>
+                                <span th:text="'Zeitraum :' + ${currentRequest.getStartDate().getGermanDate()} + ' - ' + ${currentRequest.getEndDate().getGermanDate()} + ' / Ende der Abfrage: ' + ${currentRequest.getDeadline().getGermanDate()}"></span>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Abfrage abgeschickt</th>
+                            </tr>
+                            </thead>
+                            <tr th:each="s : ${status}">
+                                <td th:text="${s.getKey()}"></td>
+                                <td th:if="${s.getValue()}" class="bg-success-soft text-success mdi mdi-check-circle text-center"></td>
+                                <td th:unless="${s.getValue()}" class="bg-danger-soft text-danger mdi mdi-close-circle text-center"></td>
+                            </tr>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <div class="d-flex mt-3 mb-3">
+                            <a class="btn btn-pink btn-sm flex-fill m-1" type="button" href="javascript:void(0);"
+                               data-bs-toggle="modal" data-bs-target="#edit">Abfrage beenden
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+<div class="modal fade" id="edit" th:if="${current}">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Abfrage beenden</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-footer">
+                <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                <a type="button" th:href="'/liturgie/request/stop?id=' + ${currentRequest.getRequestId().toString()}" class="btn btn-success">Beenden</a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>
+
+
+
+

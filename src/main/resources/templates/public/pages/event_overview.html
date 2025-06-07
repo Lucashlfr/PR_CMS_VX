@@ -27,6 +27,10 @@
                         </div>
                     </div>
 
+                    <div th:if="${events.isEmpty()}">
+                        <h1>Aktuell sind keine Anmeldungen offen.</h1>
+                    </div>
+
 
                 </div>
             </section>

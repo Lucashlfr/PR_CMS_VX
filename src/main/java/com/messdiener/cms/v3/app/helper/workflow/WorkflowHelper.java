@@ -97,7 +97,6 @@ public class WorkflowHelper {
             switch (workflowType) {
                 case SAE -> createWorkflow(user.getId(), WorkflowType.SAE, startDate, endDate, WorkflowModuleName.SAE);
                 case ONBOARDING -> createWorkflow(user.getId(), WorkflowType.ONBOARDING, startDate, endDate, WorkflowModuleName.DATA, WorkflowModuleName.PRIVACY_POLICY, WorkflowModuleName.EMERGENCY);
-                case SCHEDULER -> createWorkflow(user.getId(), WorkflowType.SCHEDULER, startDate, endDate, WorkflowModuleName.SCHEDULER);
             }
         }
 

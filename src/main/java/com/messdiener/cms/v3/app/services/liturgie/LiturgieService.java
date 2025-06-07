@@ -1,14 +1,10 @@
 package com.messdiener.cms.v3.app.services.liturgie;
 
-import com.messdiener.cms.v3.app.entities.worship.EventParticipationDto;
-import com.messdiener.cms.v3.app.entities.worship.HeatmapDto;
 import com.messdiener.cms.v3.app.entities.worship.Liturgie;
-import com.messdiener.cms.v3.app.services.finance.BudgetService;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
 import com.messdiener.cms.v3.shared.enums.LiturgieType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +14,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
 @Service
@@ -75,5 +67,30 @@ public class LiturgieService {
 
         }
         return liturgies;
+    }
+
+    public void save(Liturgie liturgie) throws SQLException {
+        databaseService.delete("module_liturgie", "liturgieId", liturgie.getLiturgieId().toString());
+        String sql = "INSERT INTO module_liturgie (liturgieId, number, tenantId, liturgieType, date, local) VALUES (?, ?, ?, ?, ?, ?)";
+        try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, liturgie.getLiturgieId().toString());
+            preparedStatement.setInt(2, liturgie.getNumber());
+            preparedStatement.setString(3, liturgie.getTenantId().toString());
+            preparedStatement.setString(4, liturgie.getLiturgieType().toString());
+            preparedStatement.setLong(5, liturgie.getDate().toLong());
+            preparedStatement.setBoolean(6, liturgie.isLocal());
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public Optional<Liturgie> getLiturgie(UUID uuid) throws SQLException {
+        String sql ="SELECT * FROM module_liturgie WHERE liturgieId = ?";
+
+        try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, uuid.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()){
+                return resultSet.next() ? Optional.of(getLiturgieByResultSet(resultSet)) : Optional.empty();
+            }
+        }
     }
 }

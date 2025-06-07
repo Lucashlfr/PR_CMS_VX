@@ -28,61 +28,141 @@
 
             <div class="container-fluid px-4 mt-4">
 
-                <div class="card">
-                    <div class="card-header border-bottom">
-                        <ul class="nav nav-tabs card-header-tabs" id="cardTab" role="tablist">
-                            <li class="nav-item">
-                                <a th:class="${htmlClasses.classesLink(step, '1')}" href="/workflow?s=1">Deine Workflows</a>
-                            </li>
-                            <li class="nav-item">
-                                <a th:class="${htmlClasses.classesLink(step, '2')}"  href="/workflow?s=2">Alle Workflows</a>
-                            </li>
-                            <li class="nav-item">
-                                <a th:class="${htmlClasses.classesLink(step, '3')}"  href="/workflow?s=3">Workflow erstellen</a>
-                            </li>
-                        </ul>
+                <div th:replace="~{workflow/fragments/workflowFragments :: nav(${step})}"></div>
+                <style>
+                    .card-body.clamp-description {
+                        overflow: scroll;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
+
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
+
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-3 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-purple-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="bar-chart-2" class="text-purple fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">
+                                                <span>Statistik</span>
+                                            </h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="'Die aktuelle Statistik'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body clamp-description " style="overflow: scroll;">
+                                <div class="chart-pie mb-4">
+                                    <canvas id="myPieChart" width="100%" height="50"></canvas></div>
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="mdi mdi-circle me-1 text-yellow"></i>
+                                            Aktiv
+                                        </div>
+                                        <div class="fw-500 text-dark" id="active" th:text="${counter.get('ACTIVE') > 0 ? counter.get('ACTIVE')  : 0}"></div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="mdi mdi-circle me-1 text-green"></i>
+                                            Abgeschlossen
+                                        </div>
+                                        <div class="fw-500 text-dark" id="completed" th:text="${counter.get('COMPLETED') > 0 ? counter.get('COMPLETED')  : 0}"></div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="mdi mdi-circle me-1 text-red"></i>
+                                            Verworfen
+                                        </div>
+                                        <div class="fw-500 text-dark" id="cancelled" th:text="${counter.get('CANCELLED') > 0 ? counter.get('CANCELLED')  : 0}"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="tab-content" id="cardTabContent">
-                            <div class="text-center" id="load">
+                    <div class="col-xl-9 col-12 mb-4">
+                        <div class="card h-100" id="reference-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-purple-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="zap" class="text-purple fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Workflows</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted" th:text="${workflows.size()} + ' in der Liste'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="text-center" id="load">
                                     <span class="spinner-border card-img"
                                           style="min-height: 200px; min-width: 200px;"></span>
-                            </div>
-                            <div class="d-none" id="content" style="overflow-y: scroll">
-                                <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
-                                    <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Name</th>
-                                        <th>Typ</th>
-                                        <th>Status</th>
-                                        <th>Start</th>
-                                        <th>Ende</th>
-                                        <th>Besitzer</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
+                                </div>
+                                <div class="d-none" id="content" style="overflow-y: scroll">
+                                    <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
+                                        <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th>Typ</th>
+                                            <th>Status</th>
+                                            <th>Start</th>
+                                            <th>Ende</th>
+                                            <th>Besitzer</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
 
-                                    <tr th:each="w:${workflows}">
-                                        <td th:text="${w.getCreationDate().toLong()}"></td>
-                                        <td>
-                                            <a th:href="'/workflow?q=info&id=' + ${w.getWorkflowId()}" th:text="${w.getWorkflowType().getLabel()}"></a>
-                                        </td>
-                                        <td th:text="${w.getWorkflowType().getLabel()}"></td>
-                                        <td th:text="${w.getCMSState().getLabel()}"></td>
-                                        <td th:text="${w.getCreationDate().getGermanDate()}"></td>
-                                        <td th:text="${w.getEndDate().getGermanDate()}"></td>
-                                        <td th:text="${personHelper.getName(w.getOwnerId())}"></td>
-                                    </tr>
+                                        <tr th:each="w:${workflows}">
+                                            <td th:text="${w.getCreationDate().toLong()}"></td>
+                                            <td>
+                                                <a th:href="'/workflow?q=info&id=' + ${w.getWorkflowId()}"
+                                                   th:text="${w.getWorkflowType().getLabel()}"></a>
+                                            </td>
+                                            <td th:text="${w.getWorkflowType().getLabel()}"></td>
+                                            <td th:text="${w.getCMSState().getLabel()}"></td>
+                                            <td th:text="${w.getCreationDate().getGermanDate()}"></td>
+                                            <td th:text="${w.getEndDate().getGermanDate()}"></td>
+                                            <td th:text="${personHelper.getName(w.getOwnerId())}"></td>
+                                        </tr>
 
 
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
 
         </main>
@@ -105,9 +185,13 @@
             <!-- Modal body -->
             <div class="modal-body">
                 <div class="d-grid gap-2">
-                    <a type="button" class="btn btn-success btn-block" href="/workflow/create?q=all" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Für alle</a>
-                    <a type="button" class="btn btn-success btn-block" href="/workflow/create?q=persons" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Für einzelne Personen</a>
-                    <a type="button" class="btn btn-success btn-block" href="/workflow/create?q=me" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Für mich</a>
+                    <a type="button" class="btn btn-success btn-block" href="/workflow/create?q=all"
+                       onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Für alle</a>
+                    <a type="button" class="btn btn-success btn-block" href="/workflow/create?q=persons"
+                       onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Für einzelne
+                        Personen</a>
+                    <a type="button" class="btn btn-success btn-block" href="/workflow/create?q=me"
+                       onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">Für mich</a>
                 </div>
             </div>
         </div>
@@ -115,23 +199,13 @@
 </div>
 
 
-
 </html>
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/jquery.dataTables.min.js}"></script>
-<div>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet"/>
-    <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.min.css" rel="stylesheet"/>
-    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
-    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/pdfmake.min.js"></script>
-    <script src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.18/build/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script>
+
+
     $(document).ready(function () {
         $('#table_id').DataTable({
             "columnDefs": [
@@ -172,12 +246,67 @@
                         1: 'Eine Zeile ausgewählt'
                     }
                 }
-            }, paging: false,
+            }, paging: true,
         });
 
-        setTimeout(function () {
+        // Set new default font family and font color to mimic Bootstrap's default styling
+        (Chart.defaults.global.defaultFontFamily = "Metropolis"),
+            '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+        Chart.defaults.global.defaultFontColor = "#858796";
+
+        // Pie Chart Example
+            // Werte aus dem DOM lesen
+            const active = parseInt(document.getElementById('active').innerText) || 0;
+            const completed = parseInt(document.getElementById('completed').innerText) || 0;
+            const cancelled = parseInt(document.getElementById('cancelled').innerText) || 0;
+
+            var ctx = document.getElementById("myPieChart").getContext('2d');
+            var myPieChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+            labels: ["Aktiv", "Abgeschlossen", "Verworfen"],
+            datasets: [{
+            data: [active, completed, cancelled],
+            backgroundColor: [
+            "#f4a100",
+            "#00ac69",
+            "#e81500"
+            ],
+            hoverBackgroundColor: [
+            "#f4a100",
+            "#00ac69",
+            "#e81500"
+            ],
+            hoverBorderColor: "rgba(234, 236, 244, 1)"
+        }]
+        },
+            options: {
+            maintainAspectRatio: false,
+            tooltips: {
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: "#dddfeb",
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10
+        },
+            legend: {
+            display: false
+        },
+            cutoutPercentage: 80
+        }
+        });
+
+
+
+setTimeout(function () {
             document.getElementById("content").classList.remove("d-none");
             document.getElementById("load").classList.add("d-none");
         }, 0.1);
     });
+
+
+
 </script>

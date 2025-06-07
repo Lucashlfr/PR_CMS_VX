@@ -15,6 +15,7 @@ import com.messdiener.cms.v3.app.services.workflow.WorkflowModuleService;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowService;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.enums.LiturgieState;
+import com.messdiener.cms.v3.shared.enums.workflow.CMSState;
 import com.messdiener.cms.v3.shared.enums.workflow.WorkflowModuleName;
 import com.messdiener.cms.v3.shared.enums.workflow.WorkflowType;
 import com.messdiener.cms.v3.utils.html.HTMLClasses;
@@ -60,15 +61,14 @@ public class WorkflowController {
 
     @GetMapping("/workflow")
     public String workflows(HttpSession httpSession, Model model, @RequestParam("s") Optional<String> s, @RequestParam("q") Optional<String> qs, @RequestParam("id") Optional<String> idS) throws SQLException {
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        Person user = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(httpSession);
 
         model.addAttribute("htmlClasses", new HTMLClasses());
-        model.addAttribute("workflows", workflowService.getWorkflowsByUserId(user.getId()));
+
         model.addAttribute("personHelper", personHelper);
 
-        String step = s.orElse("1");
+        String step = s.orElse("me");
         model.addAttribute("step", step);
 
         String query = qs.orElse("null");
@@ -82,9 +82,23 @@ public class WorkflowController {
             return "workflow/interface/workflowInterface";
         }
 
+        List<Workflow> workflows = new ArrayList<>();
+        Map<String, Integer> stateCountMap = new HashMap<>();
+        if(step.equals("all")){
+            workflows =  workflowService.getAllWorkflowsByTenant(user.getTenantId());
+            stateCountMap = workflowService.countWorkflowStatesByTenant(user.getTenantId());
+
+        }else if(step.equals("me")){
+            workflows = workflowService.getWorkflowsByUserId(user.getId());
+            stateCountMap = workflowService.countWorkflowStates(user.getId());
+        }
+        model.addAttribute("workflows", workflows);
+        model.addAttribute("counter", stateCountMap);
+        model.addAttribute("state", CMSState.class);
+
         model.addAttribute("types", WorkflowType.values());
         model.addAttribute("persons", personService.getActivePersonsByPermissionDTO(user.getFRank(),user.getTenantId()));
-        if(step.equals("3"))
+        if(step.equals("create"))
             return "workflow/interface/createWorkflow";
         return "workflow/interface/workflowOverview";
     }

@@ -76,7 +76,7 @@ public class LiturgieHelper {
         List<LiturgieView> views = liturgieList.stream()
                 .map(l -> new LiturgieView(
                         l.getLiturgieId(),
-                        l.getLiturgieType().getLabel(),
+                        l.getLiturgieType().getLabel() + (!l.isLocal() ? " (Pfr.)" : ""),
                         l.getDate(),
                         stateMap.get(l.getLiturgieId())))
                 .toList();
@@ -121,7 +121,7 @@ public class LiturgieHelper {
                             .count();
                     return new EventParticipationDto(
                             l.getLiturgieId(),
-                            l.getDate().getGermanDate(),
+                            l.getDate().getGermanShortDate(),
                             dutyCount,
                             availableCount,
                             unavailableCount

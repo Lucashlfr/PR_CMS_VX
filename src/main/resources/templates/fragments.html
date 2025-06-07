@@ -149,10 +149,16 @@
                 <!-- Sidenav Accordion (Dashboard)-->
 
                 <a class="nav-link" href="/dashboard"><div class="nav-link-icon"><i data-feather="home"></i></div>Startseite</a>
-                <a class="nav-link" href="/sFixO"><div class="nav-link-icon"><i data-feather="archive"></i></div>SFixO</a>
+                <a class="nav-link disabled" href="/sFixO"><div class="nav-link-icon">
+                    <i data-feather="archive"></i></div>SFixO
+                    <span class="badge bg-danger-soft text-danger ms-auto">Deaktiviert</span>
+                </a>
                 <a class="nav-link" href="/workflow/dashboard">
                     <div class="nav-link-icon"><i data-feather="pocket"></i></div>Deine Workflows
                     <span class="badge bg-warning-soft text-warning ms-auto" th:text="${session.openWorkflows + ' offen'}"></span>
+                </a>
+                <a class="nav-link" href="/liturgie/request">
+                    <div class="nav-link-icon"><i data-feather="calendar"></i></div>GoDi-Abfrage
                 </a>
 
                 <div th:if="${session.fRank >= 1}">
