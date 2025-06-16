@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-info mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="user"></i></span>
+                                    <span>Personen</span>
+                                </h1>
+                                <div class="page-header-subtitle">Verschaffe dir einen Überblick über die Einträge deines Teams.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+
+            <div class="container-fluid px-4 mt-4">
+
+                <div th:replace="~{person/fragments/personFragmentsOverview :: overview(${step})}"></div>
+
+                <div class="row">
+                    <div class="col-xl-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-secondary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="user" class="text-secondary fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Personalübersicht</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="${persons.size()} + ' Personen in dieser Übersicht'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab-content" id="cardTabContent">
+                                    <div class="text-center" id="load">
+                                    <span class="spinner-border card-img"
+                                          style="min-height: 200px; min-width: 200px;"></span>
+                                    </div>
+                                    <div class="d-none" id="content" style="overflow-y: scroll">
+                                        <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
+                                            <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Name, Vorname</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            <tr th:each="person:${persons}">
+                                                <td th:text="${person.lastName + ', ' + person.firstName}"></td>
+                                                <td>
+                                                    <a class="d-flex align-items-center"
+                                                       th:href="'/personal?q=profil&s=overview&id=' + ${person.getId()}">
+                                                        <div class="avatar avatar-sm me-3 bg-gray-200"><img
+                                                                class="avatar-img img-fluid"
+                                                                th:src="${person.imgUrl}"
+                                                                alt=""/></div>
+                                                        <span th:text="${person.lastName + ', ' + person.firstName}"></span>
+                                                    </a>
+                                                </td>
+                                            </tr>
+
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+<!-- The Modal -->
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script>
+    $(document).ready(function () {
+        $('#table_id').DataTable({
+            "columnDefs": [
+                {
+                    "targets": [0],
+                    "visible": false
+
+                },
+            ],
+            language: {
+                "decimal": ",",
+                "thousands": ".",
+                "infoPostFix": "",
+                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
+                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
+                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Zurück"
+                },
+                "processing": "Verarbeitung läuft ...",
+                "search": "Suche:",
+                "searchPlaceholder": "Suchbegriff",
+                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
+                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
+                "aria": {
+                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                },
+                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
+                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
+                "select": {
+                    "rows": {
+                        _: '%d Zeilen ausgewählt',
+                        0: 'Zeile anklicken um auszuwählen',
+                        1: 'Eine Zeile ausgewählt'
+                    }
+                }
+            }, paging: true,
+        });
+
+        setTimeout(function () {
+            document.getElementById("content").classList.remove("d-none");
+            document.getElementById("load").classList.add("d-none");
+        }, 0.1);
+    });
+</script>

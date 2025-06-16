@@ -14,9 +14,9 @@
                         <div class="col-lg-10 col-xl-8">
                             <div class="single-post">
                                 <h1 th:text="${event.getTitle()}"></h1>
-                                <p class="lead" th:text="'Anmeldung'"></p>
+                                <p class="lead" th:text="${event.getState().toString().equals('COMPLETED') ? 'Pressetext' : 'Anmeldung'}"></p>
                                 <img class="img-fluid mb-2 rounded" th:src="${event.getImgUrl()}" />
-                                <div class="single-post-text my-5">
+                                <div class="single-post-text my-5" th:unless="${event.getState().toString().equals('COMPLETED')}">
                                     <div th:utext="${event.getApplication()}"></div>
                                     <hr class="my-5" />
                                     <div class="alert alert-success alert-dismissible" th:if="${state.equals('success')}">
@@ -126,6 +126,12 @@
                                         </div>
                                     </div>
 
+                                    <hr class="my-5" />
+
+                                    <div class="text-center"><a class="btn btn-transparent-dark" href="/">Zurück zur Startseite</a></div>
+                                </div>
+                                <div class="single-post-text my-5" th:if="${event.getState().toString().equals('COMPLETED')}" >
+                                    <div th:utext="${event.getPressRelease()}"></div>
                                     <hr class="my-5" />
 
                                     <div class="text-center"><a class="btn btn-transparent-dark" href="/">Zurück zur Startseite</a></div>

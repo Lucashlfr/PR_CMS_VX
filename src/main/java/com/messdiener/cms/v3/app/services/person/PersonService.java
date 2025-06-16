@@ -87,12 +87,13 @@ public class PersonService {
         String accountHolder = resultSet.getString("accountHolder");
 
         boolean customPassword = resultSet.getBoolean("customPassword");
+        CMSDate lastUpdate = CMSDate.of(resultSet.getLong("lastUpdate"));
 
         return new Person(
                 id, tenantId, type, rank, principal, fRank, salutation, firstname, lastname, gender, birthdate,
                 street, houseNumber, postalCode, city, email, phone, mobile, accessionDate,
                 exitDate, activityNote, notes, active, canLogin, username, password,
-                iban, bic, bank, accountHolder, customPassword
+                iban, bic, bank, accountHolder, customPassword, lastUpdate
         );
     }
 
@@ -117,7 +118,7 @@ public class PersonService {
     public void updatePerson(Person person) throws SQLException {
         databaseService.delete("module_person", "person_id", person.getId().toString());
 
-        String sql = "INSERT INTO module_person (person_id, tenant_id, type, person_rank, principal, fRank, salutation, firstname, lastname, gender, birthdate, street, houseNumber, postalCode, city, email, phone, mobile, accessionDate, exitDate, activityNote, notes, active, canLogin, username, password, iban, bic, bank, accountHolder,customPassword) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO module_person (person_id, tenant_id, type, person_rank, principal, fRank, salutation, firstname, lastname, gender, birthdate, street, houseNumber, postalCode, city, email, phone, mobile, accessionDate, exitDate, activityNote, notes, active, canLogin, username, password, iban, bic, bank, accountHolder,customPassword,lastUpdate) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, person.getId().toString());
@@ -151,6 +152,7 @@ public class PersonService {
             preparedStatement.setString(29, person.getBank());
             preparedStatement.setString(30, person.getAccountHolder());
             preparedStatement.setBoolean(31, person.isCustomPassword());
+            preparedStatement.setLong(32, System.currentTimeMillis());
             preparedStatement.executeUpdate();
         }
     }

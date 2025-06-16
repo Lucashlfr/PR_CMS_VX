@@ -20,8 +20,7 @@ public class Event {
     private UUID eventId;
     private UUID tenantId;
 
-    private UUID updatedBy;
-    private CMSDate updatedDate;
+    private int number;
 
     // Allgemeine Informationen
     private String title;
@@ -34,6 +33,10 @@ public class Event {
     private CMSDate endDate;
     private CMSDate deadline;
 
+    private CMSDate creationDate;
+    private CMSDate resubmission;
+    private CMSDate lastUpdate;
+
     private String schedule;
     private String registrationRelease;
 
@@ -41,11 +44,13 @@ public class Event {
     private String targetGroup;
     private String location;
     private String imgUrl;
-    private int rinkIndex;
+    private int riskIndex;
 
     // Organisation & Verantwortliche
-    private UUID managerId;
-    private List<UUID> principals;
+    private UUID currentEditor;
+    private UUID createdBy;
+    private UUID principal;
+    private UUID manager;
 
     // Finanzen
     private double expenditure;
@@ -58,9 +63,9 @@ public class Event {
     private String application;
 
     public static Event empty(UUID eventId, UUID tenantId, String title, EventType eventType, EventState eventState, CMSDate startDate, CMSDate endDate, CMSDate deadline) {
-        return new Event(eventId, tenantId, Cache.SYSTEM_USER, CMSDate.current(), title, "", eventType, eventState, startDate, endDate, deadline, "", "", "",
-                "", "", -1, Cache.SYSTEM_USER, new ArrayList<>(), 0, 0, "", "","", "");
-
+        return new Event(eventId, tenantId, 0, title, "", eventType, eventState, startDate, endDate, deadline, CMSDate.current(), CMSDate.current(), CMSDate.current(), "",
+                "", "", "", "", -1, Cache.SYSTEM_USER, Cache.SYSTEM_USER, Cache.SYSTEM_USER, Cache.SYSTEM_USER, 0.0, 0.0,
+                "", "", "", "");
     }
 
 }

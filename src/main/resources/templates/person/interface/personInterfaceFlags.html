@@ -7,11 +7,10 @@
     <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main>
-
-            <div th:replace="~{person/fragments/personFragments :: header (${person})}"></div>
+            <div th:replace="~{person/fragments/personFragments :: header (${person.getName()})}"></div>
             <div class="container-fluid px-4">
 
-                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person})}"></div>
+                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person.getId()})}"></div>
                 <div class="card card-limit-height h-100">
                     <div class="card-header">
                         <div class="d-flex align-items-center justify-content-between">
@@ -42,8 +41,8 @@
                                               class="mdi mdi-account-alert text-danger"></span>
                                     </h5>
                                     <div class="d-flex flex-wrap gap-3 small text-muted">
-                                        <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
-                                            10.04.2025
+                                        <div>Letztes Update:
+                                            <span th:text="${person.getLastUpdate().getGermanTime()}"></span>
                                         </div>
                                     </div>
                                 </div>

@@ -3,29 +3,31 @@ package com.messdiener.cms.v3.web.controller.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.messdiener.cms.v3.app.entities.component.Component;
 import com.messdiener.cms.v3.app.entities.document.StorageFile;
+import com.messdiener.cms.v3.app.entities.event.PreventionForm;
 import com.messdiener.cms.v3.app.entities.event.data.TimelineItem;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.event.Event;
+import com.messdiener.cms.v3.app.entities.task.Task;
 import com.messdiener.cms.v3.app.helper.event.PlanerHelper;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.article.ArticleService;
 import com.messdiener.cms.v3.app.services.audit.AuditService;
 import com.messdiener.cms.v3.app.services.document.DocumentService;
 import com.messdiener.cms.v3.app.services.document.StorageService;
-import com.messdiener.cms.v3.app.services.event.EventApplicationService;
-import com.messdiener.cms.v3.app.services.event.EventService;
-import com.messdiener.cms.v3.app.services.event.EventTimelineService;
-import com.messdiener.cms.v3.app.services.event.PlannerTaskService;
+import com.messdiener.cms.v3.app.services.event.*;
 import com.messdiener.cms.v3.app.services.person.PersonService;
+import com.messdiener.cms.v3.app.services.taskService.TaskService;
 import com.messdiener.cms.v3.app.utils.ImgUtils;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.enums.ComponentType;
 import com.messdiener.cms.v3.shared.enums.document.FileType;
 import com.messdiener.cms.v3.shared.enums.event.EventState;
 import com.messdiener.cms.v3.shared.enums.event.EventType;
+import com.messdiener.cms.v3.shared.enums.workflow.CMSState;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.utils.time.DateUtils;
 import com.messdiener.cms.v3.web.request.EventForm;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -39,10 +41,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -60,9 +59,11 @@ public class EventController {
     private final StorageService storageService;
     private final EventApplicationService eventApplicationService;
     private final EventTimelineService eventTimelineService;
+    private final TaskService taskService;
+    private final PreventionService preventionService;
 
     @GetMapping("/event")
-    public String calendar(HttpSession httpSession, Model model, @RequestParam("id") Optional<String> idS, @RequestParam("q") Optional<String> q, @RequestParam("s") Optional<String> s) throws SQLException, JsonProcessingException {
+    public String calendar(HttpSession httpSession, Model model, @RequestParam("id") Optional<String> idS, @RequestParam("q") Optional<String> q, @RequestParam("s") Optional<String> s, @RequestParam("t") Optional<String> t) throws SQLException, JsonProcessingException {
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(httpSession);
@@ -89,7 +90,10 @@ public class EventController {
             model.addAttribute("articles", articleService.getArticlesById(event.getEventId().toString()));
             model.addAttribute("audit", auditService.getLogsByConnectId(event.getEventId()));
 
-            model.addAttribute("tasks", plannerTaskService.getTasks(event.getEventId()));
+            model.addAttribute("name1", personHelper.getName(event.getCurrentEditor()));
+            model.addAttribute("name2", personHelper.getName(event.getCreatedBy()));
+            model.addAttribute("name3", personHelper.getName(event.getPrincipal()));
+            model.addAttribute("name4", personHelper.getName(event.getManager()));
 
             model.addAttribute("s", s.orElse("info"));
             if (s.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found");
@@ -99,13 +103,17 @@ public class EventController {
             switch (s.get()) {
                 case "info":
                     return "calendar/interface/eventInterfaceInfo";
-                case "tasks":
-                    return "calendar/interface/eventInterfaceTasks";
                 case "timeline":
                     model.addAttribute("timelineItems", eventTimelineService.getItems(event.getEventId()));
                     return "calendar/interface/eventInterfaceTimeline";
-                case "notes":
-                    return "calendar/interface/eventInterfaceNotes";
+                case "tasks":
+                    if (t.isPresent()) {
+                        model.addAttribute("task", taskService.getTaskById(UUID.fromString(t.get())).orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Task not found")));
+                        return "calendar/interface/eventInterfaceTaskInterface";
+                    } else {
+                        model.addAttribute("tasks", taskService.getTasksByLink(event.getEventId()));
+                        return "calendar/interface/eventInterfaceTask";
+                    }
                 case "files":
                     model.addAttribute("files", files);
                     return "calendar/interface/eventInterfaceFiles";
@@ -118,10 +126,24 @@ public class EventController {
                     model.addAttribute("cTypes", ComponentType.values());
                     model.addAttribute("exportRows", eventApplicationService.exportEventResults(event.getEventId()));
                     return "calendar/interface/eventInterfaceApplication";
+                case "pressrelease":
+                    return "calendar/interface/eventInterfacePress";
+                case "risc":
+                    model.addAttribute("preventionForm",preventionService.getPreventionForm(event.getEventId()));
+                    return "calendar/interface/eventInterfaceRisk";
             }
         }
 
         return "calendar/list/eventOverview";
+    }
+
+    @PostMapping("/event/prevention/submit")
+    public RedirectView submitForm(@ModelAttribute PreventionForm form, Model model,  HttpServletRequest request) throws SQLException {
+        // Validierung / Weiterleitung
+        preventionService.savePreventionForm(form);
+
+        String referer = request.getHeader("Referer");
+        return new RedirectView(referer != null ? referer : "/");
     }
 
     @PostMapping("/event/create")
@@ -137,7 +159,7 @@ public class EventController {
         eventService.save(event);
 
         planerHelper.createSubTasks(event.getEventId(), EventType.valueOf(eventType));
-        if(event.getType() == EventType.SMALL_ACTION || event.getType() == EventType.BIG_ACTION){
+        if (event.getType() == EventType.SMALL_ACTION || event.getType() == EventType.BIG_ACTION) {
             planerHelper.createComponents(event.getEventId());
         }
 
@@ -210,9 +232,9 @@ public class EventController {
         eventApplicationService.saveComponent(id, Component.of(number, cType, name, label, "", "", true));
         return new RedirectView("/event?q=info&s=application&id=" + id);
     }
-    
+
     @GetMapping("/event/state")
-    public RedirectView state(@RequestParam("event") UUID id, @RequestParam("state")EventState state) throws SQLException {
+    public RedirectView state(@RequestParam("event") UUID id, @RequestParam("state") EventState state) throws SQLException {
         Event event = eventService.getEventById(id).orElseThrow(() -> new IllegalArgumentException("Event not Found"));
         event.setState(state);
         eventService.save(event);
@@ -238,5 +260,14 @@ public class EventController {
         return new RedirectView("/event?q=info&s=timeline&id=" + params.get("eventId"));
     }
 
+    @PostMapping("/event/edit/press")
+    public RedirectView editPress(@RequestParam("id") UUID id, @RequestParam("html") String html) throws SQLException {
+
+        Event event = eventService.getEventById(id).orElseThrow(() -> new IllegalArgumentException("Event not Found"));
+        event.setPressRelease(html);
+        eventService.save(event);
+
+        return new RedirectView("/event?q=info&id=" + id + "&s=pressrelease");
+    }
 
 }

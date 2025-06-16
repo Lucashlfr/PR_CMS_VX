@@ -5,6 +5,7 @@ import com.messdiener.cms.v3.app.entities.audit.AuditLog;
 import com.messdiener.cms.v3.app.entities.event.Event;
 import com.messdiener.cms.v3.app.entities.event.PlanerTask;
 import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.article.ArticleService;
 import com.messdiener.cms.v3.app.services.audit.AuditService;
 import com.messdiener.cms.v3.app.services.document.DocumentService;
@@ -44,6 +45,7 @@ public class PlannerController {
     private final PersonService personService;
     private final DocumentService documentService;
     private final ArticleService articleService;
+    private final PersonHelper personHelper;
 
     @GetMapping("/planer/task")
     public String getTasks(Model model, @RequestParam("eventId")UUID eventId, @RequestParam("taskId")UUID taskId) throws SQLException {
@@ -139,7 +141,7 @@ public class PlannerController {
                     .mapToInt(Integer::intValue)
                     .sum());
             task.setState(CMSState.COMPLETED);
-            event.setRinkIndex(counter);
+            event.setRiskIndex(counter);
             auditService.createLog(AuditLog.of(MessageType.INFO, ActionCategory.EVENT, event.getEventId(), Cache.SYSTEM_USER, "Die Risikoanalyse wurde von " + user.getName() + " durchgeführt.", ""));
         }
         plannerTaskService.updateTask(event.getEventId(), task);

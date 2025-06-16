@@ -55,13 +55,14 @@ public class Person {
     private String accountHolder;
 
     private boolean customPassword;
+    private CMSDate lastUpdate;
 
     public static Person empty(UUID tenantId) {
         return new Person(UUID.randomUUID(), tenantId,
                 PersonAttributes.Type.NULL, PersonAttributes.Rank.NULL, Cache.SYSTEM_USER, 4, PersonAttributes.Salutation.NULL,
                 "", "", PersonAttributes.Gender.NOT_SPECIFIED, Optional.empty(),
                 "", "", "", "", "", "", "", Optional.empty(), Optional.empty(),
-                "", "", true, false, "", "", "", "", "", "", false);
+                "", "", true, false, "", "", "", "", "", "", false, CMSDate.current());
     }
 
     public String getReadName() {

@@ -3,7 +3,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
 <!-- Definiere hier das Fragment „eventNav“ mit den Parametern s und event -->
 
-<div th:fragment="header (person)">
+<div th:fragment="header (name)">
     <header class="page-header page-header-dark bg-info mb-4">
         <div class="container-fluid px-4">
             <div class="page-header-content pt-4">
@@ -11,10 +11,9 @@
                     <div class="col-auto mt-4">
                         <h1 class="page-header-title">
                             <span class="page-header-icon text-white"><i data-feather="user"></i></span>
-                            <span th:text="'Person / ' + ${person.getName()}"></span>
+                            <span th:text="'Personalakte von ' + ${name}"></span>
                         </h1>
-                        <div class="page-header-subtitle">Verwalte die Mitglieder deiner Gruppe
-                        </div>
+                        <div class="page-header-subtitle">Verschaffe dir einen Überblick über die Einträge deines Teams.</div>
                     </div>
                 </div>
             </div>
@@ -22,24 +21,33 @@
     </header>
 </div>
 
-<div th:fragment="nav (s, person)">
+<div th:fragment="nav (s, id)">
     <nav class="nav nav-pills nav-fill mb-3">
         <a th:class="${s == 'overview'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='overview', id=${person.id})}">Übersicht</a>
-        <a th:class="${s == 'basisdata'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='basisdata', id=${person.id})}">Stammdaten</a>
+           th:href="@{/personal(q='profil', s='overview', id=${id})}">
+            <i class="mdi mdi-home me-1"></i>
+            Übersicht</a>
+        <a th:class="${s == 'contact'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='contact', id=${id})}">
+            <i class="mdi mdi-contacts me-1"></i>
+            Kontakt</a>
         <a th:class="${s == 'documents'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='documents', id=${person.id})}">Documents</a>
+           th:href="@{/personal(q='profil', s='documents', id=${id})}">
+            <i class="mdi mdi-folder me-1"></i>
+            Dokumente</a>
         <a th:class="${s == 'liturgy'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='liturgy', id=${person.id})}">Gottesdienste</a>
-        <a th:class="${s == 'emergency'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='emergency', id=${person.id})}">Notfallkontakte</a>
-        <a th:class="${s == 'connection'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='connection', id=${person.id})}">Connections</a>
-        <a th:class="${s == 'workflows'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='workflows', id=${person.id})}">Workflows</a>
+           th:href="@{/personal(q='profil', s='liturgy', id=${id})}">
+            <i class="mdi mdi-calendar me-1"></i>
+            Gottesdienste</a>
         <a th:class="${s == 'flags'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='flags', id=${person.id})}">Flags</a>
+           th:href="@{/personal(q='profil', s='flags', id=${id})}">
+            <i class="mdi mdi-flag me-1"></i>
+            Flags</a>
+        <a th:class="${s == 'settings'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(q='profil', s='settings', id=${id})}">
+            <i class="mdi mdi-cog me-1"></i>
+            Einstellungen</a>
     </nav>
 </div>
+
 </html>

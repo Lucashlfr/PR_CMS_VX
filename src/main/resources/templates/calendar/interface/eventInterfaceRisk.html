@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div th:insert="~{fragments :: sidebar}" id="layoutSidenav_nav"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-yellow mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title" th:text="'Termine / ' + ${event.getTitle()}">
+                                </h1>
+                                <div class="page-header-subtitle">Plane deine Aktionen für deine Messdienergruppe.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-fluid px-4 mt-4">
+                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
+
+
+                <div class="card card-limit-height h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="calendar" class="text-info fs-4"></i>
+                                </div>
+
+                                <!-- Text content -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                        <div><span
+                                                th:class="'badge ' + ${event.getState().getColors()}"
+                                                th:text="${event.getState().getLabel()}"></span></div>
+                                        <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
+                                            10.04.2025
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <button class="btn btn-yellow btn-sm mdi mdi-calendar-sync" type="submit"></button>
+                                <a class="btn btn-yellow btn-sm mdi mdi-plus" href="javascript:void(0);"
+                                   data-bs-toggle="modal" data-bs-target="#edit"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body clamp-description">
+
+                        <form th:action="@{/event/prevention/submit}" th:object="${preventionForm}" method="post">
+                            <input type="hidden" name="id" th:value="${event.getEventId()}">
+                            <!-- Kategorie 1 -->
+                            <h5 class="mt-3">Kategorie 1: Orte - Gebäude – Umgebungen</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label">Gibt es bauliche oder organisatorische Aspekte, die
+                                    Teilnehmende unwohl fühlen lassen könnten?</label>
+                                <textarea class="form-control" th:field="*{structuralConcerns}"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Werden die Toilettenräume für geschlechtergetrennte Nutzung
+                                    ausgeschildert?</label>
+                                <textarea class="form-control" th:field="*{toiletSignage}"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Sind die genutzten Räume öffentlich einsehbar?</label>
+                                <textarea class="form-control" th:field="*{roomVisibility}"></textarea>
+                            </div>
+
+                            <!-- Kategorie 2 -->
+                            <h5 class="mt-4">Kategorie 2: Awareness und Beschwerden</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label">Werden zu Beginn der Aktion eine Begrüßungsrunde und
+                                    Kennenlernphase angeboten?</label>
+                                <textarea class="form-control" th:field="*{welcomeRound}"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Werden Fotos gemacht?</label>
+                                <textarea class="form-control" th:field="*{photoPolicy}"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Wie können Beschwerden oder Verbesserungsvorschläge geäußert
+                                    werden?</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="abschlussrunde"
+                                           th:field="*{complaintChannels}" id="abschlussrunde">
+                                    <label class="form-check-label" for="abschlussrunde">Abschlussrunde mit
+                                        Feedback-Möglichkeit</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="telefon"
+                                           th:field="*{complaintChannels}" id="telefon">
+                                    <label class="form-check-label" for="telefon">Telefonisch / E-Mail</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="socialmedia"
+                                           th:field="*{complaintChannels}" id="socialmedia">
+                                    <label class="form-check-label" for="socialmedia">Soziale Medien (z. B.
+                                        Instagram)</label>
+                                </div>
+                            </div>
+
+                            <!-- Kategorie 3 -->
+                            <h5 class="mt-4">Kategorie 3: 1:1 Situationen</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label">Können im Rahmen der Aktion 1:1-Situationen entstehen? Wenn
+                                    ja, wo?</label>
+                                <textarea class="form-control" th:field="*{oneOnOneSituations}"></textarea>
+                            </div>
+
+                            <!-- Kategorie 4 -->
+                            <h5 class="mt-4">Kategorie 4: Macht und Abhängigkeit</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label">Bestehen hierarchische Abhängigkeiten? Wenn ja, zwischen
+                                    welchen Gruppen?</label>
+                                <textarea class="form-control" th:field="*{hierarchicalDependencies}"></textarea>
+                            </div>
+
+                            <!-- Kategorie 5 -->
+                            <h5 class="mt-4">Kategorie 5: Kommunikation, Beteiligung, Transparenz</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label">Welche Kommunikationswege werden für die Aktion
+                                    genutzt?</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="email"
+                                           th:field="*{communicationChannels}" id="email">
+                                    <label class="form-check-label" for="email">E-Mail</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="homepage"
+                                           th:field="*{communicationChannels}" id="homepage">
+                                    <label class="form-check-label" for="homepage">Homepage</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="instagram"
+                                           th:field="*{communicationChannels}" id="instagram">
+                                    <label class="form-check-label" for="instagram">Instagram</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="whatsapp"
+                                           th:field="*{communicationChannels}" id="whatsapp">
+                                    <label class="form-check-label" for="whatsapp">WhatsApp</label>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Wie werden Teilnehmende über Entscheidungsprozesse
+                                    informiert?</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="protokolle"
+                                           th:field="*{decisionTransparency}" id="protokolle">
+                                    <label class="form-check-label" for="protokolle">Ergebnisprotokolle</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="besprechung"
+                                           th:field="*{decisionTransparency}" id="besprechung">
+                                    <label class="form-check-label" for="besprechung">Besprechungen /
+                                        Versammlungen</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="digital"
+                                           th:field="*{decisionTransparency}" id="digital">
+                                    <label class="form-check-label" for="digital">Veröffentlichung auf digitalen
+                                        Kanälen</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="direkt"
+                                           th:field="*{decisionTransparency}" id="direkt">
+                                    <label class="form-check-label" for="direkt">Direkte Kommunikation</label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary mt-4">Absenden</button>
+                        </form>
+
+
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+</html>

@@ -175,6 +175,20 @@ public class StorageService {
         return storageFiles;
     }
 
+    public List<StorageFile> getFiles(UUID id) throws SQLException {
+        List<StorageFile> storageFiles = new ArrayList<>();
+        String sql = "SELECT * FROM module_storage WHERE target =? ";
+        try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, id.toString());
+            try(ResultSet resultSet = preparedStatement.executeQuery()){
+                while (resultSet.next()) {
+                    storageFiles.add(getByResultSet(resultSet));
+                }
+            }
+        }
+        return storageFiles;
+    }
+
     public Optional<StorageFile> getFile(UUID id) throws SQLException {
         String sql = "SELECT * FROM module_storage WHERE documentId = ?";
         try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){

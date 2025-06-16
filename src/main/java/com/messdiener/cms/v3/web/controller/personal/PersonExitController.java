@@ -36,36 +36,23 @@ public class PersonExitController {
         LOGGER.info("PersonExitController initialized.");
     }
 
-    @PostMapping("/personal/deregister")
-    public RedirectView deregister(@RequestParam("id") UUID id, @RequestParam("reason") String reason) throws SQLException {
-        Person person = personService.getPersonById(id).orElseThrow();
-
-        person.setActive(false);
-
-        personService.updatePerson(person);
-        return new RedirectView("/personal?q=profil&id=" + person.getId());
-    }
-
-    @PostMapping("/personal/quit")
-    public RedirectView quit(@RequestParam("id") UUID id, @RequestParam("reason") String reason) throws SQLException {
+    @PostMapping("/personal/state")
+    public RedirectView quit(@RequestParam("id") UUID id, @RequestParam("state") String state) throws SQLException {
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         Person person = personService.getPersonById(id).orElseThrow();
 
-        person.setActive(false);
-        person.setActivityNote("[" + user.getName() + "] [" + CMSDate.current().getGermanDate() + "] " + reason);
+        if(state.equals("active")) {
+            person.setActive(true);
+            person.setCanLogin(true);
+        }else if(state.equals("inactive")) {
+            person.setActive(false);
+            person.setActivityNote("[" + user.getName() + "] [" + CMSDate.current().getGermanDate() + "] ");
+            person.setCanLogin(false);
+        }
         personService.updatePerson(person);
 
-        return new RedirectView("/personal?q=profil&s=1&id=" + id);
-    }
-
-    @GetMapping("/personal/join")
-    public RedirectView join(@RequestParam("id") UUID id) throws SQLException {
-        Person person = personService.getPersonById(id).orElseThrow();
-
-        person.setActive(true);
-        personService.updatePerson(person);
-        return new RedirectView("/personal?q=profil&s=1&id=" + id);
+        return new RedirectView("/personal?q=profil&s=settings&id=" + id);
     }
 
 }

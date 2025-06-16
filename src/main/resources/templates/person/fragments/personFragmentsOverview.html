@@ -1,0 +1,27 @@
+<!-- templates/fragments/eventNav.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<!-- Definiere hier das Fragment „eventNav“ mit den Parametern s und event -->
+
+<div th:fragment="overview (s)">
+    <nav class="nav nav-pills nav-fill mb-3">
+        <a th:class="${s == 'overview'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(s='overview')}">
+            <i class="mdi mdi-group me-1"></i>
+            Teamübersicht</a>
+        <a th:class="${s == 'principal'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(s='principal')}">
+            <i class="mdi mdi-file-account me-1"></i>
+            Personalakten</a>
+        <a th:class="${s == 'create'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(s='create')}">
+            <i class="mdi mdi-account-plus me-1"></i>
+            Person anlegen</a>
+        <a th:class="${s == 'privacy'} ? 'nav-link active bg-info' : 'nav-link text-info'"
+           th:href="@{/personal(s='privacy')}">
+            <i class="mdi mdi-priority-high me-1"></i>
+            Datenschutzformulare</a>
+    </nav>
+</div>
+
+</html>

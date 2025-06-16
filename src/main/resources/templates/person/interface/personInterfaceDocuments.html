@@ -8,110 +8,14 @@
     <div id="layoutSidenav_content">
         <main>
 
-            <div th:replace="~{person/fragments/personFragments :: header (${person})}"></div>
+            <div th:replace="~{person/fragments/personFragments :: header (${person.getName()})}"></div>
             <div class="container-fluid px-4">
 
-                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person})}"></div>
+                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person.getId()})}"></div>
 
 
 
-                <div class="row">
-                    <div class="col-xl-3 mb-4">
-                        <a class="card card-limit-height h-100 lift shadow-none" th:href="'/personal?q=profil&s=documents&id=' + ${person.getId()} + '&file=ONBOARDING'">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 48px; height: 48px;">
-                                            <i data-feather="folder" class="text-red fs-4"></i>
-                                        </div>
-
-                                        <!-- Text content -->
-                                        <div>
-                                            <h5 class="mb-1 fw-semibold">Onboarding</h5>
-                                            <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                <div th:text="${workflows.size()} + ' verknüpfte Workflows'"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-xl-3 mb-4">
-                        <a class="card card-limit-height h-100 lift shadow-none" th:href="'/personal?q=profil&s=documents&id=' + ${person.getId()} + '&file=TRAINING'">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 48px; height: 48px;">
-                                            <i data-feather="folder" class="text-red fs-4"></i>
-                                        </div>
-
-                                        <!-- Text content -->
-                                        <div>
-                                            <h5 class="mb-1 fw-semibold">Schulungen</h5>
-                                            <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                <div th:text="${workflows.size()} + ' verknüpfte Workflows'"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-xl-3 mb-4">
-                        <a class="card card-limit-height h-100 lift shadow-none" th:href="'/personal?q=profil&s=documents&id=' + ${person.getId()} + '&file=ACCOUNTING'">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 48px; height: 48px;">
-                                            <i data-feather="folder" class="text-red fs-4"></i>
-                                        </div>
-
-                                        <!-- Text content -->
-                                        <div>
-                                            <h5 class="mb-1 fw-semibold">Abrechnungen</h5>
-                                            <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                <div th:text="${workflows.size()} + ' verknüpfte Workflows'"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-xl-3 mb-4">
-                        <a class="card card-limit-height h-100 lift shadow-none" th:href="'/personal?q=profil&s=documents&id=' + ${person.getId()} + '&file=OTHER'">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-red-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 48px; height: 48px;">
-                                            <i data-feather="folder" class="text-red fs-4"></i>
-                                        </div>
-
-                                        <!-- Text content -->
-                                        <div>
-                                            <h5 class="mb-1 fw-semibold">Sonstiges</h5>
-                                            <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                <div th:text="${workflows.size()} + ' verknüpfte Workflows'"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-
-                <div class="card card-limit-height" th:unless="${fileType.toString().equals('NULL')}">
+                <div class="card card-limit-height">
                     <div class="card-header">
                         <div class="d-flex align-items-center justify-content-between">
                             <div class="d-flex align-items-start gap-3">
@@ -123,7 +27,7 @@
 
                                 <!-- Text content -->
                                 <div>
-                                    <h5 class="mb-1 fw-semibold" th:text="'Dateien / ' + ${fileType.getLabel()} + ':'"></h5>
+                                    <h5 class="mb-1 fw-semibold" th:text="'Dokumentenablage'"></h5>
                                     <div class="d-flex flex-wrap gap-3 small text-muted">
                                         <div th:text="${files.size()} + ' verknüpfte Dateien'"></div>
                                     </div>
@@ -153,8 +57,8 @@
                                     >
                                         <p class="mb-2">Ziehe Dateien hierher oder</p>
                                         <button id="browse-btn" class="btn btn-info">Durchsuchen</button>
-                                        <input type="text" class="d-none" name="target" id="target" th:value="${person.getId()}">
-                                        <input type="text" class="d-none" name="type" id="type" th:value="${fileType}">
+                                        <input type="hidden" class="d-none" name="target" id="target" th:value="${person.getId()}">
+                                        <input type="hidden" class="d-none" name="type" id="type" value="OTHER">
                                         <input
                                                 type="file"
                                                 id="file-input"
@@ -171,10 +75,11 @@
                                         <tr>
                                             <th>Nummer</th>
                                             <th>Name</th>
-                                            <th>Erstellt am</th>
-                                            <th>Letztes Update</th>
-                                            <th>Erstellt von</th>
-                                            <th>Datei-Typ</th>
+                                            <th>Hochgeladen am</th>
+                                            <th>Hinzugefügt von</th>
+                                            <th>Schlagworte</th>
+                                            <th>Leserecht</th>
+                                            <th>Aktion</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -189,9 +94,12 @@
                                                 </a>
                                             </td>
                                             <td th:text="${file.getDate().getGermanDate()}"></td>
-                                            <td th:text="${file.getLastUpdate().getGermanDate()}"></td>
                                             <td th:text="${personHelper.getName(file.getOwner())}"></td>
-                                            <td th:text="${file.getType()}"></td>
+                                            <td></td>
+                                            <td>
+                                                <input class="form-check-input" type="checkbox" id="check1" name="option1" value="something" checked>
+                                            </td>
+                                            <td></td>
                                         </tr>
                                         </tbody>
                                     </table>

@@ -8,11 +8,10 @@
     <div id="layoutSidenav_content">
         <main>
 
-            <div th:replace="~{person/fragments/personFragments :: header (${person})}"></div>
+            <div th:replace="~{person/fragments/personFragments :: header (${person.getName()})}"></div>
             <div class="container-fluid px-4">
 
-                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person})}"></div>
-
+                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person.getId()})}"></div>
                 <div class="card card-limit-height h-100">
                     <div class="card-header">
                         <div class="d-flex align-items-center justify-content-between">
@@ -43,8 +42,8 @@
                                               class="mdi mdi-account-alert text-danger"></span>
                                     </h5>
                                     <div class="d-flex flex-wrap gap-3 small text-muted">
-                                        <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
-                                            10.04.2025
+                                        <div>Letztes Update:
+                                            <span th:text="${person.getLastUpdate().getGermanTime()}"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -52,30 +51,46 @@
                         </div>
                     </div>
                     <div class="card-body clamp-description">
-                        <h5 class="card-title">Notfallkontakte</h5>
-                        <table class="table table-sm table-hover">
-                            <thead>
-                            <tr>
-                                <th>Vorname</th>
-                                <th>Nachname</th>
-                                <th>Typ</th>
-                                <th>Telefon</th>
-                                <th>E-Mail</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="contact : ${contacts}">
-                                <td th:text="${contact.getFirstName()}"></td>
-                                <td th:text="${contact.getLastName()}"></td>
-                                <td th:text="${contact.getType()}"></td>
-                                <td th:text="${contact.getPhoneNumber()}"></td>
-                                <td th:text="${contact.getMail()}"></td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        <div class="modal-body">
+
+                            <div class="row">
+                                <div class="col-xl-4 col-12">
+                                    <h4>Status</h4>
+
+                                    <form method="post" action="/personal/state" id="stateForm">
+                                        <input type="hidden" name="id" th:value="${person.id}" />
+                                        <div class="d-flex flex-wrap">
+                                            <div class="form-check m-1">
+                                                <input type="radio" class="form-check-input" id="radio1" name="state"
+                                                       value="active"
+                                                       th:checked="${person.isActive()}"
+                                                       onchange="document.getElementById('stateForm').submit();">
+                                                <label class="form-check-label" for="radio1">Die Person ist aktive
+                                                    Messdiener*in.</label>
+                                            </div>
+                                            <div class="form-check m-1">
+                                                <input type="radio" class="form-check-input" id="radio2" name="state"
+                                                       value="inactive"
+                                                       th:checked="!${person.isActive()}"
+                                                       onchange="document.getElementById('stateForm').submit();">
+                                                <label class="form-check-label" for="radio2">Die Person ist nicht
+                                                    aktiv.</label>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    <p>Eine aktive Person kann sich bei der Anwendung anmelden und alle verfügbaren
+                                        Funktionen basierend seiner Rollen und aktiven Modulen innerhalb der Anwendung
+                                        benutzen. Eine inaktive Person kann sich nicht bei der Anwendung anmelden, d.h.
+                                        diese auch nicht Nutzen. Die Daten von Inaktiven Benutzer werden nach einem
+                                        Monat
+                                        gelöscht.</p>
+
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                 </div>
-
 
             </div>
 
@@ -85,5 +100,4 @@
 </div>
 <div th:insert="~{fragments :: script}"></div>
 </body>
-
 </html>

@@ -55,6 +55,7 @@ public class HomepageController {
     @GetMapping("/")
     public String index(HttpSession httpSession, Model model) throws SQLException {
         model.addAttribute("articles", articleService.getArticlesByType(ArticleType.BLOG, ArticleState.PUBLISHED));
+        model.addAttribute("events", eventService.getEvents());
         return "public/index";
     }
 
@@ -89,8 +90,8 @@ public class HomepageController {
         model.addAttribute("article", articleService.getArticleById(id).orElse(Article.empty()));
         model.addAttribute("state", state.orElse("null"));
 
-        String type = t.orElse("application");
-        if(type.equals("application")) {
+        String type = t.orElse("event");
+        if(type.equals("event")) {
             model.addAttribute("event", eventService.getEventById(id).orElseThrow());
             model.addAttribute("components", eventApplicationService.getComponents(id));
             return "public/pages/event";

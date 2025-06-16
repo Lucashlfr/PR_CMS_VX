@@ -31,11 +31,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,9 +40,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,8 +75,8 @@ public class PersonManagementController {
     @GetMapping("/personal")
     public String messdienerList(HttpSession httpSession, Model model, @RequestParam("q") Optional<String> q, @RequestParam("id") Optional<String> id,
                                  @RequestParam("s") Optional<String> s, @RequestParam("statusState") Optional<StatusState> statusState,
-                                 @RequestParam("file")Optional<String> fileType,
-                                 @RequestParam("startDate")Optional<String> startDateS,  @RequestParam("endDate")Optional<String> endDateS) throws SQLException {
+                                 @RequestParam("file") Optional<String> fileType,
+                                 @RequestParam("startDate") Optional<String> startDateS, @RequestParam("endDate") Optional<String> endDateS) throws SQLException {
 
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
@@ -107,9 +100,6 @@ public class PersonManagementController {
         model.addAttribute("personHelper", personHelper);
         model.addAttribute("step", step);
 
-        FileType fileTypeE = fileType.map(FileType::valueOf).orElse(FileType.NULL);
-        List<StorageFile> files = storageService.getFiles(user.getId(), fileTypeE);
-
         if (query.equals("profil")) {
             UUID personUUID = UUID.fromString(idS);
             Person person = personService.getPersonById(personUUID).orElseThrow();
@@ -131,11 +121,11 @@ public class PersonManagementController {
             switch (step) {
                 case "overview" ->
                         liturgieHelper.extractedLoadMethod(model, startDateS, endDateS, person, Optional.of(person));
-                case "basisdata" -> {
-                    return "person/interface/personInterfaceBasisData";
+                case "contact" -> {
+                    return "person/interface/personInterfaceContact";
                 }
                 case "documents" -> {
-                    model.addAttribute("fileType", fileTypeE);
+                    List<StorageFile> files = storageService.getFiles(person.getId());
                     model.addAttribute("files", files);
                     return "person/interface/personInterfaceDocuments";
                 }
@@ -143,41 +133,47 @@ public class PersonManagementController {
                     liturgieHelper.extractedLoadMethod(model, startDateS, endDateS, person, Optional.of(person));
                     return "person/interface/personInterfaceLiturgy";
                 }
-                case "emergency" -> {
-                    return "person/interface/personInterfaceEmergency";
-                }
-                case "connection" -> {
-                    return "person/interface/personInterfaceConnections";
-                }
-                case "workflows" -> {
-                    return "person/interface/personInterfaceWorkflows";
-                }
                 case "flags" -> {
                     return "person/interface/personInterfaceFlags";
                 }
+
+                case "settings" -> {
+                    return "person/interface/personInterfaceSettings";
+                }
+
                 default -> throw new IllegalStateException("Unknown step: " + step);
             }
 
             return "person/interface/personInterfaceOverview";
         }
-        step = s.orElse("1");
+        step = s.orElse("overview");
         model.addAttribute("step", step);
         model.addAttribute("htmlClasses", new HTMLClasses());
 
         List<PersonOverviewDTO> persons = new ArrayList<>();
         switch (step) {
-            case "1":
+            case "principal" -> persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), tenantId);
+            case "tenant" -> persons = personService.getActiveMessdienerByTenantDTO(tenantId);
+            case "create" -> {
+
+            }
+
+            case "overview" -> {
                 persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), tenantId);
-                break;
-            case "2":
-                persons = personService.getActiveMessdienerByTenantDTO(tenantId);
-                break;
-            default:
-                break;
+                model.addAttribute("persons", (List<PersonOverviewDTO>) persons);
+                return "person/list/overview";
+            }
+
+            case "privacy" -> {
+                model.addAttribute("privacyPolicies", privacyService.getAll());
+                return "person/list/privacyOverview";
+            }
+
+            default -> throw new IllegalStateException("Unknown step: " + step);
         }
         model.addAttribute("persons", persons);
 
-        return "person/personOverview";
+        return "person/list/personOverview";
 
     }
 
@@ -191,7 +187,7 @@ public class PersonManagementController {
                                      @RequestParam("mobile") String mobile, @RequestParam("accessionDate") Optional<String> accessionDateE,
                                      @RequestParam("exitDate") Optional<String> exitDateE, @RequestParam("street") String street,
                                      @RequestParam("houseNumber") String houseNumber, @RequestParam("postalCode") String postalCode,
-                                     @RequestParam("city") String city,  @RequestParam("iban") String iban,
+                                     @RequestParam("city") String city, @RequestParam("iban") String iban,
                                      @RequestParam("bic") String bic, @RequestParam("bank") String bank,
                                      @RequestParam("accountHolder") String accountHolder) throws SQLException {
 
@@ -224,7 +220,7 @@ public class PersonManagementController {
 
         personService.updatePerson(person);
 
-        return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK +"&s=basisdata");
+        return new RedirectView("/personal?q=profil&id=" + person.getId() + "&statusState=" + StatusState.EDIT_OK + "&s=contact");
 
     }
 
@@ -232,7 +228,7 @@ public class PersonManagementController {
     public RedirectView createConnection(@RequestParam("host") UUID host, @RequestParam("sub") UUID sub, @RequestParam("type") String type) throws SQLException {
         PersonConnection personConnection = new PersonConnection(UUID.randomUUID(), host, sub, PersonAttributes.Connection.valueOf(type));
         personConnectionService.createConnection(personConnection);
-        return new RedirectView("/personal?q=profil&s=2&id=" + host);
+        return new RedirectView("/personal?q=profil&s=contact&id=" + host);
     }
 
     @PostMapping("/personal/user/update")
@@ -270,18 +266,18 @@ public class PersonManagementController {
 
 
         model.addAttribute("privacyPolicies", privacyService.getAll());
-        return "person/privacyOverview";
+        return "person/list/privacyOverview";
     }
 
 
     @GetMapping("/personal/connection/delete")
-    public RedirectView deleteConnection(@RequestParam("id") UUID id, @RequestParam("p")UUID p) throws SQLException {
+    public RedirectView deleteConnection(@RequestParam("id") UUID id, @RequestParam("p") UUID p) throws SQLException {
         personConnectionService.deleteConnection(id);
-        return new  RedirectView("/personal?q=profil&id=" + p + "&s=connection");
+        return new RedirectView("/personal?q=profil&id=" + p + "&s=connection");
     }
 
     @PostMapping("/personal/flag")
-    public RedirectView flag(@RequestParam("personId")UUID personId, @RequestParam("id") UUID id, @RequestParam("flagDetails")String flagDetails, @RequestParam("additionalInformation")String additionalInformation, @RequestParam("flagDate")String flagDateE) throws SQLException {
+    public RedirectView flag(@RequestParam("personId") UUID personId, @RequestParam("id") UUID id, @RequestParam("flagDetails") String flagDetails, @RequestParam("additionalInformation") String additionalInformation, @RequestParam("flagDate") String flagDateE) throws SQLException {
 
         PersonFlag personFlag = personFlagService.getFlag(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Flag not found"));
         personFlag.setFlagDetails(flagDetails);

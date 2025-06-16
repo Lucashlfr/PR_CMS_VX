@@ -162,17 +162,21 @@
                 </a>
 
                 <div th:if="${session.fRank >= 1}">
-                <div class="sidenav-menu-heading">Organisation</div>
+                    <div class="sidenav-menu-heading">Organisation</div>
                     <a class="nav-link" href="/personal"><div class="nav-link-icon"><i data-feather="user"></i></div>Personen</a>
                     <a class="nav-link" href="/liturgie"><div class="nav-link-icon"><i data-feather="list"></i></div>Gottesdienste</a>
                     <a class="nav-link" href="/event"><div class="nav-link-icon"><i data-feather="calendar"></i></div>Kalender</a>
                     <a class="nav-link" href="/workflow"><div class="nav-link-icon"><i data-feather="zap"></i></div>Workflows</a>
                     <a class="nav-link" href="/finance"><div class="nav-link-icon"><i data-feather="layout"></i></div>Finanzen</a>
-                    <a class="nav-link" href="/guard"><div class="nav-link-icon"><i data-feather="shield"></i></div>HildeGuard</a>
+                </div>
+
+                <div th:if="${session.fRank >= 3}">
+                    <div class="sidenav-menu-heading">Homepage</div>
                     <a class="nav-link" href="/homepage"><div class="nav-link-icon"><i data-feather="layers"></i></div>Homepage</a>
                     <a class="nav-link" href="/cloud"><div class="nav-link-icon"><i data-feather="upload-cloud"></i></div>Cloud</a>
-
                 </div>
+
+
             </div>
         </div>
         <!-- Sidenav Footer-->

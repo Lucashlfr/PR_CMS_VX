@@ -8,10 +8,10 @@
     <div id="layoutSidenav_content">
         <main>
 
-            <div th:replace="~{person/fragments/personFragments :: header (${person})}"></div>
+            <div th:replace="~{person/fragments/personFragments :: header (${person.getName()})}"></div>
             <div class="container-fluid px-4">
 
-                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person})}"></div>
+                <div th:replace="~{person/fragments/personFragments :: nav(${step}, ${person.getId()})}"></div>
 
                 <div class="card card-limit-height">
                     <div class="card-header">

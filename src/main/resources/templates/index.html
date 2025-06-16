@@ -2,173 +2,29 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
 <head th:insert="~{fragments :: html_head}"></head>
 
-<body class="nav-fixed bg-img-cover" th:style="|background-image: url('@{/img/cms_background.webp}')|">
+<body class="nav-fixed sticky-top"
+      th:style="|background-image: url('@{/img/cms_background.webp}'); background-attachment: fixed; background-size: cover; background-repeat: no-repeat; background-position: center;|">
 <nav th:insert="~{fragments :: topnav}"></nav>
 <div id="layoutSidenav">
     <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
 
         <main>
-            <div class="container p-4 mt-4 overlay overlay-40 rounded-3">
+            <div class="container p-4 mt-4">
 
                 <div class="card shadow-none mb-4 d-flex align-items-center" style="background-color: #3A557C">
                     <img th:src="@{/img/cms_logo_white.png}" class="img-fluid " alt="...">
                 </div>
 
-                <div class="d-flex align-items-center mb-3">
-                    <div class="avatar me-3">
-                        <img class="avatar-img img-fluid" src="/dist/assets/img/demo/user-placeholder.svg" alt=""/>
-                    </div>
-                    <h1 class="m-0 text-white z-1">Herzlich Willkommen, xx</h1>
-                </div>
-
-                <div class="row align-items-stretch">
-                    <div class="col-lg-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header">Posteingang</div>
-                            <div class="card-body">
-                                <div class="list-group">
-                                    <!-- 1. Item: Icon + Title + Subtitle -->
-                                    <div class="list-group-item d-flex align-items-start gap-3">
-                                        <!-- roter Kreis mit Icon -->
-                                        <span class="bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center"
-                                              style="width:2rem; height:2rem;">
-                                    <i data-feather="user"></i>
-                                </span>
-                                        <!-- Text-Container -->
-                                        <div class="flex-grow-1">
-                                            <a class="fw-bold">
-                                                Die Abwesenheitsanfrage von Sabrina Spelmeyer steht noch aus
-                                            </a><br>
-                                            <span class="text-muted">
-                                        Abwesenheit &middot; 22. Mai 2025
-                                    </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-header">Ereignisse</div>
-                            <div class="card-body bg-white">
-                                <!-- Einzelner Event-Eintrag -->
-                                <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-red-soft">
-                                    <div class="d-flex align-items-center">
-                                        <span class="d-block me-3"
-                                              style="width:4px; height:48px; background-color:#dc3545; border-radius:2px;"></span>
-                                        <div>
-                                            <h3 class="fw-bold mb-n2">Gottesdienst</h3>
-                                            <small class="text-muted">17:17</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <h1 class="mb-n3 text-white z-1">Heute bei Messdiener St. Georg Knittelsheim:</h1>
-                <div class="row mt-4 gx-3">
-                    <div class="col-md-4">
-                        <div class="card position-relative overflow-hidden border-0 text-center">
-                            <!-- Header-Hintergrund -->
-                            <div class="bg-light" style="height:120px;"></div>
-                            <!-- Avatar kreisrund und überlappt -->
-                            <img src="/dist/assets/img/demo/user-placeholder.svg"
-                                 class="rounded-circle border border-white position-absolute top-0 start-50 translate-middle"
-                                 style="width:72px; height:72px; margin-top:60px;"
-                                 alt="Avatar">
-                            <!-- Card-Body mit Abstand nach oben für den Avatar -->
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="fw-bold mb-0 mt-0">Geburtstag Lucas Helfer</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-red mb-0 mt-0">31.10</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card position-relative overflow-hidden border-0 text-center">
-                            <!-- Header-Hintergrund -->
-                            <div class="bg-light" style="height:120px;"></div>
-                            <!-- Avatar kreisrund und überlappt -->
-                            <img src="/dist/assets/img/demo/user-placeholder.svg"
-                                 class="rounded-circle border border-white position-absolute top-0 start-50 translate-middle"
-                                 style="width:72px; height:72px; margin-top:60px;"
-                                 alt="Avatar">
-                            <!-- Card-Body mit Abstand nach oben für den Avatar -->
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="fw-bold mb-0 mt-0">Geburtstag Lucas Helfer</span>
-                                    </div>
-                                    <div>
-                                        <span class="text-red mb-0 mt-0">31.10</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <br>
-                <div class="card mb-4">
-                    <!-- Card-Body mit Header und Content -->
-                    <div class="card-body">
-                        <!-- Avatar + Name/Meta -->
-                        <div class="d-flex align-items-center mb-3">
-                            <!-- Avatar mit Initialen -->
-                            <div
-                                    class="rounded-circle bg-info text-white d-flex
-               align-items-center justify-content-center me-3"
-                                    style="width:40px; height:40px;"
-                            >
-                                LH
-                            </div>
-                            <!-- Name, Kanal & Zeit -->
-                            <div>
-                                <span class="fw-bold">Lucas Helfer</span>
-                                <small class="text-muted">in Unternehmensankündigungen • 5 hours ago</small>
-                            </div>
-                        </div>
-
-                        <!-- Titel/Überschrift -->
-                        <h5 class="card-title mb-2">
-                            👏 <span class="fw-bold">Glückwunsch, gute Arbeit!</span>
-                        </h5>
-                        <!-- Freier Text -->
-                        <p class="card-text mb-0">Test</p>
-                    </div>
-
-                    <!-- Card-Footer mit Stats & Actions -->
-                    <div class="card-footer bg-white border-top-0 d-flex
-              justify-content-between align-items-center">
-                        <!-- Statistik -->
-                        <small class="text-muted">1 Besuch • 0 Kommentare</small>
-
-                        <!-- Action-Buttons -->
-                        <div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary me-2">
-                                <i data-feather="message-circle"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary">
-                                <i data-feather="smile"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
 
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
 </div>
+
+
+
 <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 <div th:insert="~{fragments :: script}"></div>
 <link th:href="@{/css/main.css}" rel="stylesheet"/>

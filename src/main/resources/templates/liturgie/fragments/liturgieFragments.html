@@ -6,9 +6,13 @@
 <div th:fragment="nav (q)">
     <nav class="nav nav-pills nav-fill mb-3">
         <a th:class="${q == 'list'} ? 'nav-link active bg-pink' : 'nav-link text-pink'"
-           th:href="@{/liturgie(q='list')}">Übersicht</a>
+           th:href="@{/liturgie(q='list')}">
+            <i class="mdi mdi-home me-1"></i>
+            Übersicht</a>
         <a th:class="${q == 'request'} ? 'nav-link active bg-pink' : 'nav-link text-pink'"
-           th:href="@{/liturgie(q='request')}">Abfragen</a>
+           th:href="@{/liturgie(q='request')}">
+            <i class="mdi mdi-account-question me-1"></i>
+            Abfragen</a>
     </nav>
 </div>
 </html>

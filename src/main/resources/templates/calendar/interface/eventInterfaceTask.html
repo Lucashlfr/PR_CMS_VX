@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div th:insert="~{fragments :: sidebar}" id="layoutSidenav_nav"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-yellow mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title" th:text="'Termine / ' + ${event.getTitle()}">
+                                </h1>
+                                <div class="page-header-subtitle">Plane deine Aktionen für deine Messdienergruppe.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-fluid px-4 mt-4">
+
+                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
+
+
+                <div class="d-grid mt-3 mb-3">
+                    <a class="btn btn-yellow btn-sm" th:href="'/task/create?link=' + ${event.getEventId()}">Neuer Task anlegen</a>
+                </div>
+
+                <div class="row g-4">
+
+                    <!-- In Progress -->
+                    <div class="col-md-3 d-flex flex-column">
+                        <div class="bg-white rounded shadow p-3 kanban-wrapper">
+                            <h5 class="text-warning border-bottom pb-2 mb-3" th:text="'Backlog'"></h5>
+                            <div class="kanban-column">
+                                <a class="card shadow-sm mb-3 lift"
+                                   th:each="task : ${tasks}"
+                                   th:if="${task.getTaskState().toString().equals('REDIRECTED')}"
+                                   th:href="'/event?q=info&s=tasks&id=' + ${event.getEventId()} + '&t=' + ${task.getTaskId()}">
+                                    <div class="card-body position-relative">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" th:text="${task.getTitle()}"></h6>
+                                            <span class="badge bg-danger bg-opacity-25 text-danger"
+                                                  th:text="${task.getPriority()}"></span>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <div><i class="me-1 text-primary" data-feather="corner-down-right"></i>8
+                                                Comments
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PROGRESS -->
+                    <div class="col-md-3 d-flex flex-column">
+                        <div class="bg-white rounded shadow p-3 kanban-wrapper">
+                            <h5 class="text-primary border-bottom pb-2 mb-3" th:text="'PROGRESS'">></h5>
+                            <div class="kanban-column">
+                                <a class="card shadow-sm mb-3 lift"
+                                   th:each="task : ${tasks}"
+                                   th:if="${task.getTaskState().toString().equals('PROGRESS')}"
+                                   th:href="'/event?q=info&s=tasks&id=' + ${event.getEventId()} + '&t=' + ${task.getTaskId()}">
+                                    <div class="card-body position-relative">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" th:text="${task.getTitle()}"></h6>
+                                            <span class="badge bg-danger bg-opacity-25 text-danger"
+                                                  th:text="${task.getPriority()}"></span>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <div><i class="me-1 text-primary" data-feather="corner-down-right"></i>8
+                                                Comments
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PROGRESS -->
+                    <div class="col-md-3 d-flex flex-column">
+                        <div class="bg-white rounded shadow p-3 kanban-wrapper">
+                            <h5 class="text-primary border-bottom pb-2 mb-3" th:text="'WAITING'">></h5>
+                            <div class="kanban-column">
+                                <a class="card shadow-sm mb-3 lift"
+                                   th:each="task : ${tasks}"
+                                   th:if="${task.getTaskState().toString().equals('WAITING')}"
+                                   th:href="'/event?q=info&s=tasks&id=' + ${event.getEventId()} + '&t=' + ${task.getTaskId()}">
+                                    <div class="card-body position-relative">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" th:text="${task.getTitle()}"></h6>
+                                            <span class="badge bg-danger bg-opacity-25 text-danger"
+                                                  th:text="${task.getPriority()}"></span>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <div><i class="me-1 text-primary" data-feather="corner-down-right"></i>8
+                                                Comments
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Done -->
+                    <div class="col-md-3 d-flex flex-column">
+                        <div class="bg-white rounded shadow p-3 kanban-wrapper">
+                            <h5 class="text-success border-bottom pb-2 mb-3" th:text="'Erledigt'"></h5>
+                            <div class="kanban-column">
+                                <a class="card shadow-sm mb-3 lift"
+                                   th:each="task : ${tasks}"
+                                   th:if="${task.getTaskState().toString().equals('COMPLETED')}"
+                                   th:href="'/event?q=info&s=tasks&id=' + ${event.getEventId()} + '&t=' + ${task.getTaskId()}">
+                                    <div class="card-body position-relative">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="fw-bold mb-0" th:text="${task.getTitle()}"></h6>
+                                            <span class="badge bg-danger bg-opacity-25 text-danger"
+                                                  th:text="${task.getPriority()}"></span>
+                                        </div>
+                                        <div class="d-flex gap-3 text-muted small">
+                                            <div><i class="me-1 text-primary" data-feather="corner-down-right"></i>8
+                                                Comments
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>

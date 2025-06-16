@@ -22,208 +22,260 @@
                 </div>
             </header>
             <!-- Main page content-->
-            <div class="container-fluid px-4 mt-4">
+            <form th:action="@{/event/edit}" th:method="post">
+                <input type="hidden" name="id" th:value="${event.getEventId()}">
+                <div class="container-fluid px-4 mt-4">
 
-                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
+                    <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
 
-                <div class="card card-limit-height h-100">
-                    <div class="card-header">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-start gap-3">
-                                <!-- Icon -->
-                                <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
-                                     style="width: 48px; height: 48px;">
-                                    <i data-feather="framer" class="text-success fs-4"></i>
-                                </div>
+                    <div class="card card-limit-height h-100">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-start gap-3">
+                                    <!-- Icon -->
+                                    <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                         style="width: 48px; height: 48px;">
+                                        <i data-feather="framer" class="text-success fs-4"></i>
+                                    </div>
 
-                                <!-- Text content -->
-                                <div>
-                                    <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
-                                    <div class="d-flex flex-wrap gap-3 small text-muted">
-                                        <div><span
-                                                th:class="'badge ' + ${event.getState().getColors()}"
-                                                th:text="${event.getState().getLabel()}"></span></div>
-                                        <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
-                                            10.04.2025
+                                    <!-- Text content -->
+                                    <div>
+                                        <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
+                                        <div class="d-flex flex-wrap gap-3 small text-muted">
+                                            <div><span
+                                                    th:class="'badge ' + ${event.getState().getColors()}"
+                                                    th:text="${event.getState().getLabel()}"></span></div>
+                                            <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
+                                                10.04.2025
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div>
-                                <button class="btn btn-yellow btn-sm mdi mdi-table-edit" data-bs-toggle="modal"
-                                        data-bs-target="#zi"></button>
+                                <div>
+                                    <button class="btn btn-yellow btn-sm mdi mdi-table-edit" data-bs-toggle="modal"
+                                            data-bs-target="#zi"></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-body clamp-description">
-                        <div class="row">
-                            <div class="col-xl-4 col-12">
-                                <span class="fw-bold">Bild:</span><br>
-                                <img th:src="${event.getImgUrl()}" alt="..." class="card-img" th:unless="${event.getImgUrl().isEmpty()}">
+                        <div class="card-body clamp-description">
+
+                            <div class="row">
+                                <div class="col-xl-3">
+                                    <span class="fw-bold disabled">Aktionsinformationen</span>
+                                    <div class="table-responsive table-responsive-sm">
+                                        <table class="table table-sm table-borderless">
+                                            <tbody>
+                                            <tr>
+                                                <td>System-Id</td>
+                                                <td th:text="'AK-'+${event.getNumber()}"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Melde Datum</td>
+                                                <td th:text="${event.getCreationDate().getGermanTime()}"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Status</td>
+                                                <td th:text="${event.getState().getLabel()}"
+                                                    th:class="${event.getState().getTextColor()}"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Wiedervorlage</td>
+                                                <td>
+                                                <span th:unless="${event.getResubmission().getGermanDate().equals('01.01.1970')}"
+                                                      th:text="${event.getResubmission().getGermanDate()}"></span>
+                                                </td>
+                                            </tr>
+
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3">
+                                    <span class="fw-bold disabled">Ansprechpersonen</span>
+                                    <div class="table-responsive table-responsive-sm">
+                                        <table class="table table-sm table-borderless">
+                                            <tbody>
+                                            <tr>
+                                                <td>Aktueller Bearbeiter</td>
+                                                <td th:text="${name1}"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Erstellt von</td>
+                                                <td th:text="${name2}"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Verantwortliche Person</td>
+                                                <td th:text="${name3}"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>PV Beauftragte*r</td>
+                                                <td th:text="${name4}"></td>
+                                            </tr>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                                <div class="col-xl-3">
+                                    <span class="fw-bold disabled">Timeline & Ort</span>
+                                    <div class="table-responsive table-responsive-sm">
+                                        <table class="table table-sm table-borderless">
+                                            <tbody>
+                                            <tr>
+                                                <td>Start-Datum</td>
+                                                <td th:text="${event.getStartDate().getGermanTime()}"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Enddatum</td>
+                                                <td th:text="${event.getEndDate().getGermanTime()}"></td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Anmeldeschluss</td>
+                                                <td th:text="${event.getDeadline().getGermanDate()}"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Ort</td>
+                                                <td th:text="${event.getLocation()}"></td>
+                                            </tr>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-xl-3">
+                                    <span class="fw-bold disabled">Sonstiges</span>
+                                    <div class="table-responsive table-responsive-sm">
+                                        <table class="table table-sm table-borderless">
+                                            <tbody>
+                                            <tr>
+                                                <td>Angemeldete Personen</td>
+                                                <td>
+                                                    xx
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Beschreibungen</td>
+                                                <td>
+                                                    x
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td>Abstimmung mit PRT</td>
+                                                <td>
+                                                    Ausstehend
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Risiko-Index</td>
+                                                <td th:text="${event.getRiskIndex()}"></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="col-xl-4 col-12">
-                                <span class="fw-bold">Beschreibung:</span><br>
-                                <div th:text="${event.getDescription()}" th:unless="${event.getDescription().isEmpty()}"></div>
+                            <div class="row align-items-center">
+                                <label for="titel" class="col-sm-1 col-form-label">Titel</label>
+                                <div class="col-sm-11">
+                                    <input type="text" class="form-control form-control-sm" id="titel" name="titel"
+                                           required
+                                           th:value="${event.getTitle()}">
+                                </div>
                             </div>
 
-                            <div class="col-xl-4 col-12">
-                                <table class="table text-nowrap align-middle">
-                                    <tbody>
-                                    <tr>
-                                        <td>
-                                    <span class="d-flex align-items-center">
-                                        <i data-feather="check-circle" class="me-2 text-info"></i> Status
-                                    </span>
-                                        </td>
-                                        <td>:</td>
-                                        <td>
-                                            <span th:class="${event.getState().getColors()}"
-                                                  th:text="${event.getState().getLabel()}"></span>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                    <span class="d-flex align-items-center">
-                                        <i data-feather="calendar" class="me-2 text-primary"></i> Timeline
-                                    </span>
-                                        </td>
-                                        <td>:</td>
-                                        <td th:text="${event.getStartDate().getGermanLongDate()} + ' - ' + ${event.getEndDate().getGermanLongDate()}"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                    <span class="d-flex align-items-center">
-                                        <i data-feather="user" class="me-2 text-primary"></i> Manager
-                                    </span>
-                                        </td>
-                                        <td>:</td>
-                                        <td th:text="${personHelper.getName(event.getManagerId())}"></td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                    <span class="d-flex align-items-center">
-                                        <i data-feather="map-pin" class="me-2 text-primary"></i> Ort
-                                    </span>
-                                        </td>
-                                        <td>:</td>
-                                        <td th:text="${event.getLocation()}"></td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>
-                                    <span class="d-flex align-items-center">
-                                        <i data-feather="user" class="me-2 text-primary"></i> Risikoanalyse
-                                    </span>
-                                        </td>
-                                        <td>:</td>
-                                        <td th:text="${event.getRinkIndex()}"></td>
-                                    </tr>
-
-                                    </tbody>
-                                </table>
+                            <div class="row mb-3 align-items-start">
+                                <label for="beschreibung" class="col-sm-1 col-form-label">Beschreibung</label>
+                                <div class="col-sm-11">
+                            <textarea class="form-control form-control-sm" id="beschreibung" name="beschreibung"
+                                      rows="8"
+                                      th:text="${event.getDescription()}"></textarea>
+                                </div>
                             </div>
 
+                            <div class="row mb-3 align-items-start">
+                                <label for="beschreibung" class="col-sm-1 col-form-label">Titelbild</label>
+                                <div class="col-sm-11">
+                                    <img th:src="${event.getImgUrl()}" alt="..." class="card-img img-fluid w-25 h-25"
+                                         th:unless="${event.getImgUrl().isEmpty()}">
+                                </div>
+                            </div>
 
+                            <div class="row align-items-center">
+                                <label for="eventType" class="col-sm-1 col-form-label">Event Type</label>
+                                <div class="col-sm-11">
+                                    <select class="form-select form-select-sm" id="eventType" name="eventType">
+                                        <option th:each="t:${types}" th:text="${t.label}" th:value="${t}"
+                                                th:selected="${t.name() == event.getType().name()}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-center">
+                                <label for="eventState" class="col-sm-1 col-form-label">Event Status</label>
+                                <div class="col-sm-11">
+                                    <select class="form-select form-select-sm" id="eventState" name="eventState">
+                                        <option th:each="s:${states}" th:text="${s.label}" th:value="${s}"
+                                                th:selected="${s.name() == event.getState().name()}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-center">
+                                <label for="targetgroup" class="col-sm-1 col-form-label">Zielgruppe</label>
+                                <div class="col-sm-11">
+                                    <select class="form-select form-select-sm" id="targetgroup" name="targetgroup">
+                                        <option value="1" th:selected="${event.getTargetGroup().equals('1')}">Messdiener
+                                            der
+                                            eigenen Ortsgruppe
+                                        </option>
+                                        <option value="2" th:selected="${event.getTargetGroup().equals('2')}">Messdiener
+                                            der
+                                            eigenen Ortsgruppe + 1
+                                        </option>
+                                        <option value="3" th:selected="${event.getTargetGroup().equals('3')}">Messdiener
+                                            der
+                                            Pfarrei / Leitung der Ortsgruppe
+                                        </option>
+                                        <option value="4" th:selected="${event.getTargetGroup().equals('4')}">Messdiener
+                                            der
+                                            Pfarrei
+                                        </option>
+                                        <option value="5" th:selected="${event.getTargetGroup().equals('5')}">Offen für
+                                            alle
+                                        </option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex gap-3 ">
+                                <button type="submit" class="btn btn-yellow btn-sm btn-block flex-fill">Speichern
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </main>
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
 </div>
 <div th:insert="~{fragments :: script}"></div>
 </body>
-
-<form th:action="@{/event/edit}" th:method="post">
-    <input type="hidden" name="id" th:value="${event.getEventId()}">
-
-    <div class="modal fade" id="zi">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title text-yellow">Zusatzinformationen bearbeiten</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <!-- Modal Body -->
-                <div class="modal-body">
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="titel" class="col-sm-2 col-form-label">Titel</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="titel" name="titel" required
-                                   th:value="${event.getTitle()}">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-start">
-                        <label for="beschreibung" class="col-sm-2 col-form-label">Beschreibung</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control" id="beschreibung" name="beschreibung" rows="8"
-                                      th:text="${event.getDescription()}"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="eventType" class="col-sm-2 col-form-label">Event Type</label>
-                        <div class="col-sm-10">
-                            <select class="form-select" id="eventType" name="eventType">
-                                <option th:each="t:${types}" th:text="${t.label}" th:value="${t}"
-                                        th:selected="${t.name() == event.getType().name()}"></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="eventState" class="col-sm-2 col-form-label">Event Status</label>
-                        <div class="col-sm-10">
-                            <select class="form-select" id="eventState" name="eventState">
-                                <option th:each="s:${states}" th:text="${s.label}" th:value="${s}"
-                                        th:selected="${s.name() == event.getState().name()}"></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="targetgroup" class="col-sm-2 col-form-label">Zielgruppe</label>
-                        <div class="col-sm-10">
-                            <select class="form-select" id="targetgroup" name="targetgroup">
-                                <option value="1" th:selected="${event.getTargetGroup().equals('1')}">Messdiener der
-                                    eigenen Ortsgruppe
-                                </option>
-                                <option value="2" th:selected="${event.getTargetGroup().equals('2')}">Messdiener der
-                                    eigenen Ortsgruppe + 1
-                                </option>
-                                <option value="3" th:selected="${event.getTargetGroup().equals('3')}">Messdiener der
-                                    Pfarrei / Leitung der Ortsgruppe
-                                </option>
-                                <option value="4" th:selected="${event.getTargetGroup().equals('4')}">Messdiener der
-                                    Pfarrei
-                                </option>
-                                <option value="5" th:selected="${event.getTargetGroup().equals('5')}">Offen für alle
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modal Footer -->
-                <div class="modal-footer d-flex">
-                    <button class="btn btn-yellow btn-sm flex-fill m-1" type="submit">Speichern</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</form>
-<div th:insert="~{fragments :: createFile(target=${event.getEventId().toString()})}"></div>
-
 
 </html>
 <script th:src="@{/js/jquery.min.js}"></script>

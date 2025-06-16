@@ -31,7 +31,7 @@
                 <div th:replace="~{workflow/fragments/workflowFragments :: nav(${step})}"></div>
                 <style>
                     .card-body.clamp-description {
-                        overflow: scroll;
+                        overflow: auto;
                         display: -webkit-box;
                         -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
                         -webkit-box-orient: vertical;
@@ -72,7 +72,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-body clamp-description " style="overflow: scroll;">
+                            <div class="card-body clamp-description " style="overflow: auto;">
                                 <div class="chart-pie mb-4">
                                     <canvas id="myPieChart" width="100%" height="50"></canvas></div>
                                 <div class="list-group list-group-flush">
@@ -127,7 +127,7 @@
                                     <span class="spinner-border card-img"
                                           style="min-height: 200px; min-width: 200px;"></span>
                                 </div>
-                                <div class="d-none" id="content" style="overflow-y: scroll">
+                                <div class="d-none" id="content" style="overflow-y: auto">
                                     <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
                                         <thead>
                                         <tr>
