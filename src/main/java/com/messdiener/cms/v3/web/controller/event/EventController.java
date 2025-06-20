@@ -94,6 +94,7 @@ public class EventController {
             model.addAttribute("name2", personHelper.getName(event.getCreatedBy()));
             model.addAttribute("name3", personHelper.getName(event.getPrincipal()));
             model.addAttribute("name4", personHelper.getName(event.getManager()));
+            model.addAttribute("tasks", taskService.getTasksByLink(event.getEventId()));
 
             model.addAttribute("s", s.orElse("info"));
             if (s.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found");
@@ -105,7 +106,7 @@ public class EventController {
                 case "info":
                     model.addAttribute("files", files);
                     model.addAttribute("imgUtils", new ImgUtils());
-                    return "calendar/interface/eventInterfaceInterface";
+                    return "calendar/interface/eventInterfaceInfo";
                 case "timeline":
                     model.addAttribute("timelineItems", eventTimelineService.getItems(event.getEventId()));
                     return "calendar/interface/eventInterfaceTimeline";
@@ -114,7 +115,6 @@ public class EventController {
                         model.addAttribute("task", taskService.getTaskById(UUID.fromString(t.get())).orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "Task not found")));
                         return "calendar/interface/eventInterfaceTaskInterface";
                     } else {
-                        model.addAttribute("tasks", taskService.getTasksByLink(event.getEventId()));
                         return "calendar/interface/eventInterfaceTask";
                     }
                 case "files":

@@ -26,9 +26,8 @@
                 <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
 
                 <div class="row">
-
-                    <div class="col-xl-3">
-                        <div class="card">
+                    <div class="col-xl-6">
+                        <div class="card mb-3">
                             <div class="card-header">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <div class="d-flex align-items-center gap-3">
@@ -38,104 +37,146 @@
                                             <i data-feather="framer" class="text-success fs-4"></i>
                                         </div>
 
-                                        <h5 class="mb-1 fw-semibold">Stammdaten</h5>
-                                    </div>
-                                    
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 40px; height: 40px;">
-                                            <i data-feather="framer" class="text-success fs-4"></i>
-                                        </div>
-
-                                        <h5 class="mb-1 fw-semibold">Ansprechpersonen</h5>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 40px; height: 40px;">
-                                            <i data-feather="framer" class="text-success fs-4"></i>
-                                        </div>
-
-                                        <h5 class="mb-1 fw-semibold">Timeline</h5>
+                                        <h5 class="mb-1 fw-semibold">Sonstiges</h5>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-body">
-                                <ul class="list-group list-group-flush">
+                                <table class="table table-sm table-borderless">
+                                    <tbody>
+                                    <tr>
+                                        <td>System-Id</td>
+                                        <td th:text="'AK-'+${event.getNumber()}"></td>
+                                    </tr>
 
-                                    <!-- Item 1 -->
-                                    <li class="list-group-item">
+                                    <tr>
+                                        <td>Melde Datum</td>
+                                        <td th:text="${event.getCreationDate().getGermanTime()}"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Status</td>
+                                        <td th:text="${event.getState().getLabel()}"
+                                            th:class="${event.getState().getTextColor()}"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Wiedervorlage</td>
+                                        <td>
+                                                <span th:unless="${event.getResubmission().getGermanDate().equals('01.01.1970')}"
+                                                      th:text="${event.getResubmission().getGermanDate()}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Aktueller Bearbeiter</td>
+                                        <td th:text="${name1}"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Erstellt von</td>
+                                        <td th:text="${name2}"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Verantwortliche Person</td>
+                                        <td th:text="${name3}"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>PV Beauftragte*r</td>
+                                        <td th:text="${name4}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Start-Datum</td>
+                                        <td th:text="${event.getStartDate().getGermanTime()}"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Enddatum</td>
+                                        <td th:text="${event.getEndDate().getGermanTime()}"></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Anmeldeschluss</td>
+                                        <td th:text="${event.getDeadline().getGermanDate()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ort</td>
+                                        <td th:text="${event.getLocation()}"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Angemeldete Personen</td>
+                                        <td>
+                                            xx
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Beschreibungen</td>
+                                        <td>
+                                            x
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Abstimmung mit PRT</td>
+                                        <td>
+                                            Ausstehend
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Risiko-Index</td>
+                                        <td th:text="${event.getRiskIndex()}"></td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-header">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <div class="d-flex align-items-start gap-3">
-                                                <!-- Icon-Kachel -->
-                                                <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
-                                                     style="width:40px;height:40px;">
-                                                    <i data-feather="book-open" class="text-primary fs-4"></i>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <!-- Icon -->
+                                                <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                                     style="width: 40px; height: 40px;">
+                                                    <i data-feather="framer" class="text-success fs-4"></i>
                                                 </div>
 
-                                                <!-- Text -->
-                                                <div>
-                                                    <h6 class="mb-1 fw-semibold">Book Fair Event</h6>
-                                                    <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                        <span class="badge bg-primary-soft text-primary">Announcement</span>
-                                                        <span>Last update: 10 Jun 2024</span>
-                                                    </div>
-                                                </div>
+                                                <h5 class="mb-1 fw-semibold">Sonstiges</h5>
                                             </div>
-
-                                            <!-- Action-Button -->
-                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#bookFair">
-                                                <i data-feather="edit-3"></i>
-                                            </button>
                                         </div>
-                                    </li>
-                                    <li class="list-group-item">
+                                    </div>
+                                    <div class="card-body">
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card">
+                                    <div class="card-header">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <div class="d-flex align-items-start gap-3">
-                                                <!-- Icon-Kachel -->
-                                                <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
-                                                     style="width:40px;height:40px;">
-                                                    <i data-feather="book-open" class="text-primary fs-4"></i>
+                                            <div class="d-flex align-items-center gap-3">
+                                                <!-- Icon -->
+                                                <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                                     style="width: 40px; height: 40px;">
+                                                    <i data-feather="framer" class="text-success fs-4"></i>
                                                 </div>
 
-                                                <!-- Text -->
-                                                <div>
-                                                    <h6 class="mb-1 fw-semibold">Book Fair Event</h6>
-                                                    <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                        <span class="badge bg-primary-soft text-primary">Announcement</span>
-                                                        <span>Last update: 10 Jun 2024</span>
-                                                    </div>
-                                                </div>
+                                                <h5 class="mb-1 fw-semibold">Sonstiges</h5>
                                             </div>
-
-                                            <!-- Action-Button -->
-                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#bookFair">
-                                                <i data-feather="edit-3"></i>
-                                            </button>
                                         </div>
-                                    </li>
-                                </ul>
+                                    </div>
+                                    <div class="card-body">
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-3">
+                    <div class="col-xl-6">
                         <div class="card">
                             <div class="card-header">
                                 <div class="d-flex align-items-center justify-content-between">
@@ -146,15 +187,17 @@
                                             <i data-feather="framer" class="text-success fs-4"></i>
                                         </div>
 
-                                            <h5 class="mb-1 fw-semibold">Sonstiges</h5>
+                                        <h5 class="mb-1 fw-semibold">Sonstiges</h5>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="card-body">
+
                             </div>
                         </div>
                     </div>
 
                 </div>
-
             </div>
         </main>
         <footer th:insert="~{fragments :: footer}"></footer>
