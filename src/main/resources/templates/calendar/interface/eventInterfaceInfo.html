@@ -28,7 +28,7 @@
 
                     <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
 
-                    <div class="card card-limit-height h-100">
+                    <div class="card card-limit-height h-100 mb-4">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-start gap-3">
@@ -208,8 +208,10 @@
                             <div class="row mb-3 align-items-start">
                                 <label for="beschreibung" class="col-sm-1 col-form-label">Titelbild</label>
                                 <div class="col-sm-11">
-                                    <img th:src="${event.getImgUrl()}" alt="..." class="card-img img-fluid w-25 h-25"
-                                         th:unless="${event.getImgUrl().isEmpty()}">
+                                    <a data-bs-toggle="modal" data-bs-target="#img">
+                                        <img th:src="${event.getImgUrl()}" alt="..." class="card-img img-fluid w-25 h-25"
+                                             th:unless="${event.getImgUrl().isEmpty()}">
+                                    </a>
                                 </div>
                             </div>
 
@@ -268,6 +270,144 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card card-limit-height h-100 mb-4">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-start gap-3">
+                                    <!-- Icon -->
+                                    <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                         style="width: 48px; height: 48px;">
+                                        <i data-feather="framer" class="text-success fs-4"></i>
+                                    </div>
+
+                                    <!-- Text content -->
+                                    <div>
+                                        <h5 class="mb-1 fw-semibold" th:text="'Beschreibungen'"></h5>
+                                        <div class="d-flex flex-wrap gap-3 small text-muted">
+                                            <div><span
+                                                    th:class="'badge ' + ${event.getState().getColors()}"
+                                                    th:text="${event.getState().getLabel()}"></span></div>
+                                            <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
+                                                10.04.2025
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-yellow btn-sm mdi mdi-table-edit" data-bs-toggle="modal"
+                                            data-bs-target="#zi"></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Id</th>
+                                        <th>Beschreibung</th>
+                                        <th>Bearbeiter</th>
+                                        <th>Datum</th>
+                                        <th>F-Level</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td class="mdi mdi-circle text-green"></td>
+                                        <td>IN-1203</td>
+                                        <td>Neue Deadline definiert</td>
+                                        <td>Lucas Helfer</td>
+                                        <td>19.06.2025</td>
+                                        <td>2</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="mdi mdi-circle text-pink"></td>
+                                        <td>EX-9821</td>
+                                        <td>Info vom C-Haus</td>
+                                        <td>Lucas Helfer</td>
+                                        <td>19.06.2025</td>
+                                        <td>0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="mdi mdi-circle text-purple"></td>
+                                        <td>PRV-291</td>
+                                        <td>Präventionsfall erfasst</td>
+                                        <td>Lucas Helfer</td>
+                                        <td>19.06.2025</td>
+                                        <td>3</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="mdi mdi-circle text-yellow"></td>
+                                        <td>AS-2152</td>
+                                        <td>Abstimmung zu "Mittagessen"</td>
+                                        <td>Lucas Helfer</td>
+                                        <td>19.06.2025</td>
+                                        <td>1</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <ul class="list-group list-group-flush">
+
+                                <!-- Item 1 -->
+                                <li class="list-group-item">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <!-- Icon-Kachel -->
+                                            <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                                 style="width:48px;height:48px;">
+                                                <i data-feather="book-open" class="text-primary fs-4"></i>
+                                            </div>
+
+                                            <!-- Text -->
+                                            <div>
+                                                <h6 class="mb-1 fw-semibold">Book Fair Event</h6>
+                                                <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                    <span class="badge bg-primary-soft text-primary">Announcement</span>
+                                                    <span>Last update: 10 Jun 2024</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Action-Button -->
+                                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#bookFair">
+                                            <i data-feather="edit-3"></i>
+                                        </button>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div class="d-flex align-items-start gap-3">
+                                            <!-- Icon-Kachel -->
+                                            <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                                 style="width:48px;height:48px;">
+                                                <i data-feather="book-open" class="text-primary fs-4"></i>
+                                            </div>
+
+                                            <!-- Text -->
+                                            <div>
+                                                <h6 class="mb-1 fw-semibold">Book Fair Event</h6>
+                                                <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                    <span class="badge bg-primary-soft text-primary">Announcement</span>
+                                                    <span>Last update: 10 Jun 2024</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Action-Button -->
+                                        <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#bookFair">
+                                            <i data-feather="edit-3"></i>
+                                        </button>
+                                    </div>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+
                 </div>
             </form>
         </main>
@@ -276,6 +416,46 @@
 </div>
 <div th:insert="~{fragments :: script}"></div>
 </body>
+<div class="modal fade" id="img">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
 
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Bild definieren</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <table class="table table-sm table-hover">
+                    <thead>
+                    <tr>
+                        <th>Nummer</th>
+                        <th>Name</th>
+                        <th>Erstellt von</th>
+                        <th>Bild</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="file : ${files}" th:if="${imgUtils.isImageFile(file.getTitle())}">
+                        <td th:text="${file.getTag()}"></td>
+                        <td>
+                            <a th:href="'/event/img?event=' + ${event.getEventId()} + '&img=' + ${file.getId()}" th:text="${file.getTitle()}">
+                            </a>
+                        </td>
+                        <td th:text="${personHelper.getName(file.getOwner())}"></td>
+                        <td>
+                            <img alt="..." th:src="'/file?id=' + ${file.getId()}" class="img-fluid" style="max-height: 50px">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+</div>
 </html>
 <script th:src="@{/js/jquery.min.js}"></script>

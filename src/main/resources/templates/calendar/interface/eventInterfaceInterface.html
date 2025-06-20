@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div th:insert="~{fragments :: sidebar}" id="layoutSidenav_nav"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-yellow mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title" th:text="'Termine / ' + ${event.getTitle()}">
+                                </h1>
+                                <div class="page-header-subtitle">Plane deine Aktionen für deine Messdienergruppe.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+            <div class="container-fluid mt-4">
+                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
+
+                <div class="row">
+
+                    <div class="col-xl-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 40px; height: 40px;">
+                                            <i data-feather="framer" class="text-success fs-4"></i>
+                                        </div>
+
+                                        <h5 class="mb-1 fw-semibold">Stammdaten</h5>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 40px; height: 40px;">
+                                            <i data-feather="framer" class="text-success fs-4"></i>
+                                        </div>
+
+                                        <h5 class="mb-1 fw-semibold">Ansprechpersonen</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 40px; height: 40px;">
+                                            <i data-feather="framer" class="text-success fs-4"></i>
+                                        </div>
+
+                                        <h5 class="mb-1 fw-semibold">Timeline</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+
+                                    <!-- Item 1 -->
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <!-- Icon-Kachel -->
+                                                <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                                     style="width:40px;height:40px;">
+                                                    <i data-feather="book-open" class="text-primary fs-4"></i>
+                                                </div>
+
+                                                <!-- Text -->
+                                                <div>
+                                                    <h6 class="mb-1 fw-semibold">Book Fair Event</h6>
+                                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                        <span class="badge bg-primary-soft text-primary">Announcement</span>
+                                                        <span>Last update: 10 Jun 2024</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Action-Button -->
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#bookFair">
+                                                <i data-feather="edit-3"></i>
+                                            </button>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <!-- Icon-Kachel -->
+                                                <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
+                                                     style="width:40px;height:40px;">
+                                                    <i data-feather="book-open" class="text-primary fs-4"></i>
+                                                </div>
+
+                                                <!-- Text -->
+                                                <div>
+                                                    <h6 class="mb-1 fw-semibold">Book Fair Event</h6>
+                                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                        <span class="badge bg-primary-soft text-primary">Announcement</span>
+                                                        <span>Last update: 10 Jun 2024</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Action-Button -->
+                                            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#bookFair">
+                                                <i data-feather="edit-3"></i>
+                                            </button>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 40px; height: 40px;">
+                                            <i data-feather="framer" class="text-success fs-4"></i>
+                                        </div>
+
+                                            <h5 class="mb-1 fw-semibold">Sonstiges</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>

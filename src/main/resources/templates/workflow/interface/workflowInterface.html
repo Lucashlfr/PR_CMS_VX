@@ -25,23 +25,6 @@
             </header>
             <!-- Main page content-->
             <div class="container-fluid px-4 mt-4">
-                <style>
-                    .card-body.clamp-description {
-                        overflow: scroll;
-                        display: -webkit-box;
-                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
-                        -webkit-box-orient: vertical;
-                    }
-
-                    .card-limit-height {
-                        min-height: 400px;
-                    }
-
-                    .row.d-flex {
-                        align-items: stretch;
-                    }
-
-                </style>
                 <div class="row d-flex align-items-stretch">
                     <div class="col-xl-4 col-12 mb-4">
                         <div class="card card-limit-height h-100">
@@ -99,7 +82,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-body p-2" style="max-height: 250px; overflow-y: scroll;">
+                            <div class="card-body p-2">
                                 <table class="table table-sm table-hover">
                                     <tr th:each="s:${steps}">
                                         <td>

@@ -101,8 +101,11 @@ public class EventController {
 
             List<StorageFile> files = storageService.getFiles(event.getEventId(), FileType.EVENT);
             switch (s.get()) {
+
                 case "info":
-                    return "calendar/interface/eventInterfaceInfo";
+                    model.addAttribute("files", files);
+                    model.addAttribute("imgUtils", new ImgUtils());
+                    return "calendar/interface/eventInterfaceInterface";
                 case "timeline":
                     model.addAttribute("timelineItems", eventTimelineService.getItems(event.getEventId()));
                     return "calendar/interface/eventInterfaceTimeline";
@@ -117,10 +120,6 @@ public class EventController {
                 case "files":
                     model.addAttribute("files", files);
                     return "calendar/interface/eventInterfaceFiles";
-                case "settings":
-                    model.addAttribute("files", files);
-                    model.addAttribute("imgUtils", new ImgUtils());
-                    return "calendar/interface/eventInterfaceSettings";
                 case "application":
                     model.addAttribute("components", eventApplicationService.getComponents(event.getEventId()));
                     model.addAttribute("cTypes", ComponentType.values());
@@ -221,7 +220,7 @@ public class EventController {
         event.setImgUrl("/file?id=" + img);
         eventService.save(event);
 
-        return new RedirectView("/event?q=info&s=settings&id=" + eventId);
+        return new RedirectView("/event?q=info&s=info&id=" + eventId);
     }
 
     @PostMapping("/event/component")

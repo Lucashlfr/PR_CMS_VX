@@ -13,7 +13,10 @@ public class JsonHelper {
     public static String buildNameValueJson(Map<String, String> params) {
         try {
             List<Map<String, String>> result = params.entrySet().stream()
-                    .map(e -> Map.of("name", e.getKey(), "value", e.getValue()))
+                    .map(e -> Map.of(
+                            "name", e.getKey() != null ? e.getKey() : "",
+                            "value", e.getValue() != null ? e.getValue() : ""
+                    ))
                     .collect(Collectors.toList());
 
             ObjectMapper mapper = new ObjectMapper();
