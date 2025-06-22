@@ -43,7 +43,7 @@ public class ApplicationController {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(formValues);
 
-        eventApplicationService.saveResult(UUID.fromString(request.getParameter("id")), json);
+        eventApplicationService.saveResult(UUID.randomUUID(), UUID.fromString(request.getParameter("id")), json, "#");
 
         response.put("redirectUrl", "/go?type=application&id=" + request.getParameter("id") + "&state=success");
         return ResponseEntity.ok(response);

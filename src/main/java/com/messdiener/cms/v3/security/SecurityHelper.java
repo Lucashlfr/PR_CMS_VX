@@ -3,6 +3,7 @@ package com.messdiener.cms.v3.security;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.person.PersonService;
+import com.messdiener.cms.v3.app.services.workflow.WorkflowService;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class SecurityHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityHelper.class);
     private final PersonHelper personHelper;
     private final PersonService personService;
+    private final WorkflowService workflowService;
 
     public String getUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -46,7 +48,7 @@ public class SecurityHelper {
                 httpSession.setAttribute("serviceName", "CMSX");
                 httpSession.setAttribute("tenantName", personHelper.getTenantName(person).orElse(""));
                 httpSession.setAttribute("img", personHelper.getImgAddress(person));
-                httpSession.setAttribute("openWorkflows", 0);
+                httpSession.setAttribute("openWorkflows", workflowService.getRelevantWorkflows(person.getId().toString()).size());
                 httpSession.setAttribute("fRank", person.getFRank());
             });
 

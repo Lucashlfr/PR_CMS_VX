@@ -8,10 +8,10 @@ import lombok.Getter;
 public enum EventState {
 
     CREATED("Erstellt", "bg-cyan-soft", "text-cyan", "DarkTurquoise"),
-    PLANNING("Planung", "bg-blue-soft", "text-blue", "RoyalBlue"),
-    CONFIRMED("Bestätigt","bg-teal-soft", "text-teal", "teal"),
-    EXECUTION("Durchführung",  "bg-yellow-soft", "text-yellow", "Gold"),
-    FOLLOWUP("Nachbereitung",  "bg-orange-soft", "text-orange", "Orange"),
+    PLANNING("Planung / Vorbereitung", "bg-blue-soft", "text-blue", "RoyalBlue"),
+    CONFIRMED("Bestätigt / Anmeldung offen","bg-yellow-soft", "text-yellow", "teal"),
+    EXECUTION("Durchführung",  "bg-orange-soft", "text-orange", "Gold"),
+    FOLLOWUP("Nachbereitung",  "bg-teal-soft", "text-teal", "Orange"),
     COMPLETED("Abgeschlossen", "bg-green-soft", "text-green", "YellowGreen"),
     REJECTED("Verworfen", "bg-red-soft", "text-red", "Tomato"),
     ARCHIVED("Archiviert","bg-gray-600", "text-white", "gray");

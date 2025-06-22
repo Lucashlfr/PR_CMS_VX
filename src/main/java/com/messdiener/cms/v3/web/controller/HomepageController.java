@@ -4,16 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.messdiener.cms.v3.app.entities.acticle.Article;
 import com.messdiener.cms.v3.app.entities.event.PlanerTask;
 import com.messdiener.cms.v3.app.entities.person.Person;
+import com.messdiener.cms.v3.app.helper.liturgie.LiturgieHelper;
 import com.messdiener.cms.v3.app.services.article.ArticleService;
 import com.messdiener.cms.v3.app.services.event.EventApplicationService;
 import com.messdiener.cms.v3.app.services.event.EventService;
 import com.messdiener.cms.v3.app.services.event.PlannerTaskService;
+import com.messdiener.cms.v3.app.services.liturgie.LiturgieService;
 import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.ArticleState;
 import com.messdiener.cms.v3.shared.enums.ArticleType;
 import com.messdiener.cms.v3.shared.enums.workflow.CMSState;
 import com.messdiener.cms.v3.utils.time.CMSDate;
+import com.messdiener.cms.v3.utils.time.DateUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -31,6 +34,9 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.sql.SQLException;
+import java.time.*;
+import java.time.temporal.WeekFields;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,6 +52,8 @@ public class HomepageController {
     private final PlannerTaskService plannerTaskService;
     private final EventService eventService;
     private final EventApplicationService eventApplicationService;
+    private final LiturgieService liturgieService;
+    private final LiturgieHelper liturgieHelper;
 
     @PostConstruct
     public void init() {
@@ -55,7 +63,7 @@ public class HomepageController {
     @GetMapping("/")
     public String index(HttpSession httpSession, Model model) throws SQLException {
         model.addAttribute("articles", articleService.getArticlesByType(ArticleType.BLOG, ArticleState.PUBLISHED));
-        model.addAttribute("events", eventService.getEvents());
+        model.addAttribute("events", eventService.getEventsForState());
         return "public/index";
     }
 
@@ -154,5 +162,57 @@ public class HomepageController {
 
         return new RedirectView("/homepage?article=" + article.getId());
     }
+
+    @GetMapping("/update")
+    public String update(Model model) throws SQLException {
+
+        int year = Year.now().getValue();
+        int week = getCurrentWeekNumberWithSundayShift();
+
+        model.addAttribute("kw", week);
+        model.addAttribute("img", "/dist/assets/img/KW/KW" + week + ".png");
+
+        long[] timestamps = getTimestampsForWeek(year, week);
+        model.addAttribute("liturgie", liturgieService.getLiturgies(UUID.fromString("89fce045-2ad4-43b3-b088-d1e697999793"), timestamps[0], timestamps[1]));
+
+        model.addAttribute("helper", liturgieHelper);
+
+        return "public/pages/update";
+    }
+
+    public static long[] getTimestampsForWeek(int year, int weekNumber) {
+        WeekFields weekFields = WeekFields.of(Locale.GERMANY);
+
+        // Get Monday of the given week
+        LocalDate monday = LocalDate.of(year, 1, 1)
+                .with(weekFields.weekOfWeekBasedYear(), weekNumber)
+                .with(weekFields.dayOfWeek(), 1); // 1 = Monday
+
+        // Get Sunday of the same week
+        LocalDate sunday = monday.plusDays(6);
+
+        // Convert to start and end of day
+        ZonedDateTime startOfMonday = monday.atStartOfDay(ZoneId.systemDefault());
+        ZonedDateTime endOfSunday = sunday.atTime(23, 59).atZone(ZoneId.systemDefault());
+
+        long startMillis = startOfMonday.toInstant().toEpochMilli();
+        long endMillis = endOfSunday.toInstant().toEpochMilli();
+
+        return new long[]{startMillis, endMillis};
+    }
+
+    public static int getCurrentWeekNumberWithSundayShift() {
+        LocalDate today = LocalDate.now();
+
+        // If today is Sunday, move to next day (Monday)
+        if (today.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            today = today.plusDays(1);
+        }
+
+        WeekFields weekFields = WeekFields.of(Locale.GERMANY);
+        return today.get(weekFields.weekOfWeekBasedYear());
+    }
+
+
 
 }

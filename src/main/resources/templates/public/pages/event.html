@@ -16,7 +16,7 @@
                                 <h1 th:text="${event.getTitle()}"></h1>
                                 <p class="lead" th:text="${event.getState().toString().equals('COMPLETED') ? 'Pressetext' : 'Anmeldung'}"></p>
                                 <img class="img-fluid mb-2 rounded" th:src="${event.getImgUrl()}" />
-                                <div class="single-post-text my-5" th:unless="${event.getState().toString().equals('COMPLETED')}">
+                                <div class="single-post-text my-5" th:unless="${event.getState().toString().equals('CONFIRMED')}">
                                     <div th:utext="${event.getApplication()}"></div>
                                     <hr class="my-5" />
                                     <div class="alert alert-success alert-dismissible" th:if="${state.equals('success')}">

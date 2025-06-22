@@ -2,42 +2,38 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
 <!-- Definiere hier das Fragment „eventNav“ mit den Parametern s und event -->
-<div th:fragment="eventNav (s, event)">
+<div th:fragment="eventNav (s, eventId)">
     <nav class="nav nav-pills nav-fill mb-3">
         <a th:class="${s == 'info'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='info', id=${event.eventId})}">
+           th:href="@{/event(q='info', s='info', id=${eventId})}">
             <i class="mdi mdi-home me-1"></i>
             Stamm</a>
         <a th:class="${s == 'tasks'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='tasks', id=${event.eventId})}">
+           th:href="@{/event(q='info', s='tasks', id=${eventId})}">
             <i class="mdi mdi-file-check me-1"></i>
             Aufgaben</a>
-        <a th:class="${s == 'timeline'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='timeline', id=${event.eventId})}">
-            <i class="mdi mdi-chart-timeline-variant me-1"></i>
-            Timeline</a>
-        <a th:class="${s == 'participants'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='participants', id=${event.eventId})}">
-            <i class="mdi mdi-group me-1"></i>
-            Teilnehmer</a>
+        <a th:class="${s == 'notes'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
+           th:href="@{/event(q='info', s='notes', id=${eventId})}">
+            <i class="mdi mdi-note me-1"></i>
+            Notizen</a>
         <a th:class="${s == 'risc'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='risc', id=${event.eventId})}">
+           th:href="@{/event(q='info', s='risc', id=${eventId})}">
             <i class="mdi mdi-magnify me-1"></i>
             Risikoanalyse</a>
         <a th:class="${s == 'application'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='application', id=${event.eventId})}">
+           th:href="@{/event(q='info', s='application', id=${eventId})}">
             <i class="mdi mdi-account-plus me-1"></i>
             Anmeldung</a>
         <a th:class="${s == 'pressrelease'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='pressrelease', id=${event.eventId})}">
+           th:href="@{/event(q='info', s='pressrelease', id=${eventId})}">
             <i class="mdi mdi-publish me-1"></i>
             Pressemeldung</a>
         <a th:class="${s == 'files'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='files', id=${event.eventId})}">
+           th:href="@{/event(q='info', s='files', id=${eventId})}">
             <i class="mdi mdi-folder-cog me-1"></i>
             Dateien</a>
         <a th:class="${s == 'settings'} ? 'nav-link active bg-yellow' : 'nav-link text-yellow'"
-           th:href="@{/event(q='info', s='settings', id=${event.eventId})}">
+           th:href="@{/event(q='info', s='settings', id=${eventId})}">
             <i class="mdi mdi-cog me-1"></i>
             Sonstiges</a>
     </nav>

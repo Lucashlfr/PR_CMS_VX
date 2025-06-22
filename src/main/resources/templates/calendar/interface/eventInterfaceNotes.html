@@ -23,23 +23,24 @@
             </header>
             <!-- Main page content-->
             <div class="container-fluid px-4 mt-4">
+
                 <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event.getEventId()})}"></div>
 
-                <form th:action="@{/event/edit/press}" th:method="post">
+                <form th:action="@{/event/edit/notes}" th:method="post">
                     <input type="hidden" name="id" th:value="${event.getEventId()}">
                     <div class="card card-limit-height h-100">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex align-items-start gap-3">
                                     <!-- Icon -->
-                                    <div class="bg-info-soft rounded-3 d-flex align-items-center justify-content-center"
+                                    <div class="bg-primary-soft rounded-3 d-flex align-items-center justify-content-center"
                                          style="width: 48px; height: 48px;">
-                                        <i data-feather="calendar" class="text-info fs-4"></i>
+                                        <i data-feather="file" class="text-primary fs-4"></i>
                                     </div>
 
                                     <!-- Text content -->
                                     <div>
-                                        <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
+                                        <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()} + ' / Notizen'"></h5>
                                         <div class="d-flex flex-wrap gap-3 small text-muted">
                                             <div><span
                                                     th:class="'badge ' + ${event.getState().getColors()}"
@@ -51,16 +52,16 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <button class="btn btn-yellow btn-sm mdi mdi-calendar-sync" type="submit"></button>
+                                    <button class="btn btn-yellow btn-sm mdi mdi-file-sync" type="submit"></button>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body clamp-description">
-                            <textarea class="form-control" id="html" name="html" rows="8"
-                                      th:text="${event.getPressRelease()}"></textarea>
+                            <input type="hidden" name="id" th:value="${event.eventId}"/>
+                            <textarea class="form-control mb-3" id="comment" name="content" rows="3"
+                                      placeholder="Beschreibung der Aktion" th:text="${event.getNotes()}"></textarea>
                         </div>
                     </div>
-
                 </form>
             </div>
         </main>
@@ -76,7 +77,7 @@
         referrerpolicy="origin"></script>
 <script>
     tinymce.init({
-        selector: '#html', // Wähle das Textarea-Element aus
+        selector: 'textarea', // Wähle das Textarea-Element aus
         plugins: 'advlist autolink lists link image charmap preview anchor table',
         toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image table',
         menubar: false, // Menüleiste deaktivieren (optional)

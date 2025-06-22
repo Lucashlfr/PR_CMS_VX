@@ -24,7 +24,7 @@
             <!-- Main page content-->
             <div class="container-fluid px-4 mt-4">
 
-                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
+                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event.getEventId()})}"></div>
 
                 <form th:action="@{/event/edit/notes}" th:method="post">
                     <input type="hidden" name="id" th:value="${event.getEventId()}">

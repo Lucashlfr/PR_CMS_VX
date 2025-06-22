@@ -14,4 +14,7 @@ public class EventForm {
     private String eventType;
     private String targetgroup;
     private String eventState;
+    private String startDate;
+    private String endDate;
+    private String deadline;
 }

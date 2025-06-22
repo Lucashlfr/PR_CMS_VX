@@ -10,7 +10,7 @@
             <header class="page-header page-header-dark bg-yellow mb-4">
                 <div class="container-fluid px-4">
                     <div class="page-header-content pt-4">
-                        <div class="row align-items-center justify-content-between">
+                        <div class="row align-items-start justify-content-between">
                             <div class="col-auto mt-4">
                                 <h1 class="page-header-title" th:text="'Termine / ' + ${event.getTitle()}">
                                 </h1>
@@ -22,86 +22,154 @@
                 </div>
             </header>
             <!-- Main page content-->
-            <div class="container-fluid px-4 mt-4">
-
-                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event})}"></div>
-
+            <form th:action="@{/event/edit}" th:method="post">
                 <input type="hidden" name="id" th:value="${event.getEventId()}">
-                <div class="card card-limit-height h-100">
-                    <div class="card-header">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="d-flex align-items-start gap-3">
-                                <!-- Icon -->
-                                <div class="bg-orange-soft rounded-3 d-flex align-items-center justify-content-center"
-                                     style="width: 48px; height: 48px;">
-                                    <i data-feather="settings" class="text-orange fs-4"></i>
-                                </div>
+                <div class="container-fluid px-4 mt-4">
 
-                                <!-- Text content -->
-                                <div>
-                                    <h5 class="mb-1 fw-semibold"
-                                        th:text="${event.getTitle()} + ' / Einstellungen'"></h5>
-                                    <div class="d-flex flex-wrap gap-3 small text-muted">
-                                        <div><span
-                                                th:class="'badge ' + ${event.getState().getColors()}"
-                                                th:text="${event.getState().getLabel()}"></span></div>
-                                        <div><span class="mdi mdi-circle text-green"></span> Letztes Update:
-                                            10.04.2025
+                    <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event.getEventId()})}"></div>
+
+                    <div class="card card-limit-height h-100 mb-4">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-start gap-3">
+                                    <!-- Icon -->
+                                    <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
+                                         style="width: 48px; height: 48px;">
+                                        <i data-feather="framer" class="text-success fs-4"></i>
+                                    </div>
+
+                                    <!-- Text content -->
+                                    <div>
+                                        <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
+                                        <div class="d-flex flex-wrap gap-3 small text-muted">
+                                            <div><span
+                                                    th:class="'badge ' + ${event.getState().getColors()}"
+                                                    th:text="${event.getState().getLabel()}"></span></div>
+                                            <div><span class="mdi mdi-circle text-green"></span>
+                                                <span th:text="'Letztes Update: ' + ${event.getLastUpdate().getGermanTime() + ' Uhr'}"></span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <button class="btn btn-yellow btn-sm mdi mdi-calendar-sync" type="submit"></button>
-                            </div>
                         </div>
-                    </div>
-                    <div class="card-body clamp-description">
-                        <div class="row">
-                            <div class="col-xl-2 col-12">
-                                <h5>Titelbild</h5>
-                                <div class="card position-relative overflow-hidden border-0 text-center"
-                                     th:if="${event.getImgUrl().isEmpty()}">
-                                    <!-- Header-Hintergrund -->
-                                    <div class="bg-light" style="height:120px;"></div>
-                                    <!-- Avatar kreisrund und überlappt -->
-                                    <img src="/dist/assets/img/demo/user-placeholder.svg"
-                                         class="rounded-circle border border-white position-absolute top-0 start-50 translate-middle"
-                                         style="width:72px; height:72px; margin-top:60px;"
-                                         alt="Avatar">
-                                </div>
+                        <div class="card-body clamp-description">
 
-                                <img th:src="${event.getImgUrl()}" alt="..." class="img-fluid"
-                                     th:unless="${event.getImgUrl().isEmpty()}">
-                                <div class="d-flex mt-3">
-                                    <button class="btn bg-yellow text-white btn-sm flex-fill m-1" data-bs-toggle="modal"
-                                            data-bs-target="#img">Bild ändern
+                            <div class="row align-items-start">
+                                <label for="titel" class="col-sm-2 col-form-label">Titel</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control form-control-sm" id="titel"
+                                           name="titel"
+                                           required
+                                           th:value="${event.getTitle()}">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-start">
+                                <label for="beschreibung" class="col-sm-2 col-form-label">Beschreibung</label>
+                                <div class="col-sm-10">
+                            <textarea class="form-control form-control-sm" id="beschreibung" name="beschreibung"
+                                      rows="8"
+                                      th:text="${event.getDescription()}"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-start">
+                                <label for="eventState" class="col-sm-2 col-form-label">Event Status</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select form-select-sm" id="eventState"
+                                            name="eventState">
+                                        <option th:each="s:${states}" th:text="${s.label}" th:value="${s}"
+                                                th:selected="${s.name() == event.getState().name()}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-start">
+                                <label for="beschreibung" class="col-sm-2 col-form-label">Titelbild</label>
+                                <div class="col-sm-10">
+                                    <a data-bs-toggle="modal" data-bs-target="#img">
+                                        <img th:src="${event.getImgUrl()}" alt="..."
+                                             class="card-img img-fluid w-25 h-25"
+                                             th:unless="${event.getImgUrl().isEmpty()}">
+                                    </a>
+                                    <button class="btn bg-yellow text-white btn-sm flex-fill m-1" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#img" th:if="${event.getImgUrl().isEmpty()}">Bild ändern
                                     </button>
                                 </div>
                             </div>
 
-                            <div class="col-xl-4 col-12">
-                                <h5 class="">Status</h5>
-                                <div class="timeline timeline-sm">
-                                    <div class="timeline-item" th:each="s:${states}">
-                                        <div class="timeline-item-marker">
-                                            <div th:class="'timeline-item-marker-indicator ' + ${s.getColors()}"><i th:data-feather="${s.toString().equals(event.getState().toString()) ? 'check' : 'circle'}"></i></div>
-                                        </div>
-                                        <a th:class="${s.toString().equals(event.getState().toString()) ? 'timeline-item-content text-green' : 'timeline-item-content text-black'}"
-                                           th:text="${s.getLabel()}"
-                                           th:href="'/event/state?event=' + ${event.getEventId()} + '&state=' + ${s}"></a>
-                                    </div>
+                            <div class="row align-items-start">
+                                <label for="eventType" class="col-sm-2 col-form-label">Event Type</label>
+                                <div class="col-sm-5">
+                                    <select class="form-select form-select-sm" id="eventType" name="eventType">
+                                        <option th:each="t:${types}" th:text="${t.label}" th:value="${t}"
+                                                th:selected="${t.name() == event.getType().name()}"></option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-5">
+                                    <select class="form-select form-select-sm" id="targetgroup"
+                                            name="targetgroup">
+                                        <option value="1" th:selected="${event.getTargetGroup().equals('1')}">
+                                            Messdiener
+                                            der
+                                            eigenen Ortsgruppe
+                                        </option>
+                                        <option value="2" th:selected="${event.getTargetGroup().equals('2')}">
+                                            Messdiener
+                                            der
+                                            eigenen Ortsgruppe + 1
+                                        </option>
+                                        <option value="3" th:selected="${event.getTargetGroup().equals('3')}">
+                                            Messdiener
+                                            der
+                                            Pfarrei / Leitung der Ortsgruppe
+                                        </option>
+                                        <option value="4" th:selected="${event.getTargetGroup().equals('4')}">
+                                            Messdiener
+                                            der
+                                            Pfarrei
+                                        </option>
+                                        <option value="5" th:selected="${event.getTargetGroup().equals('5')}">
+                                            Offen für
+                                            alle
+                                        </option>
+                                    </select>
                                 </div>
                             </div>
 
-                            <div class="col-xl-4 col-12">
+                            <div class="row align-items-start">
+                                <label for="startDate" class="col-sm-2 col-form-label">Zeitraum</label>
+                                <div class="col-sm-5">
+                                    <input type="datetime-local" class="form-control form-control-sm" id="startDate"
+                                           name="startDate" th:value="${event.getStartDate().getEnglishDayDate()}">
+                                </div>
+                                <div class="col-sm-5">
+                                    <input type="datetime-local" class="form-control form-control-sm" id="endDatum"
+                                           name="endDate" th:value="${event.getEndDate().getEnglishDayDate()}">
+                                </div>
                             </div>
 
 
+                            <div class="row align-items-start">
+                                <label for="deadline" class="col-sm-2 col-form-label">Anmelde-Schluss</label>
+                                <div class="col-sm-10">
+                                    <input type="date" class="form-control form-control-sm" id="deadline" name="deadline"
+                                           th:value="${event.getDeadline.getEnglishDate()}">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex gap-3 ">
+                                <button type="submit" class="btn btn-yellow btn-sm btn-block flex-fill">Speichern
+                                </button>
+                            </div>
                         </div>
                     </div>
+
                 </div>
-            </div>
+            </form>
         </main>
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
@@ -134,12 +202,14 @@
                     <tr th:each="file : ${files}" th:if="${imgUtils.isImageFile(file.getTitle())}">
                         <td th:text="${file.getTag()}"></td>
                         <td>
-                            <a th:href="'/event/img?event=' + ${event.getEventId()} + '&img=' + ${file.getId()}" th:text="${file.getTitle()}">
+                            <a th:href="'/event/img?event=' + ${event.getEventId()} + '&img=' + ${file.getId()}"
+                               th:text="${file.getTitle()}">
                             </a>
                         </td>
                         <td th:text="${personHelper.getName(file.getOwner())}"></td>
                         <td>
-                            <img alt="..." th:src="'/file?id=' + ${file.getId()}" class="img-fluid" style="max-height: 50px">
+                            <img alt="..." th:src="'/file?id=' + ${file.getId()}" class="img-fluid"
+                                 style="max-height: 50px">
                         </td>
                     </tr>
                     </tbody>
@@ -149,5 +219,7 @@
         </div>
     </div>
 </div>
+
 </html>
+
 <script th:src="@{/js/jquery.min.js}"></script>

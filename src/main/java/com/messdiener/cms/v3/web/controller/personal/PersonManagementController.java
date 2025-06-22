@@ -32,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -155,7 +156,7 @@ public class PersonManagementController {
             case "principal" -> persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), tenantId);
             case "tenant" -> persons = personService.getActiveMessdienerByTenantDTO(tenantId);
             case "create" -> {
-
+                return "person/list/createPerson";
             }
 
             case "overview" -> {
@@ -287,6 +288,24 @@ public class PersonManagementController {
         personFlagService.saveFlag(personId, personFlag);
 
         return new RedirectView("/personal?q=profil&s=flags&id=" + personId);
+    }
+
+    @PostMapping("/personal/create")
+    public RedirectView createPerson(@RequestParam("firstname") String firstname, @RequestParam("lastname") String lastname) throws SQLException {
+        Person user = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        Person person = Person.empty(user.getTenantId());
+        person.setFirstname(firstname);
+        person.setLastname(lastname);
+        person.setCanLogin(true);
+        person.setActive(true);
+        person.setUsername(firstname.toLowerCase() + "." + lastname.toLowerCase());
+        person.setPassword("changeMe");
+        person.setRank(PersonAttributes.Rank.MESSDIENER);
+        person.setFRank(0);
+        person.setType(PersonAttributes.Type.MESSDIENER);
+        personService.updatePerson(person);
+
+        return new RedirectView("/personal?q=profil&s=overview&id=" + person.getId());
     }
 
 }

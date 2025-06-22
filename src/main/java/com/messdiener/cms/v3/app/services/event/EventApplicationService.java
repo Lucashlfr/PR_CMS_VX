@@ -43,7 +43,7 @@ public class EventApplicationService {
         }
 
         try (Connection connection = databaseService.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events_results (eventId VARCHAR(255), date long, json LONGTEXT )")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events_results (resultId VARCHAR(36), eventId VARCHAR(36), userId VARCHAR(36), date long, json LONGTEXT)")) {
             preparedStatement.executeUpdate();
             LOGGER.info("module_events_results table initialized successfully.");
         } catch (SQLException e) {
@@ -104,13 +104,28 @@ public class EventApplicationService {
         return components;
     }
 
-    public void saveResult(UUID eventId, String result) throws SQLException {
-        String sql = "INSERT INTO module_events_results (eventId, date, json) VALUES (?,?,?)";
+    public void saveResult(UUID resultId, UUID eventId, String result, String userId) throws SQLException {
+        String sql = "INSERT INTO module_events_results (resultId, eventId, userId, date, json) VALUES (?,?,?,?,?)";
 
+        databaseService.delete("module_events_results", "resultId", resultId.toString());
         try(Connection connection = databaseService.getConnection();PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setString(1, eventId.toString());
+            preparedStatement.setString(1, resultId.toString());
+            preparedStatement.setString(2, eventId.toString());
+            preparedStatement.setString(3, userId);
+            preparedStatement.setLong(4, System.currentTimeMillis());
+            preparedStatement.setString(5, result);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public void updateUserIdForResult(UUID resultId, String userId) throws SQLException {
+        String sql = "UPDATE module_events_results SET userId = ?, date = ? WHERE resultId = ?";
+
+        try (Connection connection = databaseService.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, userId);
             preparedStatement.setLong(2, System.currentTimeMillis());
-            preparedStatement.setString(3, result);
+            preparedStatement.setString(3, resultId.toString());
             preparedStatement.executeUpdate();
         }
     }
@@ -134,6 +149,10 @@ public class EventApplicationService {
         List<String> componentNames = new ArrayList<>();
         List<String> header = new ArrayList<>();
 
+        header.add("ResultId");
+        header.add("Datum");
+        header.add("Verknüpfte Person");
+
         // Komponenten abrufen
         try (Connection connection = databaseService.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
@@ -153,23 +172,34 @@ public class EventApplicationService {
         // Ergebnisse abrufen und JSON mappen
         try (Connection connection = databaseService.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(
-                     "SELECT json FROM module_events_results WHERE eventId = ?")) {
+                     "SELECT resultId, json, date, userId FROM module_events_results WHERE eventId = ?")) {
             preparedStatement.setString(1, eventId.toString());
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 while (resultSet.next()) {
+                    String resultId = resultSet.getString("resultId");
                     String json = resultSet.getString("json");
+                    long dateValue = resultSet.getLong("date");
+                    String userId = resultSet.getString("userId");
 
-                    Map<String, Object> dataMap = objectMapper.readValue(json, new TypeReference<>() {});
-                    String[] row = componentNames.stream()
-                            .map(name -> Optional.ofNullable(dataMap.get(name)).orElse("").toString())
-                            .toArray(String[]::new);
+                    Map<String, Object> dataMap = objectMapper.readValue(json, new TypeReference<>() {
+                    });
+                    String[] row = new String[3 + componentNames.size()];
+
+                    row[0] = resultId;
+                    row[1] = CMSDate.of(dateValue).getGermanTime(); // oder .toString() je nach gewünschtem Format
+                    row[2] = userId;
+
+                    for (int i = 0; i < componentNames.size(); i++) {
+                        Object value = dataMap.get(componentNames.get(i));
+                        row[3 + i] = value != null ? value.toString() : "";
+                    }
+
                     rows.add(row);
                 }
             }
         }
-
         return rows;
     }
 

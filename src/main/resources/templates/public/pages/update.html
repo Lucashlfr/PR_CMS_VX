@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{public/fragments/publicFragments :: html_head}"></head>
+<body>
+<div id="layoutDefault">
+    <div id="layoutDefault_content">
+        <main>
+            <!-- Navbar-->
+            <div th:insert="~{public/fragments/publicFragments :: navbar}"></div>
+            <!-- Page Header-->
+            <section class="bg-light py-10">
+                <div class="container px-5">
+                    <div class="row gx-5 justify-content-center">
+                        <div class="col-lg-10 col-xl-8">
+                            <div class="single-post">
+                                <h1 th:text="'Dein Weekly Update'"></h1>
+                                <p class="lead" th:text="'Der Aktuelle Dienplan'"></p>
+                                <img class="img-fluid mb-2 rounded" th:src="${img}" />
+                                <div class="single-post-text my-5">
+
+                                    <span>Hey zusammen, hier euer Weekly Update: ☀🌅</span><br><br>
+                                    <span>🕓Gottesdienste:</span><br>
+
+                                    <div th:each="l : ${liturgie}">
+                                        <span th:text="${l.getDate().getGermanLongDate()} + ':'"></span><br>
+                                        <span th:text="${helper.getDutyPersons(l)}"></span><br>
+                                        <br>
+                                    </div>
+
+                                    <span>Euch eine gute Woche!</span><br>
+                                    <span>Eure Teamer</span>
+
+                                    <div class="text-center"><a class="btn btn-transparent-dark" href="/">Zurück zur Startseite</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div th:insert="~{public/fragments/publicFragments :: footer}"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

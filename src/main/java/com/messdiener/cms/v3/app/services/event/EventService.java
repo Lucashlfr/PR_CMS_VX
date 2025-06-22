@@ -206,4 +206,24 @@ public class EventService {
         return events;
     }
 
+    public List<Event> getEventsForState() throws SQLException {
+        List<Event> events = new ArrayList<>();
+        String sql = "SELECT * FROM module_events WHERE eventState = ? or eventState = ? ORDER BY endDate DESC";
+
+        try (Connection connection = databaseService.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, EventState.CONFIRMED.toString());
+            preparedStatement.setString(2, EventState.COMPLETED.toString());
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    events.add(getByResultSet(resultSet));
+                }
+            }
+        }
+
+        return events;
+    }
+
 }

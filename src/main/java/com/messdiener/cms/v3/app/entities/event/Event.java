@@ -68,4 +68,8 @@ public class Event {
                 "", "", "", "");
     }
 
+    public String getPressRelease() {
+        return pressRelease.replace("<img src=", "<img class=\"img-fluid\" src=");
+    }
+
 }

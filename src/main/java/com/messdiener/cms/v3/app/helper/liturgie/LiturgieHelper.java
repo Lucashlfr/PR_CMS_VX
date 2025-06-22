@@ -130,5 +130,9 @@ public class LiturgieHelper {
                 .toList();
     }
 
+    public String getDutyPersons(Liturgie l) throws SQLException {
+        return liturgieService.getDutyPersons(l);
+    }
+
 
 }

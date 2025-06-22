@@ -2,6 +2,7 @@ package com.messdiener.cms.v3.app.services.liturgie;
 
 import com.messdiener.cms.v3.app.entities.worship.Liturgie;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
+import com.messdiener.cms.v3.shared.enums.LiturgieState;
 import com.messdiener.cms.v3.shared.enums.LiturgieType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
@@ -92,5 +93,25 @@ public class LiturgieService {
                 return resultSet.next() ? Optional.of(getLiturgieByResultSet(resultSet)) : Optional.empty();
             }
         }
+    }
+
+    public String getDutyPersons(Liturgie liturgie) throws SQLException {
+        StringBuilder output = new StringBuilder("#");
+        String sql = "SELECT firstname, lastname FROM module_liturgie_map map, module_person p WHERE p.person_id = map.personId and map.state = ? and map.liturgieId = ? order by p.lastname, p.firstname";
+
+        try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setString(1, LiturgieState.DUTY.toString());
+            preparedStatement.setString(2, liturgie.getLiturgieId().toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()){
+                while (resultSet.next()) {
+                    output.append(", ");
+                    output.append(resultSet.getString("firstname"));
+                    output.append(" ");
+                    output.append(resultSet.getString("lastname"));
+                }
+            }
+        }
+
+        return output.toString().replace("#, ","").replace("#", "Alle die können");
     }
 }
