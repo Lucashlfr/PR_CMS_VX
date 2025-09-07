@@ -7,6 +7,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.table.CMSCell;
 import com.messdiener.cms.v3.app.entities.table.CMSRow;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.other.Pair;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import lombok.Getter;
@@ -109,9 +110,9 @@ public class FileCreator {
         return this;
     }
 
-    public FileCreator setReceiver(Person person, String tenantName) {
+    public FileCreator setReceiver(Person person, Tenant tenant) {
         this.address1 = person.getName();
-        this.address2 = tenantName;
+        this.address2 = tenant.getName();
         this.address3 = person.getStreet() + " " + person.getHouseNumber();
         this.address4 = person.getPostalCode() + " " + person.getCity();
         return this;

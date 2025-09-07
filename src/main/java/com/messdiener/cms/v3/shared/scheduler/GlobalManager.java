@@ -1,7 +1,6 @@
 package com.messdiener.cms.v3.shared.scheduler;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.services.audit.ComplianceService;
 import com.messdiener.cms.v3.app.services.person.PersonFlagService;
 import com.messdiener.cms.v3.app.services.person.PersonLoginService;
 import com.messdiener.cms.v3.app.services.person.PersonService;
@@ -24,7 +23,6 @@ public class GlobalManager {
     private final PersonLoginService personLoginService;
 
     private final UUID systemUserId = UUID.fromString("93dacda6-b951-413a-96dc-9a37858abe3e");
-    private final ComplianceService complianceService;
     private final PersonFlagService personFlagService;
 
 

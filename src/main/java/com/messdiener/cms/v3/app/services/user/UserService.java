@@ -1,9 +1,6 @@
 package com.messdiener.cms.v3.app.services.user;
 
-import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.services.person.PersonService;
-import com.messdiener.cms.v3.app.services.sql.DatabaseService;
-import com.messdiener.cms.v3.security.SecurityHelper;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonLoginDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -14,13 +11,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
-    private final PersonService personService;
     private final PasswordEncoder passwordEncoder;
     private final InMemoryUserDetailsManager userDetailsManager;
 
@@ -29,30 +27,29 @@ public class UserService {
         LOGGER.info("UserService initialized.");
     }
 
-    public void createSingleUser(Person person) {
+    public void createSingleUser(PersonLoginDTO login) {
         try {
 
-            UserDetails user = User.withUsername(person.getUsername())
-                    .password(passwordEncoder.encode(person.getPassword()))
+            UserDetails user = User.withUsername(login.getUsername())
+                    .password(passwordEncoder.encode(login.getPassword()))
                     .roles("USER")
                     .build();
 
-            if (userDetailsManager.userExists(person.getUsername())) {
-                userDetailsManager.deleteUser(person.getUsername());
-                LOGGER.info("Deleted existing user '{}'.", person.getUsername());
+            if (userDetailsManager.userExists(login.getUsername())) {
+                userDetailsManager.deleteUser(login.getUsername());
             }
 
             userDetailsManager.createUser(user);
-            //LOGGER.info("Created user '{}' in security context.", person.getUsername());
 
         } catch (Exception e) {
-            LOGGER.error("Failed to create user '{}': {}", person.getUsername(), e.getMessage(), e);
+            LOGGER.error("Failed to initialize users and permissions: {}", e.getMessage(), e);
         }
     }
 
-    public void initializeUsersAndPermissions() {
+    public void initializeUsersAndPermissions(List<PersonLoginDTO> persons) {
         try {
-            personService.getPersonsByLogin().forEach(this::createSingleUser);
+            persons.forEach(this::createSingleUser);
+            LOGGER.info("Created user '{}'.", persons.size());
         } catch (Exception e) {
             LOGGER.error("Failed to initialize users and permissions: {}", e.getMessage(), e);
         }

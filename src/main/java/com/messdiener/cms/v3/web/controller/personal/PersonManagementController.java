@@ -2,7 +2,7 @@ package com.messdiener.cms.v3.web.controller.personal;
 
 import com.messdiener.cms.v3.app.entities.document.StorageFile;
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.person.data.connection.PersonConnection;
 import com.messdiener.cms.v3.app.entities.person.data.flags.PersonFlag;
 import com.messdiener.cms.v3.app.helper.liturgie.LiturgieHelper;
@@ -22,7 +22,6 @@ import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.PersonAttributes;
 import com.messdiener.cms.v3.shared.enums.StatusState;
-import com.messdiener.cms.v3.shared.enums.document.FileType;
 import com.messdiener.cms.v3.utils.html.HTMLClasses;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import com.messdiener.cms.v3.utils.time.DateUtils;
@@ -32,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -86,8 +84,6 @@ public class PersonManagementController {
         if (!personHelper.hasPermission(user, 1))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Du hast keinen Zugriff auf dieses Modul");
 
-        UUID tenantId = personHelper.getTenant(user).orElseThrow().getId();
-
         model.addAttribute("user", user);
         String idS = id.orElse("null");
         String query = q.orElse("list");
@@ -106,7 +102,7 @@ public class PersonManagementController {
             Person person = personService.getPersonById(personUUID).orElseThrow();
             model.addAttribute("person", person);
             model.addAttribute("types", PersonAttributes.Connection.values());
-            model.addAttribute("persons", personService.getPersonsByTenant(tenantId));
+            model.addAttribute("persons", personService.getPersonsByTenant(person.getTenant()));
             model.addAttribute("contacts", personHelper.getEmergencyContacts(person));
             model.addAttribute("connections", personHelper.getConnections(person));
             model.addAttribute("workflows", workflowService.getWorkflowsByUserId(personUUID));
@@ -153,14 +149,14 @@ public class PersonManagementController {
 
         List<PersonOverviewDTO> persons = new ArrayList<>();
         switch (step) {
-            case "principal" -> persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), tenantId);
-            case "tenant" -> persons = personService.getActiveMessdienerByTenantDTO(tenantId);
+            case "principal" -> persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), user.getTenant());
+            case "tenant" -> persons = personService.getActiveMessdienerByTenantDTO(user.getTenant());
             case "create" -> {
                 return "person/list/createPerson";
             }
 
             case "overview" -> {
-                persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), tenantId);
+                persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), user.getTenant());
                 model.addAttribute("persons", (List<PersonOverviewDTO>) persons);
                 return "person/list/overview";
             }
@@ -240,7 +236,7 @@ public class PersonManagementController {
         person.setPassword(passwort);
         personService.updatePerson(person);
 
-        userService.initializeUsersAndPermissions();
+        userService.initializeUsersAndPermissions(personService.getPersonsByLogin());
 
         return new RedirectView("/personal?s=6&q=profil&id=" + person.getId());
     }
@@ -251,7 +247,7 @@ public class PersonManagementController {
         person.setPassword(person.getBirthdate().isPresent() ? person.getBirthdate().get().getGermanDate() : "PASSWORT");
         personService.updatePerson(person);
 
-        userService.initializeUsersAndPermissions();
+        userService.initializeUsersAndPermissions(personService.getPersonsByLogin());
 
         return new RedirectView("/personal?s=6&q=profil&id=" + person.getId());
     }
@@ -293,7 +289,7 @@ public class PersonManagementController {
     @PostMapping("/personal/create")
     public RedirectView createPerson(@RequestParam("firstname") String firstname, @RequestParam("lastname") String lastname) throws SQLException {
         Person user = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        Person person = Person.empty(user.getTenantId());
+        Person person = Person.empty(user.getTenant());
         person.setFirstname(firstname);
         person.setLastname(lastname);
         person.setCanLogin(true);

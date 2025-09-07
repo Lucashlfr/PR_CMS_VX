@@ -46,7 +46,7 @@ public class SecurityHelper {
             personOpt.ifPresent(person -> {
                 httpSession.setAttribute("sessionUser", person);
                 httpSession.setAttribute("serviceName", "CMSX");
-                httpSession.setAttribute("tenantName", personHelper.getTenantName(person).orElse(""));
+                httpSession.setAttribute("tenantName", person.getTenant().getName());
                 httpSession.setAttribute("img", personHelper.getImgAddress(person));
                 httpSession.setAttribute("openWorkflows", workflowService.getRelevantWorkflows(person.getId().toString()).size());
                 httpSession.setAttribute("fRank", person.getFRank());

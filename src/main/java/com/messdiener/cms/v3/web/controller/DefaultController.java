@@ -3,10 +3,8 @@ package com.messdiener.cms.v3.web.controller;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.privacy.PrivacyPolicy;
 import com.messdiener.cms.v3.app.services.privacy.PrivacyService;
-import com.messdiener.cms.v3.app.services.tenant.TenantService;
-import com.messdiener.cms.v3.app.utils.Utils;
 import com.messdiener.cms.v3.security.SecurityHelper;
-import com.messdiener.cms.v3.shared.cache.Cache;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
@@ -20,14 +18,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.*;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,7 +35,6 @@ public class DefaultController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultController.class);
     private final SecurityHelper securityHelper;
-    private final TenantService tenantService;
     private final PrivacyService privacyService;
 
     @PostConstruct
@@ -46,20 +43,17 @@ public class DefaultController {
     }
 
     @GetMapping("/dashboard")
-    public String index(HttpSession httpSession, Model model) throws SQLException {
+    public String index(HttpSession httpSession, Model model) {
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(httpSession);
         model.addAttribute("user", user);
-        model.addAttribute("tenants", tenantService.getTenants());
-        if(user.isCustomPassword()) {
-            return "index";
-        }
-        return "security/customPw";
+        model.addAttribute("tenants", Tenant.values());
+        return "index";
     }
 
     @GetMapping("/download")
-    public ResponseEntity<?> download(@RequestParam("q") String q) throws SQLException, FileNotFoundException {
+    public ResponseEntity<InputStreamResource> download(@RequestParam("q") String q) throws FileNotFoundException {
         Optional<File> fileOpt = getFile(q);
 
         if (fileOpt.isEmpty()) {
@@ -92,16 +86,6 @@ public class DefaultController {
         return file.exists() && file.isFile() ? Optional.of(file) : Optional.empty();
     }
 
-    @GetMapping("/static")
-    public RedirectView staticR() {
-        return new RedirectView("/");
-    }
-
-    @GetMapping("/public")
-    public RedirectView publicR() {
-        return new RedirectView("/");
-    }
-
     @GetMapping("/public/privacyPolicy")
     public String privacyPolicyR() {
         return "privacy_policy";
@@ -123,7 +107,7 @@ public class DefaultController {
             @RequestParam("option5") Optional<String> option5,
             @RequestParam("option6") Optional<String> option6,
             @RequestParam("option7") Optional<String> option7
-    ) throws SQLException, IOException, IllegalAccessException {
+    ) throws SQLException {
 
         PrivacyPolicy privacyPolicy = new PrivacyPolicy(
                 UUID.randomUUID(),

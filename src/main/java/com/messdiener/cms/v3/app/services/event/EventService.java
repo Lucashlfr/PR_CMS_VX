@@ -6,6 +6,7 @@ import com.messdiener.cms.v3.app.services.sql.DatabaseService;
 import com.messdiener.cms.v3.shared.enums.ComponentType;
 import com.messdiener.cms.v3.shared.enums.event.EventState;
 import com.messdiener.cms.v3.shared.enums.event.EventType;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ public class EventService {
     @PostConstruct
     public void init() {
         try (Connection connection = databaseService.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events (eventId VARCHAR(36), tenantId VARCHAR(36), number int, title TEXT, description TEXT, eventType VARCHAR(50), eventState VARCHAR(50), startDate long, endDate long, deadline long, creationDate long, resubmission long, lastUpdate long, schedule LONGTEXT, registrationRelease LONGTEXT, targetGroup TEXT, location TEXT, imgUrl TEXT, riskIndex int, currentEditor VARCHAR(36), createdBy VARCHAR(36), updatedBy VARCHAR(36), principal VARCHAR(36), manager VARCHAR(36), expenditure double, revenue double, pressRelease LONGTEXT, preventionConcept LONGTEXT, notes LONGTEXT, application LONGTEXT)")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_events (eventId VARCHAR(36), tenant VARCHAR(4), number int, title TEXT, description TEXT, eventType VARCHAR(50), eventState VARCHAR(50), startDate long, endDate long, deadline long, creationDate long, resubmission long, lastUpdate long, schedule LONGTEXT, registrationRelease LONGTEXT, targetGroup TEXT, location TEXT, imgUrl TEXT, riskIndex int, currentEditor VARCHAR(36), createdBy VARCHAR(36), updatedBy VARCHAR(36), principal VARCHAR(36), manager VARCHAR(36), expenditure double, revenue double, pressRelease LONGTEXT, preventionConcept LONGTEXT, notes LONGTEXT, application LONGTEXT)")) {
             preparedStatement.executeUpdate();
             LOGGER.info("module_events table initialized successfully.");
         } catch (SQLException e) {
@@ -48,7 +49,7 @@ public class EventService {
 
         // Identifikation
         UUID eventId = UUID.fromString(resultSet.getString("eventId"));
-        UUID tenantId = UUID.fromString(resultSet.getString("tenantId"));
+        Tenant tenant = Tenant.valueOf(resultSet.getString("tenant"));
 
         int number = resultSet.getInt("number");
 
@@ -92,18 +93,18 @@ public class EventService {
         String notes = resultSet.getString("notes");
         String application = resultSet.getString("application");
 
-        return new Event(eventId, tenantId, number, title, description, type, state, startDate, endDate, deadline, creationDate, resubmission, lastUpdate, schedule, registrationRelease, targetGroup, location, imgUrl, riskIndex,
+        return new Event(eventId, tenant, number, title, description, type, state, startDate, endDate, deadline, creationDate, resubmission, lastUpdate, schedule, registrationRelease, targetGroup, location, imgUrl, riskIndex,
                 currentEditor, createdBy, principal, manager, expenditure, revenue, pressRelease, preventionConcept, notes, application);
     }
 
     public void save(Event event) throws SQLException {
         databaseService.delete("module_events", "eventId", event.getEventId().toString());
 
-        String sql = "INSERT INTO module_events (eventId, tenantId, number, title, description, eventType, eventState, startDate, endDate, deadline, creationDate, resubmission, lastUpdate, schedule, registrationRelease, targetGroup, location, imgUrl, riskIndex, currentEditor, createdBy, updatedBy, principal, manager, expenditure, revenue, pressRelease, preventionConcept, notes, application) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO module_events (eventId, tenant, number, title, description, eventType, eventState, startDate, endDate, deadline, creationDate, resubmission, lastUpdate, schedule, registrationRelease, targetGroup, location, imgUrl, riskIndex, currentEditor, createdBy, updatedBy, principal, manager, expenditure, revenue, pressRelease, preventionConcept, notes, application) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection connection = databaseService.getConnection();PreparedStatement preparedStatement = connection.prepareStatement(sql)){
 
             preparedStatement.setString(1, event.getEventId().toString());
-            preparedStatement.setString(2, event.getTenantId().toString());
+            preparedStatement.setString(2, event.getTenant().toString());
             preparedStatement.setInt(3, event.getNumber());
             preparedStatement.setString(4, event.getTitle());
             preparedStatement.setString(5, event.getDescription());
@@ -169,13 +170,13 @@ public class EventService {
     }
 
 
-    public List<Event> getEventsByTenantId(UUID tenantId) throws SQLException {
+    public List<Event> getEventsByTenant(Tenant tenant) throws SQLException {
         List<Event> events = new ArrayList<>();
-        String sql = "SELECT * FROM module_events where tenantId = ?";
+        String sql = "SELECT * FROM module_events where tenant = ?";
 
         try (Connection connection = databaseService.getConnection()) {
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1, tenantId.toString());
+                preparedStatement.setString(1, tenant.toString());
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
 
                     while (resultSet.next()) {

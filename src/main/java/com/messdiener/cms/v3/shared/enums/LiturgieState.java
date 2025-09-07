@@ -9,6 +9,7 @@ public enum LiturgieState {
 
     DUTY("Eingeteilt"),
     AVAILABLE("Verfügbar"),
+    CANCELED("Abgesagt"),
     UNAVAILABLE("Nicht verfügbar");
 
     private final String label;

@@ -7,7 +7,7 @@ import com.messdiener.cms.v3.app.entities.event.PreventionForm;
 import com.messdiener.cms.v3.app.entities.event.data.MessageItem;
 import com.messdiener.cms.v3.app.entities.person.Person;
 import com.messdiener.cms.v3.app.entities.event.Event;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.helper.event.PlanerHelper;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.article.ArticleService;
@@ -64,8 +64,8 @@ public class EventController {
 
     @GetMapping("/event")
     public String calendar(HttpSession httpSession, Model model, @RequestParam("id") Optional<String> idS, @RequestParam("q") Optional<String> q, @RequestParam("s") Optional<String> s, @RequestParam("t") Optional<String> t, Map map) throws SQLException, JsonProcessingException {
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        Person user = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(httpSession);
 
         model.addAttribute("personHelper", personHelper);
@@ -96,7 +96,7 @@ public class EventController {
             model.addAttribute("name4", personHelper.getName(event.getManager()));
             model.addAttribute("tasks", taskService.getTasksByLink(event.getEventId()));
 
-            List<PersonOverviewDTO> persons = personService.getActiveMessdienerByTenantDTO(event.getTenantId());
+            List<PersonOverviewDTO> persons = personService.getActiveMessdienerByTenantDTO(event.getTenant());
             model.addAttribute("persons", persons);
 
             int personSize = persons.size();
@@ -172,7 +172,7 @@ public class EventController {
         Person user = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-        Event event = Event.empty(UUID.randomUUID(), user.getTenantId(), titel, EventType.valueOf(eventType), EventState.PLANNING, CMSDate.convert(startDateE, DateUtils.DateType.ENGLISH_DATETIME), CMSDate.convert(endDateE, DateUtils.DateType.ENGLISH_DATETIME), CMSDate.convert(deadlineE, DateUtils.DateType.ENGLISH));
+        Event event = Event.empty(UUID.randomUUID(), user.getTenant(), titel, EventType.valueOf(eventType), EventState.PLANNING, CMSDate.convert(startDateE, DateUtils.DateType.ENGLISH_DATETIME), CMSDate.convert(endDateE, DateUtils.DateType.ENGLISH_DATETIME), CMSDate.convert(deadlineE, DateUtils.DateType.ENGLISH));
         eventService.save(event);
 
         planerHelper.createSubTasks(event.getEventId(), EventType.valueOf(eventType));

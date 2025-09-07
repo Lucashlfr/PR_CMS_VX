@@ -255,7 +255,7 @@ public class WorkflowScripts {
                 .setFileName("wf_" + module.getName() + ".pdf")
                 .setSubject("[WF] " + module.getName())
                 .setInfoline("-", module.getModuleId().toString(), personHelper.getName(user.getPrincipal()), "-")
-                .setReceiver(user, personHelper.getTenantName(user).orElse(""))
+                .setReceiver(user, user.getTenant())
                 .addText("Dieses Dokument informiert Sie über die Änderungen, die Sie im Rahmen des aktuellen Workflows vorgenommen haben. Sie finden hier eine Zusammenfassung der von Ihnen aktualisierten oder hinzugefügten Daten sowie der abgegebenen Bestätigungen.");
 
         Map<String, String> map = JsonHelper.parseJsonToParams(module.getResults());

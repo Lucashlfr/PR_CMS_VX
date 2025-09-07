@@ -1,11 +1,10 @@
 package com.messdiener.cms.v3.web.controller.event;
 
-import com.messdiener.cms.v3.app.entities.document.Document;
 import com.messdiener.cms.v3.app.entities.audit.AuditLog;
+import com.messdiener.cms.v3.app.entities.document.Document;
 import com.messdiener.cms.v3.app.entities.event.Event;
 import com.messdiener.cms.v3.app.entities.event.PlanerTask;
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.helper.person.PersonHelper;
 import com.messdiener.cms.v3.app.services.article.ArticleService;
 import com.messdiener.cms.v3.app.services.audit.AuditService;
 import com.messdiener.cms.v3.app.services.document.DocumentService;
@@ -45,7 +44,6 @@ public class PlannerController {
     private final PersonService personService;
     private final DocumentService documentService;
     private final ArticleService articleService;
-    private final PersonHelper personHelper;
 
     @GetMapping("/planer/task")
     public String getTasks(Model model, @RequestParam("eventId")UUID eventId, @RequestParam("taskId")UUID taskId) throws SQLException {
@@ -55,7 +53,7 @@ public class PlannerController {
 
         model.addAttribute("event", event);
         model.addAttribute("task", task);
-        model.addAttribute("persons", personService.getActiveMessdienerByTenant(user.getTenantId()));
+        model.addAttribute("persons", personService.getActiveMessdienerByTenant(user.getTenant()));
 
         if(task.getLable().equals("PRINCIPAL")){
             return "calendar/form/principalForm";
@@ -77,13 +75,10 @@ public class PlannerController {
     public String saveResponsiblePersons(@RequestParam("id") UUID id, @RequestParam("taskId") UUID taskId,
                                                @RequestParam(value = "selectedPersons", required = false) List<UUID> selectedPersons) throws SQLException {
 
-        Person user = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
+        Person user = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         Event event = eventService.getEventById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
-
-
         PlanerTask task = plannerTaskService.getTaskById(taskId).orElseThrow();
+
         if (selectedPersons == null) {
             selectedPersons = new ArrayList<>();
             task.setState(CMSState.PROGRESS);
@@ -96,7 +91,6 @@ public class PlannerController {
 
         auditService.createLog(AuditLog.of(MessageType.INFO, ActionCategory.EVENT, event.getEventId(), Cache.SYSTEM_USER, "Die Verantwortlichen Personen wurden von " + user.getName() + " bearbeitet.", ""));
 
-        // Weiterleitung oder Neuladen der Seite
         return "close-popup";
     }
 

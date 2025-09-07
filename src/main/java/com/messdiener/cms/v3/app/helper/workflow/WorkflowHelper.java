@@ -1,7 +1,7 @@
 package com.messdiener.cms.v3.app.helper.workflow;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.workflow.Workflow;
 import com.messdiener.cms.v3.app.entities.workflow.WorkflowModule;
 import com.messdiener.cms.v3.app.services.workflow.WorkflowModuleService;
@@ -97,6 +97,9 @@ public class WorkflowHelper {
             switch (workflowType) {
                 case SAE -> createWorkflow(user.getId(), WorkflowType.SAE, startDate, endDate, WorkflowModuleName.SAE);
                 case ONBOARDING -> createWorkflow(user.getId(), WorkflowType.ONBOARDING, startDate, endDate, WorkflowModuleName.DATA, WorkflowModuleName.PRIVACY_POLICY, WorkflowModuleName.EMERGENCY);
+                default -> {
+                    return;
+                }
             }
         }
 

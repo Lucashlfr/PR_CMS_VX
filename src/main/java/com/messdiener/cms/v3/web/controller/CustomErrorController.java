@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -27,10 +26,9 @@ public class CustomErrorController implements ErrorController {
         if (status != null) {
             try {
                 int statusCode = Integer.parseInt(status.toString());
-                //LOGGER.warn("Handling error with status code: {} / {}", statusCode, request.getContextPath());
                 return resolveErrorView(statusCode);
-            } catch (NumberFormatException e) {
-                //LOGGER.error("Invalid status code received: {}", status, e);
+            } catch (NumberFormatException ignored){
+                //Ignored
             }
         }
 
@@ -41,7 +39,6 @@ public class CustomErrorController implements ErrorController {
     private String resolveErrorView(int statusCode) {
         return switch (statusCode) {
             case 401 -> "error/error-401";
-            case 403 -> "error/error-403";
             case 404 -> "error/error-404";
             case 500 -> "error/error-500";
             case 503 -> "error/error-503";

@@ -1,10 +1,7 @@
 package com.messdiener.cms.v3.app.services.person;
 
-import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.person.data.flags.PersonFlag;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
-import com.messdiener.cms.v3.shared.enums.PersonAttributes;
 import com.messdiener.cms.v3.shared.enums.person.FlagType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;

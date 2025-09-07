@@ -2,6 +2,7 @@ package com.messdiener.cms.v3.app.services.workflow;
 
 import com.messdiener.cms.v3.app.entities.workflow.Workflow;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.shared.enums.workflow.CMSState;
 import com.messdiener.cms.v3.shared.enums.workflow.WorkflowType;
 import com.messdiener.cms.v3.utils.time.CMSDate;
@@ -63,11 +64,11 @@ public class WorkflowService {
         return workflows;
     }
 
-    public List<Workflow> getAllWorkflowsByTenant(UUID tenantId) throws SQLException {
+    public List<Workflow> getAllWorkflowsByTenant(Tenant tenant) throws SQLException {
         List<Workflow> workflows = new ArrayList<>();
-        String sql = "SELECT * FROM module_workflow, module_person WHERE module_person.person_id = ownerId AND module_person.tenant_id = ?";
+        String sql = "SELECT * FROM module_workflow, module_person WHERE module_person.person_id = ownerId AND module_person.tenant = ?";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
+            preparedStatement.setString(1, tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     workflows.add(mapResultToWorkflow(resultSet));
@@ -142,12 +143,12 @@ public class WorkflowService {
         return stateCountMap;
     }
 
-    public Map<String, Integer> countWorkflowStatesByTenant(UUID tenantId) throws SQLException {
-        String sql = "SELECT workflowState FROM module_workflow, module_person WHERE module_person.person_id = ownerId AND module_person.tenant_id = ?";
+    public Map<String, Integer> countWorkflowStatesByTenant(Tenant tenant) throws SQLException {
+        String sql = "SELECT workflowState FROM module_workflow, module_person WHERE module_person.person_id = ownerId AND module_person.tenant = ?";
         Map<String, Integer> stateCountMap = new HashMap<>();
 
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
+            preparedStatement.setString(1, tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     CMSState state = CMSState.valueOf(resultSet.getString("module_workflow.workflowState"));

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -19,23 +20,19 @@ import java.util.Random;
 public class PersonLoginService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonLoginService.class);
-    private final PersonService personService;
 
     @PostConstruct
     public void init() {
         LOGGER.info("PersonLoginService initialized.");
     }
 
-    public void updateUsers() throws SQLException {
-        for (Person person : personService.getPersonsByLogin()) {
+    public void updateUsers(List<Person> persons) throws SQLException {
+        for (Person person : persons) {
             createLogin(person);
 
             if (person.getType() == null) {
                 person.setType(PersonAttributes.Type.NULL);
             }
-
-            personService.updatePerson(person);
-            //LOGGER.info("Login data updated for '{} {}'", person.getFirstname(), person.getLastname());
         }
     }
 
@@ -59,7 +56,6 @@ public class PersonLoginService {
                 LOGGER.info("Generated random password for '{} {}'", person.getFirstname(), person.getLastname());
             }
         }
-        personService.updatePerson(person);
     }
 
     public void matchPersonToUser() throws SQLException {

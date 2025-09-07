@@ -1,10 +1,13 @@
 package com.messdiener.cms.v3.app.services.person;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonLoginDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
+import com.messdiener.cms.v3.app.services.user.UserService;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.PersonAttributes;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -24,16 +27,17 @@ public class PersonService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonService.class);
     private final DatabaseService databaseService;
-    private final PersonFileService personFileService;
+    private final PersonLoginService personLoginService;
+    private final UserService userService;
 
     @PostConstruct
     public void init() {
-        String sql = "CREATE TABLE IF NOT EXISTS module_person (person_id VARCHAR(255), tenant_id VARCHAR(255), type VARCHAR(255), person_rank VARCHAR(255), principal VARCHAR(255), fRank int, salutation VARCHAR(255), firstname VARCHAR(255), lastname VARCHAR(255), gender VARCHAR(255), birthdate LONG, street VARCHAR(255), houseNumber VARCHAR(255), postalCode VARCHAR(255), city VARCHAR(255), email VARCHAR(255), phone VARCHAR(255), mobile VARCHAR(255), accessionDate LONG, exitDate LONG, activityNote TEXT, notes TEXT, active BOOLEAN, canLogin BOOLEAN, username VARCHAR(255), password VARCHAR(255), iban VARCHAR(255), bic VARCHAR(255), bank VARCHAR(255), accountHolder VARCHAR(255), privacy_policy TEXT, signature LONGBLOB, ob1 BOOLEAN, ob2 BOOLEAN, ob3 BOOLEAN, ob4 BOOLEAN, preventionDate long, customPassword boolean)";
+        String sql = "CREATE TABLE IF NOT EXISTS module_person (person_id VARCHAR(255), tenant VARCHAR(4), type VARCHAR(255), person_rank VARCHAR(255), principal VARCHAR(255), fRank int, salutation VARCHAR(255), firstname VARCHAR(255), lastname VARCHAR(255), gender VARCHAR(255), birthdate LONG, street VARCHAR(255), houseNumber VARCHAR(255), postalCode VARCHAR(255), city VARCHAR(255), email VARCHAR(255), phone VARCHAR(255), mobile VARCHAR(255), accessionDate LONG, exitDate LONG, activityNote TEXT, notes TEXT, active BOOLEAN, canLogin BOOLEAN, username VARCHAR(255), password VARCHAR(255), iban VARCHAR(255), bic VARCHAR(255), bank VARCHAR(255), accountHolder VARCHAR(255), privacy_policy TEXT, signature LONGBLOB, ob1 BOOLEAN, ob2 BOOLEAN, ob3 BOOLEAN, ob4 BOOLEAN, preventionDate long, customPassword boolean)";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.executeUpdate();
             LOGGER.info("PersonService initialized and person table ensured.");
 
-            Person system = Person.empty(Cache.SYSTEM_TENANT);
+            Person system = Person.empty(Tenant.MSTM);
             system.setId(Cache.SYSTEM_USER);
             system.setActive(true);
             system.setFirstname("System");
@@ -45,7 +49,7 @@ public class PersonService {
 
     public Person getPersonByResultSet(ResultSet resultSet) throws SQLException {
         UUID id = UUID.fromString(resultSet.getString("person_id"));
-        UUID tenantId = UUID.fromString(resultSet.getString("tenant_id"));
+        Tenant tenant = Tenant.valueOf(resultSet.getString("tenant"));
 
         PersonAttributes.Type type = resultSet.getString("type") != null ? PersonAttributes.Type.valueOf(resultSet.getString("type")) : PersonAttributes.Type.NULL;
         PersonAttributes.Rank rank = resultSet.getString("person_rank") != null ? PersonAttributes.Rank.valueOf(resultSet.getString("person_rank")) : PersonAttributes.Rank.NULL;
@@ -90,17 +94,11 @@ public class PersonService {
         CMSDate lastUpdate = CMSDate.of(resultSet.getLong("lastUpdate"));
 
         return new Person(
-                id, tenantId, type, rank, principal, fRank, salutation, firstname, lastname, gender, birthdate,
+                id, tenant, type, rank, principal, fRank, salutation, firstname, lastname, gender, birthdate,
                 street, houseNumber, postalCode, city, email, phone, mobile, accessionDate,
                 exitDate, activityNote, notes, active, canLogin, username, password,
                 iban, bic, bank, accountHolder, customPassword, lastUpdate
         );
-    }
-
-    public Person createPerson(UUID tenantId) throws SQLException {
-        Person person = Person.empty(tenantId);
-        updatePerson(person);
-        return getPersonById(person.getId()).orElseThrow();
     }
 
     public List<Person> getPersons() throws SQLException {
@@ -118,11 +116,11 @@ public class PersonService {
     public void updatePerson(Person person) throws SQLException {
         databaseService.delete("module_person", "person_id", person.getId().toString());
 
-        String sql = "INSERT INTO module_person (person_id, tenant_id, type, person_rank, principal, fRank, salutation, firstname, lastname, gender, birthdate, street, houseNumber, postalCode, city, email, phone, mobile, accessionDate, exitDate, activityNote, notes, active, canLogin, username, password, iban, bic, bank, accountHolder,customPassword,lastUpdate) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO module_person (person_id, tenant, type, person_rank, principal, fRank, salutation, firstname, lastname, gender, birthdate, street, houseNumber, postalCode, city, email, phone, mobile, accessionDate, exitDate, activityNote, notes, active, canLogin, username, password, iban, bic, bank, accountHolder,customPassword,lastUpdate) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, person.getId().toString());
-            preparedStatement.setString(2, person.getTenantId().toString());
+            preparedStatement.setString(2, person.getTenant().toString());
             preparedStatement.setString(3, person.getType().toString());
             preparedStatement.setString(4, person.getRank().toString());
             preparedStatement.setString(5, person.getPrincipal().toString());
@@ -154,6 +152,9 @@ public class PersonService {
             preparedStatement.setBoolean(31, person.isCustomPassword());
             preparedStatement.setLong(32, System.currentTimeMillis());
             preparedStatement.executeUpdate();
+
+            userService.initializeUsersAndPermissions(getPersonsByLogin());
+
         }
     }
 
@@ -177,11 +178,11 @@ public class PersonService {
         }
     }
 
-    public List<Person> getPersonsByTenant(UUID tenantId) throws SQLException {
+    public List<Person> getPersonsByTenant(Tenant tenant) throws SQLException {
         List<Person> persons = new ArrayList<>();
-        String sql = "SELECT * FROM module_person WHERE tenant_id = ? ORDER BY lastname";
+        String sql = "SELECT * FROM module_person WHERE tenant = ? ORDER BY lastname";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
+            preparedStatement.setString(1, tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     persons.add(getPersonByResultSet(resultSet));
@@ -191,12 +192,12 @@ public class PersonService {
         return persons;
     }
 
-    public List<Person> getPersonsByTenantAndType(UUID tenantId, PersonAttributes.Type type) throws SQLException {
+
+    public List<Person> getActiveMessdienerByTenant(Tenant tenant) throws SQLException {
         List<Person> persons = new ArrayList<>();
-        String sql = "SELECT * FROM module_person WHERE tenant_id = ? AND type = ?";
+        String sql = "SELECT * FROM module_person WHERE tenant = ? AND type = 'MESSDIENER' AND active ORDER BY lastname";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
-            preparedStatement.setString(2, type.toString());
+            preparedStatement.setString(1, tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     persons.add(getPersonByResultSet(resultSet));
@@ -205,89 +206,6 @@ public class PersonService {
         }
         return persons;
     }
-
-    public List<Person> getPersonsByLogin() throws SQLException {
-        List<Person> persons = new ArrayList<>();
-        String sql = "SELECT * FROM module_person WHERE canLogin = 1 AND active = 1";
-        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                persons.add(getPersonByResultSet(resultSet));
-            }
-        }
-        return persons;
-    }
-
-    public List<Person> getActiveMessdienerByTenant(UUID tenantId) throws SQLException {
-        List<Person> persons = new ArrayList<>();
-        String sql = "SELECT * FROM module_person WHERE tenant_id = ? AND type = 'MESSDIENER' AND active ORDER BY lastname";
-        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    persons.add(getPersonByResultSet(resultSet));
-                }
-            }
-        }
-        return persons;
-    }
-
-    public List<Person> getInactiveMessdienerByTenant(UUID tenantId) throws SQLException {
-        List<Person> persons = new ArrayList<>();
-        String sql = "SELECT * FROM module_person WHERE tenant_id = ? AND type = 'MESSDIENER' AND active = 0 ORDER BY lastname";
-        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    persons.add(getPersonByResultSet(resultSet));
-                }
-            }
-        }
-        return persons;
-    }
-
-    public List<Person> getPersonsByRank() throws SQLException {
-        List<Person> persons = new ArrayList<>();
-        String sql = "SELECT * FROM module_person WHERE (person_rank = ? OR person_rank = ?) AND active ORDER BY lastname";
-        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, PersonAttributes.Rank.LEITUNGSTEAM.toString());
-            preparedStatement.setString(2, PersonAttributes.Rank.OBERMESSDIENER.toString());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    persons.add(getPersonByResultSet(resultSet));
-                }
-            }
-        }
-        return persons;
-    }
-
-    public List<Person> getActivePersonsByPermission(int fRank, UUID tenantId) throws SQLException {
-        List<Person> persons = new ArrayList<>();
-        String sql;
-
-        if (fRank >= 3) {
-            sql = "SELECT * FROM module_person WHERE type = 'MESSDIENER' AND active ORDER BY lastname";
-            try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                 ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    persons.add(getPersonByResultSet(resultSet));
-                }
-            }
-        } else {
-            sql = "SELECT * FROM module_person WHERE tenant_id = ? AND type = 'MESSDIENER' AND active ORDER BY lastname";
-            try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1, tenantId.toString());
-                try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                    while (resultSet.next()) {
-                        persons.add(getPersonByResultSet(resultSet));
-                    }
-                }
-            }
-        }
-
-        return persons;
-    }
-
 
     public String getPersonName(UUID id) throws SQLException {
         String sql = "SELECT firstname, lastname FROM module_person WHERE person_id = ?";
@@ -312,72 +230,47 @@ public class PersonService {
         return persons;
     }
 
-    public int countActivePersonsByTenant(UUID tenantId) throws SQLException {
-        String sql = "SELECT COUNT(*) FROM module_person WHERE active AND tenant_id = ?";
-        try (Connection connection = databaseService.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt(1);
-                }
-            }
-        }
-        return 0;
-    }
-
-    private PersonOverviewDTO mapToOverviewDTO(ResultSet rs) throws SQLException {
+    public PersonOverviewDTO mapToOverviewDTO(ResultSet rs) throws SQLException {
         UUID id = UUID.fromString(rs.getString("p.person_id"));
-        UUID tenantId = UUID.fromString(rs.getString("p.tenant_id"));
+        Tenant tenant = Tenant.valueOf(rs.getString("p.tenant"));
         String firstName = rs.getString("p.firstname");
         String lastName = rs.getString("p.lastname");
-        String tenantName = rs.getString("t.name");
         String rank = PersonAttributes.Rank.valueOf(rs.getString("p.person_rank")).getName();
         String birthdate = rs.getObject("birthdate") != null
                 ? CMSDate.of(rs.getLong("birthdate")).getGermanDate() + " (" + CMSDate.of(rs.getLong("birthdate")).getAge() + ")"
                 : "";
+        String username = rs.getString("p.username");
+        String password = rs.getString("p.password");
 
         if(birthdate.startsWith("01.01.1970")) {
             birthdate = "";
         }
 
-        // Aktivitäts-Prozentsätze berechnen (Duty, Absent, Availability)
         double[] activity = new double[3];
-
-        // Bild-URL aus Fileservice
         String imgUrl = ("/dist/assets/img/demo/user-placeholder.svg");
 
-        return new PersonOverviewDTO(
-                id,
-                firstName,
-                lastName,
-                tenantName,
-                rank,
-                birthdate,
-                activity,
-                imgUrl
-        );
+        return new PersonOverviewDTO(id,firstName,lastName,tenant,rank, birthdate,activity, imgUrl,username, password);
     }
 
-    public List<PersonOverviewDTO> getActivePersonsByPermissionDTO(int fRank, UUID tenantId) throws SQLException {
+    public List<PersonOverviewDTO> getActivePersonsByPermissionDTO(int fRank, Tenant tenant) throws SQLException {
         List<PersonOverviewDTO> persons = new ArrayList<>();
         String sql;
 
         if (fRank == 3) {
-            sql = "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant_id, t.name " +
-                    "FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id " +
+            sql = "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant, p.tenant, p.username, p.password " +
+                    "FROM module_person p " +
                     "WHERE p.type = 'MESSDIENER' AND p.active ORDER BY p.lastname";
         } else {
-            sql = "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant_id, t.name " +
-                    "FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id " +
-                    "WHERE p.type = 'MESSDIENER' AND p.active AND p.tenant_id = ? ORDER BY p.lastname";
+            sql = "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant, p.tenant, p.username, p.password " +
+                    "FROM module_person p " +
+                    "WHERE p.type = 'MESSDIENER' AND p.active AND p.tenant = ? ORDER BY p.lastname";
         }
 
         try (Connection conn = databaseService.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             if (fRank != 3) {
-                ps.setString(1, tenantId.toString());
+                ps.setString(1, tenant.toString());
             }
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -389,17 +282,17 @@ public class PersonService {
         return persons;
     }
 
-    public List<PersonOverviewDTO> getActiveMessdienerByTenantDTO(UUID tenantId) throws SQLException {
+    public List<PersonOverviewDTO> getActiveMessdienerByTenantDTO(Tenant tenant) throws SQLException {
         List<PersonOverviewDTO> persons = new ArrayList<>();
         String sql =
-                "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant_id, t.name " +
-                        "FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id " +
-                        "WHERE p.type = 'MESSDIENER' AND p.active AND p.tenant_id = ? ORDER BY p.lastname";
+                "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant, p.tenant, p.username, p.password " +
+                        "FROM module_person p " +
+                        "WHERE p.type = 'MESSDIENER' AND p.active AND p.tenant = ? ORDER BY p.lastname";
 
         try (Connection conn = databaseService.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, tenantId.toString());
+            ps.setString(1, tenant.toString());
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -407,52 +300,13 @@ public class PersonService {
                 }
             }
         }
-        return persons;
-    }
-
-    public List<PersonOverviewDTO> findAllByIds(List<UUID> personIds) throws SQLException {
-        // Falls keine IDs übergeben wurden, direkt leere Liste zurückliefern
-        if (personIds == null || personIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<PersonOverviewDTO> persons = new ArrayList<>();
-
-        // SQL zusammenbauen: IN-Klausel mit so vielen Platzhaltern, wie UUIDs im List-Parameter sind
-        StringBuilder sql = new StringBuilder();
-        sql.append("SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant_id, t.name ")
-                .append("FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id ")
-                .append("WHERE p.person_id IN (");
-        for (int i = 0; i < personIds.size(); i++) {
-            sql.append("?");
-            if (i < personIds.size() - 1) {
-                sql.append(", ");
-            }
-        }
-        sql.append(") ORDER BY p.lastname");
-
-        try (Connection conn = databaseService.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-
-            // Die UUID-Strings in die PreparedStatement-Parameter einfügen
-            for (int i = 0; i < personIds.size(); i++) {
-                ps.setString(i + 1, personIds.get(i).toString());
-            }
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    persons.add(mapToOverviewDTO(rs));
-                }
-            }
-        }
-
         return persons;
     }
 
     public Optional<PersonOverviewDTO> getPersonDTO(Person targetPerson) throws SQLException {
         String sql =
-                "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant_id, t.name " +
-                        "FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id " +
+                "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant, p.tenant ,p.username, p.password " +
+                        "FROM module_person p " +
                         "WHERE p.type = 'MESSDIENER' AND p.active AND p.person_id = ? ORDER BY p.lastname";
 
         try (Connection conn = databaseService.getConnection();
@@ -468,8 +322,8 @@ public class PersonService {
 
     public Optional<PersonOverviewDTO> getPersonDTO(UUID personId) throws SQLException {
         String sql =
-                "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant_id, t.name " +
-                        "FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id " +
+                "SELECT p.person_id, p.firstname, p.lastname, p.person_rank, p.birthdate, p.tenant, p.tenant ,p.username, p.password " +
+                        "FROM module_person p " +
                         "WHERE p.type = 'MESSDIENER' AND p.active AND p.person_id = ? ORDER BY p.lastname";
 
         try (Connection conn = databaseService.getConnection();
@@ -481,5 +335,19 @@ public class PersonService {
                 return rs.next() ? Optional.of(mapToOverviewDTO(rs)) : Optional.empty();
             }
         }
+    }
+
+
+    public List<PersonLoginDTO> getPersonsByLogin() throws SQLException {
+        List<PersonLoginDTO> persons = new ArrayList<>();
+        String sql =
+                "SELECT p.username, p.password FROM module_person p WHERE p.canLogin = 1 ORDER BY p.lastname";
+        try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                persons.add(new  PersonLoginDTO(resultSet.getString("username"), resultSet.getString("password")));
+            }
+        }
+        return persons;
     }
 }

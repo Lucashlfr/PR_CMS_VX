@@ -1,6 +1,7 @@
 package com.messdiener.cms.v3.app.entities.finance;
 
 import com.messdiener.cms.v3.shared.enums.finance.TransactionCategory;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,7 +13,7 @@ import java.util.UUID;
 public class FinanceEntry {
 
     private UUID id;
-    private UUID tenantId;
+    private Tenant tenant;
     private UUID billId;
     private UUID userId;
 

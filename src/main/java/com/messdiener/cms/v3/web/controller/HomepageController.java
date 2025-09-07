@@ -1,6 +1,5 @@
 package com.messdiener.cms.v3.web.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.messdiener.cms.v3.app.entities.acticle.Article;
 import com.messdiener.cms.v3.app.entities.event.PlanerTask;
 import com.messdiener.cms.v3.app.entities.person.Person;
@@ -14,17 +13,16 @@ import com.messdiener.cms.v3.security.SecurityHelper;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.ArticleState;
 import com.messdiener.cms.v3.shared.enums.ArticleType;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.shared.enums.workflow.CMSState;
 import com.messdiener.cms.v3.utils.time.CMSDate;
-import com.messdiener.cms.v3.utils.time.DateUtils;
+import com.messdiener.cms.v3.web.configuration.ContextConfiguration;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +35,6 @@ import java.sql.SQLException;
 import java.time.*;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,7 +43,6 @@ import java.util.UUID;
 public class HomepageController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HomepageController.class);
-    private final Cache cache;
     private final SecurityHelper securityHelper;
     private final ArticleService articleService;
     private final PlannerTaskService plannerTaskService;
@@ -60,41 +56,41 @@ public class HomepageController {
         LOGGER.info("DefaultController initialized.");
     }
 
-    @GetMapping("/")
-    public String index(HttpSession httpSession, Model model) throws SQLException {
+    @GetMapping(ContextConfiguration.INDEX)
+    public String index(Model model) throws SQLException {
         model.addAttribute("articles", articleService.getArticlesByType(ArticleType.BLOG, ArticleState.PUBLISHED));
         model.addAttribute("events", eventService.getEventsForState());
         return "public/index";
     }
 
     @GetMapping("/infos")
-    public String infos(HttpSession httpSession, Model model) throws SQLException {
+    public String infos(Model model) throws SQLException {
         model.addAttribute("events", eventService.getEventsAtDeadline());
         model.addAttribute("now", System.currentTimeMillis());
         return "public/pages/event_overview";
     }
 
     @GetMapping("/about")
-    public String about(HttpSession httpSession, Model model)throws SQLException {
+    public String about(Model model)throws SQLException {
         model.addAttribute("article", articleService.getArticleByType(ArticleType.ABOUT).orElse(Article.empty()));
         return "public/pages/article";
     }
 
     @GetMapping("/contact")
-    public String contact(HttpSession httpSession, Model model)throws SQLException {
+    public String contact(Model model)throws SQLException {
         model.addAttribute("article", articleService.getArticleByType(ArticleType.CONTACT).orElse(Article.empty()));
         return "public/pages/article";
     }
 
     @GetMapping("/impressum")
-    public String impressum(HttpSession httpSession, Model model)throws SQLException {
+    public String impressum(Model model)throws SQLException {
         model.addAttribute("article", articleService.getArticleByType(ArticleType.IMPRESSUM).orElse(Article.empty()));
         return "public/pages/article";
     }
 
 
     @GetMapping("/go")
-    public String go(HttpSession httpSession, Model model, @RequestParam("id")UUID id, @RequestParam("type")Optional<String> t, @RequestParam("state")Optional<String> state) throws SQLException {
+    public String go(Model model, @RequestParam("id")UUID id, @RequestParam("type")Optional<String> t, @RequestParam("state")Optional<String> state) throws SQLException {
         model.addAttribute("article", articleService.getArticleById(id).orElse(Article.empty()));
         model.addAttribute("state", state.orElse("null"));
 
@@ -173,7 +169,7 @@ public class HomepageController {
         model.addAttribute("img", "/dist/assets/img/KW/KW" + week + ".png");
 
         long[] timestamps = getTimestampsForWeek(year, week);
-        model.addAttribute("liturgie", liturgieService.getLiturgies(UUID.fromString("89fce045-2ad4-43b3-b088-d1e697999793"), timestamps[0], timestamps[1]));
+        model.addAttribute("liturgie", liturgieService.getLiturgies(Tenant.MSGK, timestamps[0], timestamps[1]));
 
         model.addAttribute("helper", liturgieHelper);
 

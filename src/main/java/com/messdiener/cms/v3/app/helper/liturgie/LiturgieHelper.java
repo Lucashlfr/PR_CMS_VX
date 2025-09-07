@@ -2,7 +2,7 @@ package com.messdiener.cms.v3.app.helper.liturgie;
 
 
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.worship.EventParticipationDto;
 import com.messdiener.cms.v3.app.entities.worship.Liturgie;
 import com.messdiener.cms.v3.app.entities.worship.LiturgieView;
@@ -56,11 +56,11 @@ public class LiturgieHelper {
         CMSDate startDate = startDateS.isPresent() ? CMSDate.convert(startDateE, DateUtils.DateType.ENGLISH) : CMSDate.of(getStartOfCurrentMonthMillis());
         CMSDate endDate = endDateS.isPresent() ? CMSDate.convert(endDateE, DateUtils.DateType.ENGLISH) : CMSDate.of(getEndOfCurrentMonthMillis());
 
-        List<Liturgie> liturgieList =  liturgieService.getLiturgies(person.getTenantId(), startDate.toLong(), endDate.toLong());
+        List<Liturgie> liturgieList =  liturgieService.getLiturgies(person.getTenant(), startDate.toLong(), endDate.toLong());
 
         List<PersonOverviewDTO> persons;
         if(target.isEmpty()){
-            persons = personService.getActiveMessdienerByTenantDTO(person.getTenantId());
+            persons = personService.getActiveMessdienerByTenantDTO(person.getTenant());
         }else {
             Person targetPerson = target.get();
             persons = List.of(personService.getPersonDTO(targetPerson).orElseThrow());
@@ -92,11 +92,11 @@ public class LiturgieHelper {
         CMSDate endDate = endDateS.isPresent() ? CMSDate.convert(endDateE, DateUtils.DateType.ENGLISH) : CMSDate.of(getEndOfCurrentMonthMillis());
 
         // 1) Events abrufen
-        List<Liturgie> liturgieList = liturgieService.getLiturgies(person.getTenantId(), startDate.toLong(), endDate.toLong());
+        List<Liturgie> liturgieList = liturgieService.getLiturgies(person.getTenant(), startDate.toLong(), endDate.toLong());
 
         List<PersonOverviewDTO> persons;
         if(target.isEmpty()){
-            persons = personService.getActiveMessdienerByTenantDTO(person.getTenantId());
+            persons = personService.getActiveMessdienerByTenantDTO(person.getTenant());
         }else {
             Person targetPerson = target.get();
             persons = List.of(personService.getPersonDTO(targetPerson).orElseThrow());

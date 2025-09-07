@@ -41,7 +41,7 @@ public class LiturgieRequestController {
     @PostMapping("/liturgie/request/create")
     public RedirectView createLiturgie(@RequestParam("name")String name, @RequestParam("startDate")String startDateE, @RequestParam("endDate")String endDateE, @RequestParam("deadline")String deadlineE) throws SQLException {
         Person person = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        LiturgieRequest liturgieRequest = new LiturgieRequest(UUID.randomUUID(), person.getTenantId(), person.getId(), 0, name, CMSDate.convert(startDateE, DateUtils.DateType.ENGLISH), CMSDate.convert(endDateE, DateUtils.DateType.ENGLISH),CMSDate.convert(deadlineE, DateUtils.DateType.ENGLISH), true);
+        LiturgieRequest liturgieRequest = new LiturgieRequest(UUID.randomUUID(), person.getTenant(), person.getId(), 0, name, CMSDate.convert(startDateE, DateUtils.DateType.ENGLISH), CMSDate.convert(endDateE, DateUtils.DateType.ENGLISH),CMSDate.convert(deadlineE, DateUtils.DateType.ENGLISH), true);
         liturgieRequestService.saveRequest(liturgieRequest);
         return new RedirectView("/liturgie?q=request");
     }
@@ -49,7 +49,7 @@ public class LiturgieRequestController {
     @GetMapping("/liturgie/request/stop")
     public RedirectView stopLiturgie(@RequestParam("id")UUID id) throws SQLException {
         Person person = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        LiturgieRequest liturgieRequest = liturgieRequestService.currentRequest(person.getTenantId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Liturgie not found"));
+        LiturgieRequest liturgieRequest = liturgieRequestService.currentRequest(person.getTenant()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Liturgie not found"));
         liturgieRequest.setActive(false);
         liturgieRequestService.saveRequest(liturgieRequest);
         return new RedirectView("/liturgie?q=request");
@@ -61,15 +61,16 @@ public class LiturgieRequestController {
         Person person = securityHelper.addPersonToSession(session).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         securityHelper.addPersonToSession(session);
 
-        Optional<LiturgieRequest> liturgieRequest = liturgieRequestService.currentRequest(person.getTenantId());
+        Optional<LiturgieRequest> liturgieRequest = liturgieRequestService.currentRequest(person.getTenant());
         model.addAttribute("current", liturgieRequest.isPresent());
         model.addAttribute("liturgieRequest", liturgieRequest.orElse(null));
+        model.addAttribute("personHelper",  personHelper);
 
         RequestEnum requestEnum = RequestEnum.NO_REQUEST;
 
         List<Liturgie> liturgieList = new ArrayList<>();
         if(liturgieRequest.isPresent()) {
-            liturgieList = liturgieService.getLiturgies(person.getTenantId(), liturgieRequest.get().getStartDate().toLong(), liturgieRequest.get().getEndDate().toLong());
+            liturgieList = liturgieService.getLiturgies(person.getTenant(), liturgieRequest.get().getStartDate().toLong(), liturgieRequest.get().getEndDate().toLong());
             requestEnum = RequestEnum.SHOW;
 
             if(liturgieRequestService.sendRequest(person.getId(), liturgieRequest.get().getRequestId())) {
@@ -87,26 +88,34 @@ public class LiturgieRequestController {
 
     @PostMapping("/liturgie/request/submit")
     public RedirectView submitLiturgieRequest(@RequestParam Map<String, String> params,
-                                              HttpServletRequest request) throws SQLException {
+                                              HttpServletRequest request, @RequestParam(name = "connectionIds", required = false)
+                                                  List<UUID> connectionIds) throws SQLException {
         Person person = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        params.forEach((key, value) -> {
-            if (key.startsWith("event_")) {
-                String liturgieId = key.substring("event_".length());
-                boolean isAvailable = "1".equals(value);
 
-                try {
-                    liturgieMappingService.setState(UUID.fromString(liturgieId), person.getId(), isAvailable ? LiturgieState.AVAILABLE : LiturgieState.UNAVAILABLE);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+        List<UUID> personIds = new ArrayList<>();
+        personIds.add(person.getId());
+
+        if (connectionIds != null) {
+            personIds.addAll(connectionIds);
+        }
+
+        for(UUID pId : personIds) {
+            params.forEach((key, value) -> {
+                if (key.startsWith("event_")) {
+                    String liturgieId = key.substring("event_".length());
+                    boolean isAvailable = "1".equals(value);
+
+                    try {
+                        liturgieMappingService.setState(UUID.fromString(liturgieId), pId, isAvailable ? LiturgieState.AVAILABLE : LiturgieState.UNAVAILABLE);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
-        });
+            });
 
-        Optional<LiturgieRequest> liturgieRequest = liturgieRequestService.currentRequest(person.getTenantId());
-        liturgieRequestService.acceptRequest(
-                person.getId(),
-                liturgieRequest.orElseThrow(() -> new IllegalStateException("LiturgieRequest not found")).getRequestId()
-        );
+            Optional<LiturgieRequest> liturgieRequest = liturgieRequestService.currentRequest(person.getTenant());
+            liturgieRequestService.acceptRequest(pId, liturgieRequest.orElseThrow(() -> new IllegalStateException("LiturgieRequest not found")).getRequestId());
+        }
 
 
         // Weiterleitung nach dem Speichern

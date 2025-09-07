@@ -86,6 +86,24 @@
                                         gelöscht.</p>
 
                                 </div>
+                                <div class="col-xl-6 col-12">
+                                    <div class="row mb-1 align-items-center">
+                                        <label for="username" class="col-sm-2 col-form-label">Benutzername</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control form-control-sm" id="username"
+                                                   placeholder="Enter username"
+                                                   name="username" th:value="${person.getUsername()}">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-1 align-items-center">
+                                        <label for="password" class="col-sm-2 col-form-label">Passwort</label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control form-control-sm" id="password"
+                                                   placeholder="Enter password"
+                                                   name="password" th:value="${person.getPassword()}">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>

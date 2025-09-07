@@ -25,7 +25,6 @@ public class PlanerHelper {
 
     private final PlannerTaskService plannerTaskService;
     private final DocumentService documentService;
-    private final ArticleService articleService;
     private final EventApplicationService eventApplicationService;
 
     public void createSubTasks(UUID id, EventType eventType) throws SQLException {

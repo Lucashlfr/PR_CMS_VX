@@ -2,6 +2,7 @@ package com.messdiener.cms.v3.app.services.liturgie;
 
 import com.messdiener.cms.v3.app.entities.worship.LiturgieRequest;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class LiturgieRequestService {
     @PostConstruct
     public void init() {
         try (Connection connection = databaseService.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_liturgie_request (requestId VARCHAR(36), number INT AUTO_INCREMENT PRIMARY KEY, tenantId VARCHAR(36), creatorId VARCHAR(36), name TEXT, startDate long, endDate long, deadline long, active boolean)")) {
+            PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_liturgie_request (requestId VARCHAR(36), number INT AUTO_INCREMENT PRIMARY KEY, tenant VARCHAR(4), creatorId VARCHAR(36), name TEXT, startDate long, endDate long, deadline long, active boolean)")) {
             preparedStatement.executeUpdate();
             LOGGER.info("module_liturgie_request initialized successfully.");
         } catch (SQLException e) {
@@ -48,7 +49,7 @@ public class LiturgieRequestService {
 
     private LiturgieRequest getLiturgieRequestByResult(ResultSet resultSet) throws SQLException {
         UUID requestId = UUID.fromString(resultSet.getString("requestId"));
-        UUID tenantId =  UUID.fromString(resultSet.getString("tenantId"));
+        Tenant tenant = Tenant.valueOf(resultSet.getString("tenant"));
         UUID creatorId =  UUID.fromString(resultSet.getString("creatorId"));
 
         int number =  resultSet.getInt("number");
@@ -61,14 +62,14 @@ public class LiturgieRequestService {
         CMSDate deadline =  CMSDate.of(resultSet.getLong("deadline"));
         boolean active = resultSet.getBoolean("active");
 
-        return new LiturgieRequest(requestId, tenantId, creatorId, number, name, startDate, endDate, deadline, active);
+        return new LiturgieRequest(requestId, tenant, creatorId, number, name, startDate, endDate, deadline, active);
     }
 
-    public List<LiturgieRequest> getRequestsByTenant(UUID tenantId) throws SQLException {
+    public List<LiturgieRequest> getRequestsByTenant(Tenant tenant) throws SQLException {
         List<LiturgieRequest> liturgieRequests = new ArrayList<>();
-        String sql = "SELECT * FROM module_liturgie_request WHERE tenantId = ? ORDER BY requestId DESC";
+        String sql = "SELECT * FROM module_liturgie_request WHERE tenant = ? ORDER BY requestId DESC";
         try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setString(1,tenantId.toString());
+            preparedStatement.setString(1,tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()){
                 while(resultSet.next()){
                     liturgieRequests.add(getLiturgieRequestByResult(resultSet));
@@ -81,11 +82,11 @@ public class LiturgieRequestService {
     public void saveRequest(LiturgieRequest liturgieRequest) throws SQLException {
         databaseService.delete("module_liturgie_request", "requestId", liturgieRequest.getRequestId().toString());
 
-        String sql = "INSERT INTO module_liturgie_request (requestId, number, tenantId, creatorId, name, startDate, endDate, deadline, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
+        String sql = "INSERT INTO module_liturgie_request (requestId, number, tenant, creatorId, name, startDate, endDate, deadline, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)";
         try(Connection connection = databaseService.getConnection();PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setString(1, liturgieRequest.getRequestId().toString());
             preparedStatement.setInt(2, liturgieRequest.getNumber());
-            preparedStatement.setString(3, liturgieRequest.getTenantId().toString());
+            preparedStatement.setString(3, liturgieRequest.getTenant().toString());
             preparedStatement.setString(4, liturgieRequest.getCreatorId().toString());
             preparedStatement.setString(5, liturgieRequest.getName());
             preparedStatement.setLong(6, liturgieRequest.getStartDate().toLong());
@@ -96,10 +97,10 @@ public class LiturgieRequestService {
         }
     }
 
-    public Optional<LiturgieRequest> currentRequest(UUID tenantId) throws SQLException {
-        String sql = "SELECT * FROM module_liturgie_request WHERE tenantId = ? and active ORDER BY requestId DESC LIMIT 1";
+    public Optional<LiturgieRequest> currentRequest(Tenant tenant) throws SQLException {
+        String sql = "SELECT * FROM module_liturgie_request WHERE tenant = ? and active ORDER BY requestId DESC LIMIT 1";
         try(Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            preparedStatement.setString(1,tenantId.toString());
+            preparedStatement.setString(1,tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()){
                 return resultSet.next() ? Optional.of(getLiturgieRequestByResult(resultSet)) : Optional.empty();
             }
@@ -127,20 +128,17 @@ public class LiturgieRequestService {
         }
     }
 
-    public Map<String, Boolean> getPersonStatusMap(UUID tenantId, UUID requestId) throws SQLException {
+    public Map<String, Boolean> getPersonStatusMap(Tenant tenant, UUID requestId) throws SQLException {
         Map<String, Boolean> personStatusMap = new LinkedHashMap<>();
 
-        String personQuery = "SELECT p.person_id, p.firstname, p.lastname " +
-                "FROM module_person p JOIN module_tenant t ON p.tenant_id = t.id " +
-                "WHERE p.type = 'MESSDIENER' AND p.active AND p.tenant_id = ? ORDER BY p.lastname";
-
+        String personQuery = "SELECT p.person_id, p.firstname, p.lastname FROM module_person p WHERE p.type = 'MESSDIENER' AND p.active AND p.tenant = ? ORDER BY p.lastname";
         String statusQuery = "SELECT 1 FROM module_liturgie_request_map WHERE personId = ? AND requestId = ?";
 
         try (Connection connection = databaseService.getConnection();
              PreparedStatement personStatement = connection.prepareStatement(personQuery);
              PreparedStatement statusStatement = connection.prepareStatement(statusQuery)) {
 
-            personStatement.setObject(1, tenantId.toString());
+            personStatement.setObject(1, tenant.toString());
             ResultSet personResult = personStatement.executeQuery();
 
             while (personResult.next()) {

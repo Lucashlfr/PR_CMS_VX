@@ -51,8 +51,7 @@ public class WFApproval implements WorkflowModule {
 
     @Override
     public List<Component> getComponents() {
-        List<Component> components = new ArrayList<>();
-        return components;
+        return new ArrayList<>();
     }
 
     @Override

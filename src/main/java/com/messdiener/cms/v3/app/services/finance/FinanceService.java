@@ -1,10 +1,11 @@
 package com.messdiener.cms.v3.app.services.finance;
 
 import com.messdiener.cms.v3.app.entities.finance.FinanceEntry;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.services.person.PersonService;
 import com.messdiener.cms.v3.app.services.sql.DatabaseService;
 import com.messdiener.cms.v3.shared.enums.finance.TransactionCategory;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class FinanceService {
     @PostConstruct
     public void init() {
         try (Connection connection = databaseService.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_finance_transactions (id VARCHAR(36), number INT AUTO_INCREMENT PRIMARY KEY, tenantId VARCHAR(36), billId VARCHAR(36), userID VARCHAR(36), date long, revenueCash double, expenseCash double, revenueAccount double, expenseAccount double, title TEXT, transactionCategory VARCHAR(60), notes TEXT)")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS module_finance_transactions (id VARCHAR(36), number INT AUTO_INCREMENT PRIMARY KEY, tenant VARCHAR(4), billId VARCHAR(36), userID VARCHAR(36), date long, revenueCash double, expenseCash double, revenueAccount double, expenseAccount double, title TEXT, transactionCategory VARCHAR(60), notes TEXT)")) {
             preparedStatement.executeUpdate();
             LOGGER.info("module_finance_transactions initialized successfully.");
         } catch (SQLException e) {
@@ -41,7 +42,7 @@ public class FinanceService {
 
     private FinanceEntry getEntryByResultSet(ResultSet resultSet) throws SQLException {
         UUID id = UUID.fromString(resultSet.getString("id"));
-        UUID tenantId = UUID.fromString(resultSet.getString("tenantId"));
+        Tenant tenant = Tenant.valueOf(resultSet.getString("tenant"));
         UUID billId = UUID.fromString(resultSet.getString("billId"));
         UUID userId = UUID.fromString(resultSet.getString("userID"));
 
@@ -56,14 +57,14 @@ public class FinanceService {
         String title = resultSet.getString("title");
         TransactionCategory transactionCategory = TransactionCategory.valueOf(resultSet.getString("transactionCategory"));
         String notes = resultSet.getString("notes");
-        return new FinanceEntry(id, tenantId, billId, userId, number, date, revenueCash, expenseCash, revenueAccount, expenseAccount, title, transactionCategory, notes);
+        return new FinanceEntry(id, tenant, billId, userId, number, date, revenueCash, expenseCash, revenueAccount, expenseAccount, title, transactionCategory, notes);
     }
 
-    public List<FinanceEntry> getEntriesByTenantId(UUID tenantId) throws SQLException {
-        String sql = "SELECT * FROM module_finance_transactions WHERE tenantId = ? ORDER BY date DESC";
+    public List<FinanceEntry> getEntriesByTenant(Tenant tenant) throws SQLException {
+        String sql = "SELECT * FROM module_finance_transactions WHERE tenant = ? ORDER BY date DESC";
         List<FinanceEntry> financeEntries = new ArrayList<>();
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
+            preparedStatement.setString(1, tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     FinanceEntry entry = getEntryByResultSet(resultSet);
@@ -75,11 +76,11 @@ public class FinanceService {
     }
 
     public void createEntry(FinanceEntry entry) throws SQLException {
-        String sql = "INSERT INTO module_finance_transactions (id, number, tenantId, billId, userID, date, revenueCash, expenseCash, revenueAccount, expenseAccount, title, transactionCategory, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO module_finance_transactions (id, number, tenant, billId, userID, date, revenueCash, expenseCash, revenueAccount, expenseAccount, title, transactionCategory, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, entry.getId().toString());
             preparedStatement.setInt(2, entry.getNumber());
-            preparedStatement.setString(3, entry.getTenantId().toString());
+            preparedStatement.setString(3, entry.getTenant().toString());
             preparedStatement.setString(4, entry.getBillId().toString());
             preparedStatement.setString(5, entry.getUserId().toString());
             preparedStatement.setLong(6, entry.getDate().getDate());
@@ -94,11 +95,11 @@ public class FinanceService {
         }
     }
 
-    public Map<FinanceEntry, PersonOverviewDTO> getFinancePersonMap(UUID tenantId) throws SQLException {
-        String sql = "SELECT * FROM module_finance_transactions WHERE tenantId = ? ORDER BY date DESC";
+    public Map<FinanceEntry, PersonOverviewDTO> getFinancePersonMap(Tenant tenant) throws SQLException {
+        String sql = "SELECT * FROM module_finance_transactions WHERE tenant = ? ORDER BY date DESC";
         Map<FinanceEntry, PersonOverviewDTO> map = new HashMap<>();
         try (Connection connection = databaseService.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
+            preparedStatement.setString(1, tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     FinanceEntry entry = getEntryByResultSet(resultSet);
@@ -109,30 +110,30 @@ public class FinanceService {
         return map;
     }
 
-    public double getSumOfRevenueCashByTenant(UUID tenantId) throws SQLException {
-        String sql = "SELECT SUM(revenueCash) FROM module_finance_transactions WHERE tenantId = ?";
-        return summ(tenantId, sql);
+    public double getSumOfRevenueCashByTenant(Tenant tenant) throws SQLException {
+        String sql = "SELECT SUM(revenueCash) FROM module_finance_transactions WHERE tenant = ?";
+        return summ(tenant, sql);
     }
 
-    public double getSumOfExpenseCashByTenant(UUID tenantId) throws SQLException {
-        String sql = "SELECT SUM(expenseCash) FROM module_finance_transactions WHERE tenantId = ?";
-        return summ(tenantId, sql);
+    public double getSumOfExpenseCashByTenant(Tenant tenant) throws SQLException {
+        String sql = "SELECT SUM(expenseCash) FROM module_finance_transactions WHERE tenant = ?";
+        return summ(tenant, sql);
     }
 
-    public double getSumOfRevenueAccountByTenant(UUID tenantId) throws SQLException {
-        String sql = "SELECT SUM(revenueAccount) FROM module_finance_transactions WHERE tenantId = ?";
-        return summ(tenantId, sql);
+    public double getSumOfRevenueAccountByTenant(Tenant tenant) throws SQLException {
+        String sql = "SELECT SUM(revenueAccount) FROM module_finance_transactions WHERE tenant = ?";
+        return summ(tenant, sql);
     }
 
-    public double getSumOfExpenseAccountByTenant(UUID tenantId) throws SQLException {
-        String sql = "SELECT SUM(expenseAccount) FROM module_finance_transactions WHERE tenantId = ?";
-        return summ(tenantId, sql);
+    public double getSumOfExpenseAccountByTenant(Tenant tenant) throws SQLException {
+        String sql = "SELECT SUM(expenseAccount) FROM module_finance_transactions WHERE tenant = ?";
+        return summ(tenant, sql);
     }
 
-    private double summ(UUID tenantId, String sql) throws SQLException {
+    private double summ(Tenant tenant, String sql) throws SQLException {
         try (Connection connection = databaseService.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, tenantId.toString());
+            preparedStatement.setString(1, tenant.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return resultSet.getDouble(1);

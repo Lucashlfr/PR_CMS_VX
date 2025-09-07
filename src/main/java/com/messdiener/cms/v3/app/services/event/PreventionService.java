@@ -31,22 +31,7 @@ public class PreventionService {
 
     @PostConstruct
     public void init() {
-        String sql = """
-        CREATE TABLE IF NOT EXISTS prevention_forms (
-            id VARCHAR(36) PRIMARY KEY,
-            structural_concerns TEXT,
-            toilet_signage TEXT,
-            room_visibility TEXT,
-            welcome_round TEXT,
-            photo_policy TEXT,
-            complaint_channels TEXT,
-            one_on_one_situations TEXT,
-            hierarchical_dependencies TEXT,
-            communication_channels TEXT,
-            decision_transparency TEXT,
-            created_at BIGINT
-        )
-    """;
+        String sql = "CREATE TABLE IF NOT EXISTS prevention_forms (id VARCHAR(36) PRIMARY KEY, structural_concerns TEXT, toilet_signage TEXT, room_visibility TEXT, welcome_round TEXT, photo_policy TEXT, complaint_channels TEXT, one_on_one_situations TEXT, hierarchical_dependencies TEXT, communication_channels TEXT, decision_transparency TEXT, created_at BIGINT)";
 
         try (Connection connection = databaseService.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

@@ -4,6 +4,7 @@ import com.messdiener.cms.v3.app.entities.component.Component;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.event.EventState;
 import com.messdiener.cms.v3.shared.enums.event.EventType;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +19,7 @@ public class Event {
 
     // Identifikation
     private UUID eventId;
-    private UUID tenantId;
+    private Tenant tenant;
 
     private int number;
 
@@ -62,8 +63,8 @@ public class Event {
     private String notes;
     private String application;
 
-    public static Event empty(UUID eventId, UUID tenantId, String title, EventType eventType, EventState eventState, CMSDate startDate, CMSDate endDate, CMSDate deadline) {
-        return new Event(eventId, tenantId, 0, title, "", eventType, eventState, startDate, endDate, deadline, CMSDate.current(), CMSDate.current(), CMSDate.current(), "",
+    public static Event empty(UUID eventId, Tenant tenant, String title, EventType eventType, EventState eventState, CMSDate startDate, CMSDate endDate, CMSDate deadline) {
+        return new Event(eventId, tenant, 0, title, "", eventType, eventState, startDate, endDate, deadline, CMSDate.current(), CMSDate.current(), CMSDate.current(), "",
                 "", "", "", "", -1, Cache.SYSTEM_USER, Cache.SYSTEM_USER, Cache.SYSTEM_USER, Cache.SYSTEM_USER, 0.0, 0.0,
                 "", "", "", "");
     }

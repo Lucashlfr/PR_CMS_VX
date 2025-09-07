@@ -1,7 +1,7 @@
 package com.messdiener.cms.v3.web.controller.liturgie;
 
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.worship.*;
 import com.messdiener.cms.v3.app.helper.liturgie.LiturgieHelper;
 import com.messdiener.cms.v3.app.services.liturgie.LiturgieMappingService;
@@ -55,14 +55,14 @@ public class LiturgieController {
             model.addAttribute("liturgie", liturgie);
             return "liturgie/interface/liturgieInfo";
         }else if(q.isPresent() && q.get().equals("request")) {
-            model.addAttribute("current", liturgieRequestService.currentRequest(person.getTenantId()).isPresent());
+            model.addAttribute("current", liturgieRequestService.currentRequest(person.getTenant()).isPresent());
 
-            Optional<LiturgieRequest> request = liturgieRequestService.currentRequest(person.getTenantId());
+            Optional<LiturgieRequest> request = liturgieRequestService.currentRequest(person.getTenant());
             model.addAttribute("currentRequest", request.orElse(null));
 
             Map<String, Boolean> status = new HashMap<>();
             if(request.isPresent()) {
-                status = liturgieRequestService.getPersonStatusMap(person.getTenantId(), request.get().getRequestId());
+                status = liturgieRequestService.getPersonStatusMap(person.getTenant(), request.get().getRequestId());
             }
             model.addAttribute("status", status);
 
@@ -109,8 +109,8 @@ public class LiturgieController {
         CMSDate endDate   = CMSDate.convert(endDateS,   DateUtils.DateType.ENGLISH);
 
 
-        List<Liturgie> liturgieList =  liturgieService.getLiturgies(person.getTenantId(), startDate.toLong(), endDate.toLong());
-        List<PersonOverviewDTO> persons = personService.getActiveMessdienerByTenantDTO(person.getTenantId());
+        List<Liturgie> liturgieList =  liturgieService.getLiturgies(person.getTenant(), startDate.toLong(), endDate.toLong());
+        List<PersonOverviewDTO> persons = personService.getActiveMessdienerByTenantDTO(person.getTenant());
         Map<UUID, Map<UUID, LiturgieState>> stateMap = liturgieMappingService.getStatesForLiturgies(liturgieList, persons);
 
         List<LiturgieView> views = liturgieList.stream()
@@ -133,7 +133,7 @@ public class LiturgieController {
     @PostMapping("/liturgie/create")
     public RedirectView createLiturgie(@RequestParam("type")LiturgieType type, @RequestParam("date")String dateE, @RequestParam("overall")Optional<String> overall) throws SQLException {
         Person person = securityHelper.getPerson().orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        Liturgie liturgie = new Liturgie(UUID.randomUUID(), 0, person.getTenantId(), type, CMSDate.convert(dateE, DateUtils.DateType.ENGLISH_DATETIME), overall.isEmpty());
+        Liturgie liturgie = new Liturgie(UUID.randomUUID(), 0, person.getTenant(), type, CMSDate.convert(dateE, DateUtils.DateType.ENGLISH_DATETIME), overall.isEmpty());
         liturgieService.save(liturgie);
         return new RedirectView("/liturgie?state=created");
     }

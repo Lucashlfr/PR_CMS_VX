@@ -1,7 +1,9 @@
 package com.messdiener.cms.v3.app.entities.person;
 
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.shared.cache.Cache;
 import com.messdiener.cms.v3.shared.enums.PersonAttributes;
+import com.messdiener.cms.v3.shared.enums.tenant.Tenant;
 import com.messdiener.cms.v3.utils.time.CMSDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +16,7 @@ import java.util.UUID;
 public class Person {
 
     private UUID id;
-    private UUID tenantId;
+    private Tenant tenant;
 
     private PersonAttributes.Type type;
     private PersonAttributes.Rank rank;
@@ -57,8 +59,8 @@ public class Person {
     private boolean customPassword;
     private CMSDate lastUpdate;
 
-    public static Person empty(UUID tenantId) {
-        return new Person(UUID.randomUUID(), tenantId,
+    public static Person empty(Tenant tenant) {
+        return new Person(UUID.randomUUID(), tenant,
                 PersonAttributes.Type.NULL, PersonAttributes.Rank.NULL, Cache.SYSTEM_USER, 4, PersonAttributes.Salutation.NULL,
                 "", "", PersonAttributes.Gender.NOT_SPECIFIED, Optional.empty(),
                 "", "", "", "", "", "", "", Optional.empty(), Optional.empty(),
@@ -87,7 +89,7 @@ public class Person {
     }
 
     public PersonOverviewDTO toPersonOverviewDTO() {
-        return new  PersonOverviewDTO(id, firstname, lastname, "", rank.getName(), CMSDate.current().getGermanDate(), new double[0], "");
+        return new PersonOverviewDTO(id, firstname, lastname, Tenant.MSNN, rank.getName(), CMSDate.current().getGermanDate(), new double[0], "", username, password);
     }
 }
 

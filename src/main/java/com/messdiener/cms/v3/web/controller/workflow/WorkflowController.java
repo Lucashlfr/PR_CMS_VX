@@ -4,7 +4,7 @@ package com.messdiener.cms.v3.web.controller.workflow;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.messdiener.cms.v3.app.entities.person.Person;
-import com.messdiener.cms.v3.app.entities.person.PersonOverviewDTO;
+import com.messdiener.cms.v3.app.entities.person.dto.PersonOverviewDTO;
 import com.messdiener.cms.v3.app.entities.workflow.Workflow;
 import com.messdiener.cms.v3.app.entities.workflow.WorkflowModule;
 import com.messdiener.cms.v3.app.helper.person.PersonHelper;
@@ -85,8 +85,8 @@ public class WorkflowController {
         List<Workflow> workflows = new ArrayList<>();
         Map<String, Integer> stateCountMap = new HashMap<>();
         if(step.equals("all")){
-            workflows =  workflowService.getAllWorkflowsByTenant(user.getTenantId());
-            stateCountMap = workflowService.countWorkflowStatesByTenant(user.getTenantId());
+            workflows =  workflowService.getAllWorkflowsByTenant(user.getTenant());
+            stateCountMap = workflowService.countWorkflowStatesByTenant(user.getTenant());
 
         }else if(step.equals("me")){
             workflows = workflowService.getWorkflowsByUserId(user.getId());
@@ -97,7 +97,7 @@ public class WorkflowController {
         model.addAttribute("state", CMSState.class);
 
         model.addAttribute("types", WorkflowType.values());
-        model.addAttribute("persons", personService.getActivePersonsByPermissionDTO(user.getFRank(),user.getTenantId()));
+        model.addAttribute("persons", personService.getActivePersonsByPermissionDTO(user.getFRank(),user.getTenant()));
         if(step.equals("create"))
             return "workflow/interface/createWorkflow";
         return "workflow/interface/workflowOverview";
@@ -225,9 +225,9 @@ public class WorkflowController {
         if(person.equals("me")){
             target.add(user.toPersonOverviewDTO());
         }else if(person.equals("all")){
-            target.addAll(personService.getActivePersonsByPermissionDTO(user.getFRank(),user.getTenantId()));
+            target.addAll(personService.getActivePersonsByPermissionDTO(user.getFRank(),user.getTenant()));
         }else if(person.equals("tenant")){
-            target.addAll(personService.getActiveMessdienerByTenantDTO(user.getTenantId()));
+            target.addAll(personService.getActiveMessdienerByTenantDTO(user.getTenant()));
         }else {
             target.add(personService.getPersonById(UUID.fromString(person)).orElseThrow().toPersonOverviewDTO());
         }
