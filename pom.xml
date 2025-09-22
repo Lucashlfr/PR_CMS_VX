@@ -1,163 +1,283 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <!-- Spring Boot parent for aligned plugin/dependency versions -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.4.1</version>
         <relativePath/>
     </parent>
+
     <groupId>com.messdiener</groupId>
     <artifactId>PR_CMS_VX</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>cms_x</name>
-    <description>PR CMS Version X</description>
+    <packaging>pom</packaging>
+    <name>PR_CMS_VX</name>
+
+    <modules>
+        <!-- Basis -->
+        <module>cms-shared</module>
+
+        <!-- Domains -->
+        <module>cms-domain-auth</module>
+        <module>cms-domain-person</module>
+        <module>cms-domain-workflow</module>
+        <module>cms-domain-document</module>
+        <module>cms-domain-liturgy</module>
+        <module>cms-domain-privacy</module>
+        <module>cms-domain-audit</module>
+
+        <!-- Infrastruktur & Common -->
+        <module>cms-infrastructure</module>
+        <module>cms-web-common</module>
+
+        <!-- Features -->
+        <module>cms-feature-auth</module>
+        <module>cms-feature-person</module>
+        <module>cms-feature-documents</module>
+        <module>cms-feature-liturgy</module>
+        <module>cms-feature-privacy</module>
+        <module>cms-feature-audit</module>
+        <module>cms-feature-finance</module>
+        <module>cms-feature-workflow</module>
+        <module>cms-feature-task</module>
+        <module>cms-feature-events</module>
+        <module>cms-feature-notifications</module>
+
+        <module>cms-web-templates</module>
+        <module>cms-feature-homepage</module>
+
+        <!-- App -->
+        <module>cms-migrations</module>
+        <module>cms-app</module>
+    </modules>
+
     <properties>
         <java.version>21</java.version>
-        <maven.compiler.proc>full</maven.compiler.proc>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- ... andere properties ... -->
+        <thumbnailator.version>0.4.20</thumbnailator.version>
+        <commons-io.version>2.20.0</commons-io.version>
+
+        <!-- E-Mail: Entweder klassisch (javax) ODER Jakarta-Variante (empfohlen für Spring Boot 3) -->
+        <commons-email.version>1.6.0</commons-email.version>
+        <commons-email2-jakarta.version>2.0.0-M1</commons-email2-jakarta.version>
+
+        <itextpdf.version>5.5.13.3</itextpdf.version>
+        <jakarta-annotation.version>2.1.1</jakarta-annotation.version>
+
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.thymeleaf.extras</groupId>
-            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
-            <version>3.1.3.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
-            <scope>provided</scope>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <!-- Basis -->
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-shared</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-email -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
-            <version>1.6.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>5.2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>kernel</artifactId>
-            <version>8.0.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.13.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-            <version>6.3.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.librepdf</groupId>
-            <artifactId>openpdf</artifactId>
-            <version>1.3.30</version>
-        </dependency>
-        <dependency>
-            <groupId>net.coobird</groupId>
-            <artifactId>thumbnailator</artifactId>
-            <version>0.4.8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
+            <!-- Domains -->
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-domain-auth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-domain-person</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-domain-workflow</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-domain-document</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-domain-liturgy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-domain-privacy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-domain-audit</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
+            <!-- Infrastruktur & Common -->
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-infrastructure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-web-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-        <!-- Firebase Admin SDK (FCM) -->
-        <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>9.2.0</version>
-        </dependency>
+            <!-- Features -->
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-auth</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-person</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-documents</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-liturgy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-privacy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-audit</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-finance</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-workflow</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-task</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-events</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-notifications</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+            <!-- Templates & Homepage (Fix: Version ergänzt) -->
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-web-templates</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-homepage</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-    </dependencies>
+            <!-- App (optional im DM, harmless) -->
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-migrations</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.coobird</groupId>
+                <artifactId>thumbnailator</artifactId>
+                <version>${thumbnailator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+
+            <!-- E-Mail (klassisch, javax) -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-email</artifactId>
+                <version>${commons-email.version}</version>
+            </dependency>
+
+            <!-- E-Mail (Jakarta-kompatibel; empfohlen für Spring Boot 3) -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-email2-jakarta</artifactId>
+                <version>${commons-email2-jakarta.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.itextpdf</groupId>
+                <artifactId>itextpdf</artifactId>
+                <version>${itextpdf.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.annotation</groupId>
+                <artifactId>jakarta.annotation-api</artifactId>
+                <version>${jakarta-annotation.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-                <configuration>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>1.18.38</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
+        <pluginManagement>
+            <plugins>
+                <!-- Compiler -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.13.0</version>
+                    <configuration>
+                        <release>${maven.compiler.release}</release>
+                    </configuration>
+                </plugin>
 
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
+                <!-- Spring Boot plugin (version inherited from parent) -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                </plugin>
+
+                <!-- Optional: OWASP Dep-Check -->
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>10.0.3</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>

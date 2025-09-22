@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:fragment="html_head">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="noindex,nofollow">
+    <title th:text="'CMS | ' + ${session.serviceName}"></title>
+
+    <link rel="icon" type="image/x-icon" th:href="@{/img/favicon-96x96.ico}">
+    <link rel="stylesheet" th:href="@{/dist/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/atruvia.css}">
+    <link rel="stylesheet" th:href="@{/css/import/datatables.min.css}">
+    <link rel="stylesheet" th:href="@{/css/import/jquery.dataTables.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css">
+
+    <!-- Feather Icons (nur Icon-Definitions, Initialisierung unten im Script-Fragment) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js" crossorigin="anonymous"></script>
+
+    <style>
+        .fill { min-width: 150px; background-color: lightgray; }
+        .sidenav-menu-heading { margin-bottom: 0 !important; padding-bottom: 0 !important; }
+    </style>
+</head>
+
+<body>
+<nav th:fragment="topnav"
+     class="topnav navbar navbar-expand shadow justify-content-between justify-content-sm-start navbar-light bg-white" id="sidenavAccordion">
+    <!--  style="background-color: #3A557C!important;" -->
+    <!-- Sidenav Toggle Button-->
+    <button class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle"><i
+            data-feather="menu"></i></button>
+    <!-- Navbar Brand-->
+    <!-- * * Tip * * You can use text or an image for your navbar brand.-->
+    <!-- * * * * * * When using an image, we recommend the SVG format.-->
+    <!-- * * * * * * Dimensions: Maximum height: 32px, maximum width: 240px-->
+    <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="/">
+        <span>CMS</span>
+    </a>
+    <!-- Navbar Search Input-->
+    <!-- * * Note: * * Visible only on and above the lg breakpoint-->
+    <form class="form-inline me-auto d-none d-lg-block me-3" th:action="@{/search}" th:method="post" >
+        <div class="input-group input-group-joined input-group-solid">
+            <input class="form-control pe-0" type="search" placeholder="Suchen" aria-label="Search" required name="search"/>
+            <div class="input-group-text"><i data-feather="search"></i></div>
+        </div>
+    </form>
+
+    <!-- Navbar Items-->
+    <ul class="navbar-nav align-items-center ms-auto">
+        <!-- Documentation Dropdown
+        <li class="nav-item dropdown no-caret d-none d-md-block me-3">
+            <a class="nav-link dropdown-toggle" id="navbarDropdownDocs" href="javascript:void(0);" role="button"
+               data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <div class="fw-500 text-white">Dokumentation</div>
+                <i class="dropdown-arrow" data-feather="chevron-right"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end py-0 me-sm-n15 me-lg-0 o-hidden animated--fade-in-up"
+                 aria-labelledby="navbarDropdownDocs">
+                <a class="dropdown-item py-3" href="/public/documentation" target="_blank">
+                    <div class="icon-stack bg-primary-soft text-primary me-4"><i data-feather="book"></i></div>
+                    <div>
+                        <div class="small text-gray-500">Dokumentation</div>
+                        Gebrauchsanweisung und Hinweise
+                    </div>
+                </a>
+                <div class="dropdown-divider m-0"></div>
+                <a class="dropdown-item py-3" href="/public/changelog"
+                   target="_blank">
+                    <div class="icon-stack bg-primary-soft text-primary me-4"><i data-feather="file-text"></i></div>
+                    <div>
+                        <div class="small text-gray-500">Changelog</div>
+                        Aktualisierungen und Änderungen
+                    </div>
+                </a>
+            </div>
+        </li>
+
+        -->
+
+        <!-- Navbar Search Dropdown-->
+        <!-- * * Note: * * Visible only below the lg breakpoint
+        <li class="nav-item dropdown no-caret me-3 d-lg-none">
+            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="searchDropdown" href="#" role="button"
+               data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="search"></i></a>
+            Dropdown - Search
+            <div class="dropdown-menu dropdown-menu-end p-3 shadow animated--fade-in-up"
+                 aria-labelledby="searchDropdown">
+                <form class="form-inline me-auto w-100">
+                    <div class="input-group input-group-joined input-group-solid">
+                        <input class="form-control pe-0" type="text" placeholder="Search for..." aria-label="Search"
+                               aria-describedby="basic-addon2"/>
+                        <div class="input-group-text"><i data-feather="search"></i></div>
+                    </div>
+                </form>
+            </div>
+        </li>
+        -->
+        <!-- Messages Dropdown-->
+        <li class="nav-item dropdown no-caret dropdown-user me-3 me-lg-4">
+            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage"
+               href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
+               aria-expanded="false">
+                <img class="img-fluid" th:src="${session.img}"/></a>
+            <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up"
+                 aria-labelledby="navbarDropdownUserImage">
+                <h6 class="dropdown-header d-flex align-items-center">
+                    <img class="dropdown-user-img" th:src="${session.img}"/>
+                    <div class="dropdown-user-details">
+                        <div class="dropdown-user-details-name"
+                             th:text="${session.sessionUser.firstName()} + ' ' + ${session.sessionUser.lastName()}"></div>
+                        <div class="dropdown-user-details-email" th:text="${session.sessionUser.tenantName()}"></div>
+                    </div>
+                </h6>
+                <div class="dropdown-divider"></div>
+                <!--
+                <a class="dropdown-item" href="/profile">
+                    <div class="dropdown-item-icon"><i data-feather="settings"></i></div>
+                    Account
+                </a>
+-->
+                <a class="dropdown-item" href="/logout">
+                    <div class="dropdown-item-icon"><i data-feather="log-out"></i></div>
+                    Logout
+                </a>
+            </div>
+        </li>
+    </ul>
+</nav>
+
+<div th:fragment="sidebar" id="layoutSidenav_nav">
+        <nav class="sidenav shadow-right sidenav-light">
+            <div class="sidenav-menu">
+                <div class="nav accordion" id="accordionSidenav">
+                    <div class="sidenav-menu-heading">Core</div>
+                    <!-- Sidenav Accordion (Dashboard)-->
+
+                    <a class="nav-link" href="/dashboard"><div class="nav-link-icon"><i data-feather="home"></i></div>Startseite</a>
+                    <a class="nav-link disabled" href="/sFixO"><div class="nav-link-icon">
+                        <i data-feather="archive"></i></div>SFixO
+                        <span class="badge bg-danger-soft text-danger ms-auto">Deaktiviert</span>
+                    </a>
+                    <a class="nav-link" href="/workflow/dashboard">
+                        <div class="nav-link-icon"><i data-feather="pocket"></i></div>Deine Workflows
+                        <span class="badge bg-warning-soft text-warning ms-auto" th:text="${session.openWorkflows + ' offen'}"></span>
+                    </a>
+                    <a class="nav-link" href="/liturgie/request">
+                        <div class="nav-link-icon"><i data-feather="calendar"></i></div>GoDi-Abfrage
+                    </a>
+
+                    <div th:if="${session.fRank >= 1}">
+                        <div class="sidenav-menu-heading">Organisation</div>
+                        <a class="nav-link" href="/personal"><div class="nav-link-icon"><i data-feather="user"></i></div>Personen</a>
+                        <a class="nav-link" href="/liturgie"><div class="nav-link-icon"><i data-feather="list"></i></div>Gottesdienste</a>
+                        <a class="nav-link" href="/event"><div class="nav-link-icon"><i data-feather="calendar"></i></div>Kalender</a>
+                        <a class="nav-link" href="/workflow"><div class="nav-link-icon"><i data-feather="zap"></i></div>Workflows</a>
+                        <a class="nav-link" href="/finance"><div class="nav-link-icon"><i data-feather="layout"></i></div>Finanzen</a>
+                    </div>
+
+                    <div th:if="${session.fRank >= 3}">
+                        <div class="sidenav-menu-heading">Homepage</div>
+                        <a class="nav-link" href="/homepage"><div class="nav-link-icon"><i data-feather="layers"></i></div>Homepage</a>
+                        <a class="nav-link" href="/cloud"><div class="nav-link-icon"><i data-feather="upload-cloud"></i></div>Cloud</a>
+                    </div>
+
+
+                </div>
+            </div>
+            <!-- Sidenav Footer-->
+            <div class="sidenav-footer">
+                <div class="sidenav-footer-content">
+                    <div class="sidenav-footer-subtitle">Angemeldet als:</div>
+                    <div class="sidenav-footer-title" th:if="${session.serviceName != null}" th:text="${session.sessionUser.firstName() + ' ' + session.sessionUser.lastName()}"></div>
+                    <div class="sidenav-footer-title" th:if="${session.serviceName == null}" th:text="'Unbekannter User'"></div>
+                    <div class="sidenav-footer-subtitle" th:text="${session.tenantName}"></div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+
+    <div th:fragment="createFile(target)">
+    <form method="post" action="/document/create">
+        <input type="hidden" name="target" th:value="${target}"/>
+        <div class="modal fade" id="createFile" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Dokument erstellen</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row mb-3 align-items-center">
+                            <label for="titel" class="col-sm-2 col-form-label">Titel <span class="text-danger">*</span></label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="titel" name="title" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Speichern</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<footer th:fragment="footer" class="footer-admin mt-auto footer-light">
+    <div class="container-xl px-4">
+        <div class="row">
+            <div class="col-md-6 small">Copyright &copy; Lucas Helfer 2025</div>
+            <div class="col-md-6 text-md-end small">
+                <a href="#!">Privacy Policy</a>
+                &middot;
+                <a href="#!">Terms &amp; Conditions</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Zentrales Script-Fragment: an Seitenende einfügen mit th:insert="~{fragments :: script}" -->
+<div th:fragment="script">
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/bootstrap.min.js}"></script>
+    <script th:src="@{/js/jquery.dataTables.min.js}"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script th:src="@{/dist/js/scripts.js}"></script>
+    <script>
+        if (window.feather) { feather.replace(); }
+    </script>
+</div>
+
+</body>
+</html>

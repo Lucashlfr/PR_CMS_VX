@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JavaScriptLibraryMappings">
+    <file url="file://$PROJECT_DIR$" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-app" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-domain-audit" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-domain-auth" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-domain-document" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-domain-liturgy" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-domain-person" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-domain-privacy" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-domain-workflow" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-audit" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-auth" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-documents" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-events" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-finance" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-homepage" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-liturgy" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-notifications" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-person" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-privacy" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-task" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-feature-workflow" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-infrastructure" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-migrations" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-shared" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-web-common" libraries="{@mdi/font}" />
+    <file url="file://$PROJECT_DIR$/cms-web-templates" libraries="{@mdi/font}" />
+  </component>
+</project>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body>
+<main>
+    <header class="page-header page-header-dark pb-15 bg-img-cover"
+            th:style="|background-image: url('@{/img/hand.jpg}')|">
+        <div class="container-xl px-4">
+            <div class="page-header-content pt-4">
+                <h1 class="page-header-title mt-4" th:text="'CMS Workflows'"></h1>
+                <div class="page-header-subtitle">Bei Fragen wende dich gerne direkt an Lucas!</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-xl px-4 mt-n10">
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="step p-2">
+                    <div th:each="s : ${steps}"
+                         th:class="${workflow.currentNumber == s.number} ? 'step-item active' : 'step-item'">
+                        <a th:class="${workflow.currentNumber == s.number} ? 'step-item-link' : 'step-item-link disabled'"
+                           href="#!" th:text="${s.name}"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4" th:if="${readonly}">
+            <div class="card-body">
+                <div class="alert alert-success mb-0">
+                    Dieses Formular wurde eingereicht. Checksumme:
+                    <code th:text="${checksum}">—</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body p-5">
+                <div class="row align-items-center justify-content-between">
+                    <div class="col">
+                        <h1 class="text-info" style="font-size:35px" th:text="${module.name}"></h1>
+                        <h4 class="lead mb-4">Bitte wende dich bei Fragen direkt an Lucas!</h4>
+                        <p th:utext="${module.description}"></p>
+                    </div>
+                    <div class="col-xl-3 d-none d-lg-block mt-xxl-n4 text-center">
+                        <img class="img-fluid px-xl-4 mt-xxl-n5" style="max-width:400px!important;"
+                             th:src="@{/dist/assets/img/illustrations/Security-rafiki.svg}"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div id="content">
+                    <form id="dynamicForm" enctype="multipart/form-data">
+                        <!-- CSRF -->
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                        <!-- Ident -->
+                        <input type="hidden" name="id" th:value="${submissionId}"/>
+                        <input type="text" class="d-none" readonly name="module" th:value="${module.moduleId}"/>
+                        <input type="text" class="d-none" readonly name="workflow" th:value="${workflow.workflowId}"/>
+
+                        <!-- Alles schreibschützen, wenn readonly -->
+                        <fieldset th:disabled="${readonly}">
+                            <div th:each="component : ${components}">
+                                <div class="row mb-3 align-items-center">
+                                    <label th:for="${component.name}" class="col-sm-2 col-form-label"
+                                           th:text="${component.label}"></label>
+                                    <div class="col-sm-10" th:switch="${component.type.name()}">
+
+                                        <div th:case="'TEXT'">
+                                            <input type="text" class="form-control" th:id="${component.name}"
+                                                   th:name="${component.name}" th:value="${component.value}"
+                                                   th:required="${component.required}"/>
+                                        </div>
+
+                                        <div th:case="'TEXTAREA'">
+                                            <textarea class="form-control" th:id="${component.name}"
+                                                      th:name="${component.name}" th:text="${component.value}"
+                                                      th:required="${component.required}"></textarea>
+                                        </div>
+
+                                        <div th:case="'SELECT'">
+                                            <select class="form-select" th:id="${component.name}"
+                                                    th:name="${component.name}" th:required="${component.required}">
+                                                <option th:each="opt : ${component.options}" th:value="${opt}"
+                                                        th:text="${opt}"></option>
+                                            </select>
+                                        </div>
+
+                                        <div th:case="'CHECKBOX'">
+                                            <!-- Mehrfachauswahl -->
+                                            <div th:if="${!#lists.isEmpty(component.options)}" th:each="opt : ${component.options}">
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox"
+                                                           th:id="${component.name + '_' + opt}" th:name="${component.name}"
+                                                           th:value="${opt}" th:required="${component.required}"/>
+                                                    <label class="form-check-label" th:for="${component.name + '_' + opt}"
+                                                           th:text="${opt}"></label>
+                                                </div>
+                                            </div>
+                                            <!-- boolean (einzeln) -->
+                                            <div th:if="${#lists.isEmpty(component.options)}" class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                       th:id="${component.name}" th:name="${component.name}"
+                                                       th:checked="${component.value == 'true'}"
+                                                       th:required="${component.required}"/>
+                                                <label class="form-check-label" th:for="${component.name}"
+                                                       th:text="${component.label}"></label>
+                                            </div>
+                                        </div>
+
+                                        <div th:case="'RADIO'">
+                                            <div th:each="opt : ${component.options}">
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="radio"
+                                                           th:id="${component.name + '_' + opt}" th:name="${component.name}"
+                                                           th:value="${opt}" th:required="${component.required}"/>
+                                                    <label class="form-check-label" th:for="${component.name + '_' + opt}"
+                                                           th:text="${opt}"></label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div th:case="'FILE'">
+                                            <input type="file" class="form-control" th:name="${component.name}"
+                                                   th:id="${component.name}" th:required="${component.required}"/>
+                                        </div>
+
+                                        <div th:case="'EMAIL'">
+                                            <input type="email" class="form-control" th:name="${component.name}"
+                                                   th:value="${component.value}" th:required="${component.required}"/>
+                                        </div>
+
+                                        <div th:case="'DATE'">
+                                            <input type="date" class="form-control" th:name="${component.name}"
+                                                   th:value="${component.value}" th:required="${component.required}"/>
+                                        </div>
+
+                                        <div th:case="'TIME'">
+                                            <input type="time" class="form-control" th:name="${component.name}"
+                                                   th:value="${component.value}" th:required="${component.required}"/>
+                                        </div>
+
+                                        <!-- MATRIX -->
+                                        <div th:case="'MATRIX'">
+                                            <table class="table table-bordered"
+                                                   th:attr="data-comp-name=${component.name},
+                                                            data-col-names=${#strings.listJoin(component.columns.![name],',')},
+                                                            data-col-types=${#strings.listJoin(component.columns.![type.name()],',')}">
+                                                <thead>
+                                                <tr>
+                                                    <th th:each="col : ${component.columns}" th:text="${col.label}"></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody th:id="${'matrixBody__' + component.name}">
+                                                <tr>
+                                                    <td th:each="col : ${component.columns}">
+                                                        <div th:switch="${col.type.name()}">
+                                                            <div th:case="'TEXT'">
+                                                                <input type="text" class="form-control"
+                                                                       th:name="${component.name + '[0].' + col.name}"/>
+                                                            </div>
+                                                            <div th:case="'FILE'">
+                                                                <input type="file" class="form-control"
+                                                                       th:name="${component.name + '[0].' + col.name}"/>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                            <div class="text-end" th:if="${!readonly}">
+                                                <button type="button" class="btn btn-outline-primary"
+                                                        th:attr="data-target-id=${'matrixBody__' + component.name}"
+                                                        onclick="addMatrixRow(this)">+ Zeile hinzufügen
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- ENDE MATRIX -->
+
+                                        <!-- SIGNATURE -->
+                                        <div th:case="'SIGNATURE'">
+                                            <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+                                            <style type="text/css">
+                                                .m-signature-pad--body canvas {
+                                                    position: relative;
+                                                    left: 0;
+                                                    top: 0;
+                                                    width: 100%;
+                                                    height: 250px;
+                                                    border: 1px solid #CCCCCC;
+                                                }
+                                            </style>
+                                            <h1 class="text-center text-danger">Hier unterschreiben:</h1>
+                                            <div id="signature-pad" class="m-signature-pad">
+                                                <div class="m-signature-pad--body">
+                                                    <canvas class="bg-danger-soft"></canvas>
+                                                    <input type="hidden" id="signature" class="d-none"
+                                                           th:name="${component.name}" th:value="${component.value}"/>
+                                                </div>
+                                            </div>
+                                            <b>Wichtig: Sofern der/die Messdiener/in über 16 ist, muss er/sie hier unterschreiben!</b>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <div class="text-end" th:if="${!readonly}">
+                            <button type="button" class="btn btn-primary" onclick="submitForm()">Speichern</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="load" class="d-none text-center my-4">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Lädt...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    </div>
+</main>
+
+<script>
+    let signaturePad;
+
+    function resizeCanvas() {
+        if (!signaturePad) return;
+        const canvas = signaturePad.canvas;
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        const data = signaturePad.toData();
+        signaturePad.clear();
+        signaturePad.fromData(data);
+    }
+
+    function save() {
+        document.getElementById('content').classList.add('d-none');
+        document.getElementById('load').classList.remove('d-none');
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // SignaturePad nur initialisieren, wenn das Element existiert
+        const wrapper = document.getElementById('signature-pad');
+        if (!wrapper || typeof SignaturePad === 'undefined') return;
+        const canvas = wrapper.querySelector('canvas');
+        if (!canvas) return;
+        signaturePad = new SignaturePad(canvas, {
+            minWidth: 1,
+            maxWidth: 5,
+            penColor: '#000000',
+            backgroundColor: '#fff2cc'
+        });
+        signaturePad.onBeginStroke = () => console.log('Signature started');
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    });
+
+    function submitForm() {
+        // Signature erzwingen, wenn vorhanden
+        if (document.getElementById('signature-pad')) {
+            if (!signaturePad) {
+                alert('Signatur-Pad nicht verfügbar.');
+                return false;
+            }
+            if (signaturePad.isEmpty()) {
+                alert('Bitte zuerst unterschreiben.');
+                return false;
+            }
+            document.getElementById('signature').value = signaturePad.toDataURL();
+        }
+
+        save();
+        const form = document.getElementById('dynamicForm');
+
+        // Matrix serialisieren
+        document.querySelectorAll('table[data-comp-name]').forEach(table => {
+            const cols = table.getAttribute('data-col-names').split(',');
+            const compName = table.getAttribute('data-comp-name');
+            const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr => {
+                const obj = {};
+                tr.querySelectorAll('input[type="text"]').forEach((inp, i) => {
+                    obj[cols[i]] = inp.value;
+                    inp.disabled = true;
+                });
+                return obj;
+            });
+            let hidden = form.querySelector(`input[name="${compName}"]`);
+            if (!hidden) {
+                hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = compName;
+                form.appendChild(hidden);
+            }
+            hidden.value = JSON.stringify(rows);
+        });
+
+        const formData = new FormData(form);
+        fetch('/workflow/upload', {method: 'POST', body: formData})
+            .then(res => res.json())
+            .then(data => {
+                if (window.opener && !window.opener.closed) {
+                    window.opener.location.reload();
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        window.location.reload();
+                    }
+                } else {
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        window.location.reload();
+                    }
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Fehler beim Hochladen!');
+            });
+    }
+
+    function addMatrixRow(button) {
+        const tbody = document.getElementById(button.getAttribute('data-target-id'));
+        const table = tbody.closest('table');
+        const compName = table.getAttribute('data-comp-name');
+        const colNames = table.getAttribute('data-col-names').split(',');
+        const colTypes = table.getAttribute('data-col-types').split(',');
+        const idx = tbody.querySelectorAll('tr').length;
+        const tr = document.createElement('tr');
+        colNames.forEach((col, i) => {
+            const td = document.createElement('td');
+            let inp;
+            if (colTypes[i] === 'TEXT') {
+                inp = document.createElement('input');
+                inp.type = 'text';
+                inp.className = 'form-control';
+                inp.name = `${compName}[${idx}].${col}`;
+            } else if (colTypes[i] === 'FILE') {
+                inp = document.createElement('input');
+                inp.type = 'file';
+                inp.className = 'form-control';
+                inp.name = `${compName}[${idx}].${col}`;
+            }
+            td.appendChild(inp);
+            tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+    }
+</script>
+
+</body>
+</html>

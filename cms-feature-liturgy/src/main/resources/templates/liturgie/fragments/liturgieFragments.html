@@ -1,0 +1,16 @@
+<!-- templates/fragments/liturgieFragments.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<div th:fragment="nav (q)">
+    <nav class="nav nav-pills nav-fill mb-3">
+        <a th:class="${q == 'list'} ? 'nav-link active bg-pink' : 'nav-link text-pink'"
+           th:href="@{/liturgie(q='list')}">
+            <i class="mdi mdi-home me-1"></i>
+            Übersicht</a>
+        <a th:class="${q == 'request'} ? 'nav-link active bg-pink' : 'nav-link text-pink'"
+           th:href="@{/liturgie(q='request')}">
+            <i class="mdi mdi-account-plus-outline me-1"></i>
+            Abfrage</a>
+    </nav>
+</div>
+</html>

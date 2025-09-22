@@ -1,0 +1,8 @@
+package com.messdiener.cms.shared.enums;
+
+public enum ComponentType {
+    BUTTON, CHECKBOX, COLOR, DATE, DATETIME_LOCAL, EMAIL, FILE,
+    HIDDEN, IMAGE, MONTH, NUMBER, PASSWORD, RADIO, RANGE,
+    RESET, SEARCH, SUBMIT, TEL, TEXT, TIME, URL, WEEK, SELECT, TEXTAREA,
+    SIGNATURE, MATRIX
+}

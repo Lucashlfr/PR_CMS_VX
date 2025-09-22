@@ -1,0 +1,9 @@
+#Configuration File
+#Thu Nov 09 20:26:53 CET 2023
+database.host=29753-44055.pph-server.de
+database.port=3306
+database.username=software
+database.database=pgm_cms
+database.password=GYdSQUW4fc0Dwh88
+service.name=RIAT
+service.url=localhost

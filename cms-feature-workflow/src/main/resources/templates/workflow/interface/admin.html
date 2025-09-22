@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-purple mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="zap"></i></span>
+                                    <span>Workflows</span>
+                                </h1>
+                                <div class="page-header-subtitle">Workflows für deine Gruppe
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main page content-->
+
+
+            <div class="container-fluid px-4 mt-4">
+
+                <div th:replace="~{workflow/fragments/workflowFragments :: nav(${step})}"></div>
+
+                <div class="card card-collapsable mb-3">
+                    <a class="card-header" href="#A1" data-bs-toggle="collapse" role="button" aria-expanded="true"
+                       aria-controls="A1">
+
+                        <div>
+                            <span class="mdi mdi-account text-info"></span>
+                            Automatisierungsregeln
+                        </div>
+
+                        <div class="card-collapsable-arrow"></div>
+                    </a>
+                    <div class="collapse show" id="A1">
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Name</th>
+                                    <th>Trigger Typ</th>
+                                    <th>Trigger</th>
+                                    <th>Bedingung</th>
+                                    <th>Aktion</th>
+                                    <th>Aktiv</th>
+                                </tr>
+                                </thead>
+                                <!-- A1: Automatisierungsregeln -->
+                                <tbody>
+                                <tr th:each="a : ${automationRules}">
+                                    <td class="text-monospace" th:text="${a.ruleId}">
+                                        00000000-0000-0000-0000-000000000000
+                                    </td>
+                                    <td th:text="${a.name}">Regelname</td>
+                                    <td>
+                                        <span class="badge bg-secondary" th:text="${a.triggerType}">onEvent</span>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(a.triggerConfig, 64)}"
+                                              th:title="${a.triggerConfig}">cron(0 0 * * *)</code>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(a.conditionJson, 64)}"
+                                              th:title="${a.conditionJson}">{...}</code>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(a.actionsJson, 64)}"
+                                              th:title="${a.actionsJson}">[{...}]</code>
+                                    </td>
+                                    <td>
+                                        <span th:if="${a.enabled}" class="badge bg-success">aktiv</span>
+                                        <span th:if="${!a.enabled}" class="badge bg-light text-muted">inaktiv</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(automationRules)}">
+                                    <td colspan="7" class="text-muted">Keine Regeln definiert.</td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <a data-bs-toggle="modal" data-bs-target="#C1" href="#">+ Neue Automatisierung</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-collapsable mb-3">
+                    <a class="card-header" href="#A2" data-bs-toggle="collapse" role="button" aria-expanded="true"
+                       aria-controls="A2">
+
+                        <div>
+                            <span class="mdi mdi-account text-info"></span>
+                            Definierte Formulare
+                        </div>
+
+                        <div class="card-collapsable-arrow">
+
+                        </div>
+                    </a>
+                    <div class="collapse show" id="A2">
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Key</th>
+                                    <th>Version</th>
+                                    <th>Name</th>
+                                    <th>Beschreibung</th>
+                                    <th>Bild</th>
+                                    <th>JSON Schema</th>
+                                    <th>UI Schema</th>
+                                    <th>Validation JSON</th>
+                                    <th>Output Template</th>
+                                </tr>
+                                </thead>
+                                <!-- A2: Definierte Formulare -->
+                                <tbody>
+                                <tr th:each="f : ${formDefinitions}">
+                                    <td class="text-monospace" th:text="${f.formDefinitionId}">
+                                        00000000-0000-0000-0000-000000000000
+                                    </td>
+                                    <td th:text="${f.key}">ONBOARDING_PROFILE</td>
+                                    <td th:text="${f.version}">1</td>
+                                    <td th:text="${f.formName}">Onboarding</td>
+                                    <td>
+        <span th:text="${#strings.abbreviate(f.formDescription, 48)}"
+              th:title="${f.formDescription}">Beschreibung…</span>
+                                    </td>
+                                    <td>
+                                        <a th:if="${f.formImg != null}" th:href="${f.formImg}" target="_blank">Bild</a>
+                                        <span th:if="${f.formImg == null}" class="text-muted">–</span>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(f.jsonSchema, 48)}"
+                                              th:title="${f.jsonSchema}">{...}</code>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(f.uiSchema, 48)}"
+                                              th:title="${f.uiSchema}">{...}</code>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(f.validationsJson, 48)}"
+                                              th:title="${f.validationsJson}">{...}</code>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(f.outputTemplatesJson, 48)}"
+                                              th:title="${f.outputTemplatesJson}">{...}</code>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(formDefinitions)}">
+                                    <td colspan="10" class="text-muted">Keine Formulare definiert.</td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <a data-bs-toggle="modal" data-bs-target="#C2" href="#">+ Neues Formular</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-collapsable mb-3">
+                    <a class="card-header" href="#A3" data-bs-toggle="collapse" role="button" aria-expanded="true"
+                       aria-controls="A1">
+
+                        <div>
+                            <span class="mdi mdi-account text-info"></span>
+                            Benachrichtigungen
+                        </div>
+
+                        <div class="card-collapsable-arrow">
+
+                        </div>
+                    </a>
+                    <div class="collapse show" id="A3">
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Key</th>
+                                    <th>Kanal</th>
+                                    <th>Version</th>
+                                    <th>Betreff JSON</th>
+                                    <th>JSON Schema</th>
+                                </tr>
+                                </thead>
+                                <!-- A3: Benachrichtigungen -->
+                                <tbody>
+                                <tr th:each="n : ${notificationTemplates}">
+                                    <td class="text-monospace" th:text="${n.notificationTemplateId}">00000000-0000-0000-0000-000000000000</td>
+                                    <td th:text="${n.key}">WF_CREATED</td>
+                                    <td>
+                                        <span class="badge bg-info" th:text="${n.channel}">EMAIL</span>
+                                    </td>
+                                    <td th:text="${n.version}">1</td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(n.subjectTemplate, 64)}"
+                                              th:title="${n.subjectTemplate}">Neuer Workflow: {{title}}</code>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(n.jsonSchema, 64)}"
+                                              th:title="${n.jsonSchema}">{...}</code>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(notificationTemplates)}">
+                                    <td colspan="6" class="text-muted">Keine Templates definiert.</td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <a data-bs-toggle="modal" data-bs-target="#C3" href="#">+ Neues Template</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-collapsable mb-3">
+                    <a class="card-header" href="#A4" data-bs-toggle="collapse" role="button" aria-expanded="true"
+                       aria-controls="A4">
+
+                        <div>
+                            <span class="mdi mdi-account text-info"></span>
+                            Prozessdefinitionen
+                        </div>
+
+                        <div class="card-collapsable-arrow">
+
+                        </div>
+                    </a>
+                    <div class="collapse show" id="A4">
+                        <div class="card-body">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Key</th>
+                                    <th>Name</th>
+                                    <th>Version</th>
+                                    <th>Status</th>
+                                    <th>Übergänge</th>
+                                    <th>SLAs</th>
+                                </tr>
+                                </thead>
+                                <!-- A4: Prozessdefinitionen -->
+                                <tbody>
+                                <tr th:each="p : ${processDefinitions}">
+                                    <td class="text-monospace" th:text="${p.processDefinitionId}">00000000-0000-0000-0000-000000000000</td>
+                                    <td th:text="${p.key}">ONBOARDING</td>
+                                    <td th:text="${p.name}">Onboarding Prozess</td>
+                                    <td th:text="${p.version}">1</td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(p.statesJson, 48)}"
+                                              th:title="${p.statesJson}">["OPEN","IN_PROGRESS","DONE"]</code>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(p.transitionsJson, 48)}"
+                                              th:title="${p.transitionsJson}">{...}</code>
+                                    </td>
+                                    <td>
+                                        <code th:text="${#strings.abbreviate(p.slaPoliciesJson, 48)}"
+                                              th:title="${p.slaPoliciesJson}">{...}</code>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(processDefinitions)}">
+                                    <td colspan="7" class="text-muted">Keine Prozesse definiert.</td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            <a data-bs-toggle="modal" data-bs-target="#C4" href="#">+ Neues Template</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+<!-- AUTOMATISIERUNG -->
+<div class="modal fade" id="C1" tabindex="-1" aria-labelledby="automationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form action="/workflow/config/create/automation" method="post">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="automationModalLabel">Automatisierung</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="mb-3 mt-3">
+                        <label for="automation-id" class="form-label">Id (UUID):</label>
+                        <input type="text" class="form-control" id="automation-id" name="id"
+                               placeholder="z. B. 5f1a9b8e-4f7b-4c6f-9d3a-123456789abc" inputmode="latin"
+                               pattern="[0-9a-fA-F-]{36}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="automation-name" class="form-label">Name:</label>
+                        <input type="text" class="form-control" id="automation-name" name="name" placeholder="Regelname"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="automation-trigger-type" class="form-label">Trigger Type:</label>
+                        <select class="form-select" id="automation-trigger-type" name="triggerType" required>
+                            <option value="" selected disabled>Bitte wählen…</option>
+                            <option value="onEvent">onEvent</option>
+                            <option value="onSchedule">onSchedule</option>
+                            <option value="onCondition">onCondition</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="automation-trigger" class="form-label">Trigger (Konfiguration):</label>
+                        <input type="text" class="form-control" id="automation-trigger" name="triggerConfig"
+                               placeholder="z. B. cron(0 0 * * *) oder eventKey.workflow.created">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="automation-condition" class="form-label">Bedingung (JSON):</label>
+                        <textarea class="form-control" id="automation-condition" name="conditionJson" rows="4"
+                                  placeholder='z. B. {"==":[{"var":"state"},"OPEN"]}'></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="automation-action" class="form-label">Aktion(en) (JSON):</label>
+                        <textarea class="form-control" id="automation-action" name="actionsJson" rows="4"
+                                  placeholder='z. B. [{"type":"notify","templateKey":"WF_CREATED"}]'></textarea>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="automation-enabled" name="enabled"
+                               value="true" checked>
+                        <label class="form-check-label" for="automation-enabled">Aktiv</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- FORMULAR -->
+<div class="modal fade" id="C2" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form action="/workflow/config/create/form" method="post">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="formModalLabel">Formular</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="mb-3 mt-3">
+                        <label for="form-id" class="form-label">Id (UUID):</label>
+                        <input type="text" class="form-control" id="form-id" name="id"
+                               placeholder="optional / wird sonst generiert" inputmode="latin"
+                               pattern="[0-9a-fA-F-]{36}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-key" class="form-label">Key:</label>
+                        <input type="text" class="form-control" id="form-key" name="key"
+                               placeholder="z. B. ONBOARDING_PROFILE" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-version" class="form-label">Version:</label>
+                        <input type="number" class="form-control" id="form-version" name="version" min="1" step="1"
+                               value="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-name" class="form-label">Name:</label>
+                        <input type="text" class="form-control" id="form-name" name="formName"
+                               placeholder="Formularname" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-description" class="form-label">Beschreibung:</label>
+                        <textarea class="form-control" id="form-description" name="formDescription" rows="3"
+                                  placeholder="Kurzbeschreibung"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-img" class="form-label">Bild-Url:</label>
+                        <input type="url" class="form-control" id="form-img" name="formImg" placeholder="https://…">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-json-schema" class="form-label">JSON Schema:</label>
+                        <textarea class="form-control" id="form-json-schema" name="jsonSchema" rows="6"
+                                  placeholder='{"type":"object","properties":{…}}'></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-ui-schema" class="form-label">UI Schema:</label>
+                        <textarea class="form-control" id="form-ui-schema" name="uiSchema" rows="6"
+                                  placeholder='{"ui:order":["fieldA","fieldB"],…}'></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-validation" class="form-label">Validation JSON:</label>
+                        <textarea class="form-control" id="form-validation" name="validationsJson" rows="6"
+                                  placeholder='{"rules":[…]}'></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="form-output" class="form-label">Output Template(s):</label>
+                        <textarea class="form-control" id="form-output" name="outputTemplatesJson" rows="6"
+                                  placeholder='{"pdf":"…","email":"…"}'></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- BENACHRICHTIGUNG -->
+<div class="modal fade" id="C3" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form action="/workflow/config/create/notification" method="post">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="notificationModalLabel">Benachrichtigung</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="mb-3 mt-3">
+                        <label for="notif-id" class="form-label">Id (UUID):</label>
+                        <input type="text" class="form-control" id="notif-id" name="id"
+                               placeholder="optional / wird sonst generiert" inputmode="latin"
+                               pattern="[0-9a-fA-F-]{36}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notif-key" class="form-label">Key:</label>
+                        <input type="text" class="form-control" id="notif-key" name="key" placeholder="z. B. WF_CREATED"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notif-channel" class="form-label">Kanal:</label>
+                        <select class="form-select" id="notif-channel" name="channel" required>
+                            <option value="" selected disabled>Bitte wählen…</option>
+                            <option value="EMAIL">E-Mail</option>
+                            <option value="PUSH">Push</option>
+                            <option value="SMS">SMS</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notif-version" class="form-label">Version:</label>
+                        <input type="number" class="form-control" id="notif-version" name="version" min="1" step="1"
+                               value="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notif-subject" class="form-label">Betreff Template:</label>
+                        <textarea class="form-control" id="notif-subject" name="subjectTemplate" rows="2"
+                                  placeholder="z. B. Neuer Workflow: {{title}}"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notif-body" class="form-label">Body Template:</label>
+                        <textarea class="form-control" id="notif-body" name="bodyTemplate" rows="6"
+                                  placeholder="Markup/Text mit Platzhaltern, z. B. {{description}}"></textarea>
+                    </div>
+
+                    <!-- Falls du ein Payload/Schema brauchst, optional: -->
+                    <div class="mb-3">
+                        <label for="notif-json-schema" class="form-label">JSON Schema (optional):</label>
+                        <textarea class="form-control" id="notif-json-schema" name="jsonSchema" rows="4"
+                                  placeholder='{"type":"object","properties":{…}}'></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- PROZESSDEFINITION -->
+<div class="modal fade" id="C4" tabindex="-1" aria-labelledby="processModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form action="/workflow/config/create/process" method="post">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="processModalLabel">Prozessdefinition</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                    <div class="mb-3 mt-3">
+                        <label for="proc-id" class="form-label">Id (UUID):</label>
+                        <input type="text" class="form-control" id="proc-id" name="id"
+                               placeholder="optional / wird sonst generiert" inputmode="latin"
+                               pattern="[0-9a-fA-F-]{36}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="proc-key" class="form-label">Key:</label>
+                        <input type="text" class="form-control" id="proc-key" name="key" placeholder="z. B. ONBOARDING"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="proc-version" class="form-label">Version:</label>
+                        <input type="number" class="form-control" id="proc-version" name="version" min="1" step="1"
+                               value="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="proc-name" class="form-label">Name:</label>
+                        <input type="text" class="form-control" id="proc-name" name="name" placeholder="Lesbarer Name"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="proc-states" class="form-label">Status Schema (JSON Array):</label>
+                        <textarea class="form-control" id="proc-states" name="statesJson" rows="4"
+                                  placeholder='["OPEN","IN_PROGRESS","COMPLETED"]'></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="proc-transitions" class="form-label">Übergänge Schema (JSON Map):</label>
+                        <textarea class="form-control" id="proc-transitions" name="transitionsJson" rows="4"
+                                  placeholder='{"OPEN":"IN_PROGRESS","IN_PROGRESS":"COMPLETED"}'></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="proc-sla" class="form-label">SLAs JSON (JSON Map):</label>
+                        <textarea class="form-control" id="proc-sla" name="slaPoliciesJson" rows="4"
+                                  placeholder='{"OPEN":72,"IN_PROGRESS":168}'></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.messdiener</groupId>
+        <artifactId>PR_CMS_VX</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>cms-app</artifactId>
+    <name>cms-app</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- Web-Layer/Commons -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-web-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-infrastructure</artifactId>
+        </dependency>
+
+        <!-- Features, die die App hostet -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-auth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-person</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-documents</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-liturgy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-privacy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-audit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-finance</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-workflow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-task</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-events</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-notifications</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-homepage</artifactId>
+        </dependency>
+
+        <!-- Templates-Bundle -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-web-templates</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Thymeleaf Extras (Version via Boot-BOM) -->
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- DB -->
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+
+
+        <!-- Devtools für Hot Reload -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- JPA und Treiber explizit im App-Modul -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.34</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

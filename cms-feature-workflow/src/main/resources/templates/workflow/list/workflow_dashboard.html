@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<style>
+    @media (max-width: 768px) {
+        body.bg-img-cover {
+            background-image: none !important;
+            background-color: rgb(2, 2, 102) !important;
+        }
+    }
+</style>
+<body class="nav-fixed bg-img-cover">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark pb-15 bg-img-cover"
+                    th:style="|background-image: url('@{/img/hand.jpg}')|">
+                <div class="container-xl px-4">
+                    <div class="page-header-content pt-4">
+                        <h1 class="page-header-title mt-4"
+                            th:text="'CMS Workflows'">
+                        </h1>
+                        <div class="page-header-subtitle">Bei Fragen wende dich gerne direkt an Lucas!
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="container px-4 mt-n10">
+
+
+                <a class="card mb-4 shadow-none lift" th:each="w:${workflows}" th:href="'/workflow/jump?id=' + ${w.getWorkflowId()}" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">
+                    <div class="row no-gutters">
+                        <div class="col-md-2">
+                            <img class="img-fluid" alt="...">
+                        </div>
+                        <div class="col-md-10">
+
+                            <div class="card-body">
+                                <h3 class="card-title text-primary" th:text="${w.getWorkflowName()}"></h3>
+                                <p class="card-text" th:text="${w.getWorkflowDescription()}"></p>
+                                <p class="card-text"
+                                   th:text="'Folgende Schritte befinden sich in diesem Workflow: '+ ${workflowHelper.getFollowUpTasks(user.getId().toString(), w.getWorkflowId().toString())}"></p>
+
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </main>
+
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+<div th:insert="~{fragments :: script}"></div>
+<link th:href="@{/css/main.css}" rel="stylesheet"/>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

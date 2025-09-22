@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head th:insert="~{fragments :: html_head}"></head>
+<body class="nav-fixed">
+<nav th:insert="~{fragments :: topnav}"></nav>
+<div id="layoutSidenav">
+    <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
+    <div id="layoutSidenav_content">
+        <main>
+            <header class="page-header page-header-dark bg-purple mb-4">
+                <div class="container-fluid px-4">
+                    <div class="page-header-content pt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="zap"></i></span>
+                                    <span>Workflows</span>
+                                </h1>
+                                <div class="page-header-subtitle">Workflows für deine Gruppe</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="container-fluid px-4 mt-4">
+                <div th:replace="~{workflow/fragments/workflowFragments :: nav(${step})}"></div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <div class="bg-purple-soft rounded-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                                    <i data-feather="zap" class="text-purple fs-4"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1 fw-semibold">Workflow erstellen</h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">Lege einen Workflow an</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <form th:action="@{/workflow/create}" method="post">
+                            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                            <!-- Allgemein -->
+                            <div class="row mb-3 align-items-center">
+                                <label for="type" class="col-sm-2 col-form-label">Workflow-Type</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select" id="type" name="type" required>
+                                        <option value="" disabled selected>Bitte wählen…</option>
+                                        <option th:each="t : ${types}"
+                                                th:text="${t.label}"
+                                                th:value="${t}"
+                                                th:unless="${t.toString().equals('NULL')}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label for="label" class="col-sm-2 col-form-label">Titel</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="label" name="label" placeholder="z. B. Onboarding Max Mustermann">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label for="description" class="col-sm-2 col-form-label">Beschreibung</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" id="description" name="description" rows="2" placeholder="Kurzbeschreibung (optional)"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Zuweisung -->
+                            <div class="row mb-3 align-items-center">
+                                <label for="person" class="col-sm-2 col-form-label">Personen</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select" id="person" name="person" required>
+                                        <optgroup label="Standard">
+                                            <option value="me">Für dich</option>
+                                            <option value="all">Alle Personen in deiner Verantwortung</option>
+                                            <option value="tenant">Alle Personen in deinem Tenant</option>
+                                        </optgroup>
+                                        <optgroup label="Personen in deiner Verantwortung">
+                                            <option th:each="p : ${persons}"
+                                                    th:text="${p.firstName + ' ' + p.lastName}"
+                                                    th:value="${p.id}"></option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3 align-items-center">
+                                <label for="startDate" class="col-sm-2 col-form-label">Datum</label>
+                                <div class="col-sm-5">
+                                    <input type="date" class="form-control" id="startDate" name="startDate">
+                                </div>
+                                <div class="col-sm-5">
+                                    <input type="date" class="form-control" id="endDate" name="endDate">
+                                </div>
+                            </div>
+
+                            <!-- NEU: Prozessdefinition wählen -->
+                            <hr class="my-4">
+                            <div class="row mb-3 align-items-center">
+                                <label for="processDefinitionId" class="col-sm-2 col-form-label">Prozessdefinition</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select" id="processDefinitionId" name="processDefinitionId" required>
+                                        <option value="" disabled selected>Bitte wählen…</option>
+                                        <option th:each="p : ${processDefinitions}"
+                                                th:value="${p.processDefinitionId}"
+                                                th:text="${p.key + '  ·  v' + p.version + '  ·  ' + p.name}"></option>
+                                    </select>
+                                    <div class="form-text">
+                                        Zustände/Übergänge werden aus der gewählten Definition bezogen.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Optional: Starter-Status (falls du ihn beim Anlegen überschreiben willst) -->
+                            <div class="row mb-3 align-items-center">
+                                <label for="initialState" class="col-sm-2 col-form-label">Start-Status</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="initialState" name="initialState" placeholder="(optional) z. B. OPEN">
+                                </div>
+                            </div>
+
+                            <!-- NEU: Formulare anhängen -->
+                            <div class="row mb-3 align-items-center">
+                                <label for="formDefinitionIds" class="col-sm-2 col-form-label">Formulare</label>
+                                <div class="col-sm-10">
+                                    <select multiple class="form-select" id="formDefinitionIds" name="formDefinitionIds">
+                                        <option th:each="f : ${formDefinitions}"
+                                                th:value="${f.formDefinitionId}"
+                                                th:text="${f.key + '  ·  v' + f.version + '  ·  ' + f.formName}"></option>
+                                    </select>
+                                    <div class="form-text">Mehrfachauswahl möglich (Strg/Cmd halten).</div>
+                                </div>
+                            </div>
+
+                            <!-- Optional: Automatisierungs-Flag -->
+                            <div class="row mb-3 align-items-center">
+                                <label class="col-sm-2 col-form-label">Automatisierung</label>
+                                <div class="col-sm-10">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="enableAutomation" name="enableAutomation" value="true" checked>
+                                        <label class="form-check-label" for="enableAutomation">Regeln für diesen Workflow anwenden (falls vorhanden)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex mt-3 mb-3">
+                                <button class="btn btn-purple btn-sm flex-fill m-1" type="submit">Speichern</button>
+                            </div>
+                        </form>
+
+                        <!-- Kleine Vorschau der ausgewählten Prozessdefinition (optional, rein read-only) -->
+                        <div class="mt-4">
+                            <h6 class="fw-semibold mb-2">Prozessdefinitionen (Übersicht)</h6>
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Key</th>
+                                    <th>Name</th>
+                                    <th>Version</th>
+                                    <th>Status</th>
+                                    <th>Übergänge</th>
+                                    <th>SLAs</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="p : ${processDefinitions}">
+                                    <td class="text-monospace" th:text="${p.processDefinitionId}">UUID</td>
+                                    <td th:text="${p.key}">KEY</td>
+                                    <td th:text="${p.name}">Name</td>
+                                    <td th:text="${p.version}">1</td>
+                                    <td><code th:text="${#strings.abbreviate(p.statesJson, 40)}" th:title="${p.statesJson}">[...]</code></td>
+                                    <td><code th:text="${#strings.abbreviate(p.transitionsJson, 40)}" th:title="${p.transitionsJson}">{...}</code></td>
+                                    <td><code th:text="${#strings.abbreviate(p.slaPoliciesJson, 40)}" th:title="${p.slaPoliciesJson}">{...}</code></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(processDefinitions)}">
+                                    <td colspan="7" class="text-muted">Keine Prozessdefinitionen vorhanden.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer th:insert="~{fragments :: footer}"></footer>
+    </div>
+</div>
+<div th:insert="~{fragments :: script}"></div>
+</body>
+</html>
+<script th:src="@{/js/jquery.min.js}"></script>

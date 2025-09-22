@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.messdiener</groupId>
+        <artifactId>PR_CMS_VX</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>cms-feature-workflow</artifactId>
+    <name>cms-feature-workflow</name>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <!-- SecurityHelper etc. -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-web-common</artifactId>
+        </dependency>
+
+        <!-- Shared Utils -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-shared</artifactId>
+        </dependency>
+
+        <!-- Person -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-person</artifactId>
+        </dependency>
+
+        <!-- Documents -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-documents</artifactId>
+        </dependency>
+
+        <!-- Privacy -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-privacy</artifactId>
+        </dependency>
+
+        <!-- Audit -->
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-audit</artifactId>
+        </dependency>
+
+        <!-- iText 5 -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>${maven.compiler.release}</release>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.34</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

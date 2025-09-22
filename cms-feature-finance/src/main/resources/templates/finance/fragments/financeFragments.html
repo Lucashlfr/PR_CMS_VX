@@ -1,0 +1,17 @@
+<!-- templates/fragments/financeFragments.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+
+<div th:fragment="nav (q)">
+    <nav class="nav nav-pills nav-fill mb-3">
+        <a th:class="${q == 'list'} ? 'nav-link active bg-blue' : 'nav-link text-blue'"
+           th:href="@{/finance(q='list')}">
+            <i class="mdi mdi-home me-1"></i>
+            Übersicht</a>
+        <a th:class="${q == 'bill'} ? 'nav-link active bg-blue' : 'nav-link text-blue'"
+           th:href="@{/finance(q='bill')}">
+            <i class="mdi mdi-cash me-1"></i>
+            Belege</a>
+    </nav>
+</div>
+</html>
