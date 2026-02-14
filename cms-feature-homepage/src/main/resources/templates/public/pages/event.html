@@ -23,7 +23,7 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                         Anmeldung wurde erfolgreich gespeichert!
                                     </div>
-                                    <div class="card">
+                                    <div class="card" th:unless="${components.size() == 0}" >
                                         <div class="card-header">Anmeldeformular</div>
                                         <div class="card-body">
                                             <p>
@@ -123,6 +123,11 @@
                                                     <button type="button" class="btn btn-primary" onclick="submitForm()">Speichern</button>
                                                 </div>
                                             </form>
+                                        </div>
+                                    </div>
+                                    <div class="card" th:if="${components.size() == 0}">
+                                        <div class="card-body">
+                                            <div th:utext="${event.getForms()}"></div>
                                         </div>
                                     </div>
 

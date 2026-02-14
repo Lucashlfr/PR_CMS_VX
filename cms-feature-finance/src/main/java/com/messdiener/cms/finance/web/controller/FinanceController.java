@@ -1,8 +1,6 @@
 package com.messdiener.cms.finance.web.controller;
 
-import com.messdiener.cms.documents.app.service.StorageService;
 import com.messdiener.cms.web.common.security.SecurityHelper;
-import com.messdiener.cms.documents.domain.entity.StorageFile;
 import com.messdiener.cms.finance.persistence.service.FinanceService;
 import com.messdiener.cms.finance.domain.entity.FinanceEntry;
 import com.messdiener.cms.liturgy.app.helper.LiturgieHelper;
@@ -15,6 +13,8 @@ import com.messdiener.cms.shared.enums.document.FileType;
 import com.messdiener.cms.shared.enums.finance.TransactionCategory;
 import com.messdiener.cms.utils.time.CMSDate;
 import com.messdiener.cms.utils.time.DateUtils;
+import com.messdiener.cms.files.domain.entity.StorageFile;
+import com.messdiener.cms.files.persistence.service.StorageService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

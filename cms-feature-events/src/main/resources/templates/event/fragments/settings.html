@@ -1,0 +1,120 @@
+<div th:fragment="settings(event, types, states)" class="card card-collapsable mb-3">
+    <form th:action="@{/event/edit}" th:method="post"
+          data-ajax="true"
+          data-reload="true"
+          data-success="Einstellungen gespeichert."
+          data-collapse="#collapse-settings">
+        <input type="hidden" name="id" th:value="${event.getEventId()}">
+
+        <a class="card-header d-flex justify-content-between align-items-center py-2"
+           role="button"
+           data-bs-toggle="collapse"
+           data-bs-target="#collapse-settings"
+           aria-controls="collapse-settings"
+           aria-expanded="false">
+            <span><i class="mdi mdi-cog-outline text-yellow"></i> Allgemeine Informationen</span>
+            <i class="mdi mdi-chevron-down card-collapsable-arrow"></i>
+        </a>
+
+
+        <div class="collapse" id="collapse-settings">
+
+        <div class="card-body">
+                <div class="row align-items-start">
+                    <label for="titel" class="col-sm-2 col-form-label">Titel</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control form-control-sm" id="titel" name="titel"
+                               required th:value="${event.getTitle()}" aria-describedby="titel-help">
+                        <small id="titel-help" class="form-text text-muted">Kurzer, eindeutiger Name des Events.</small>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-start">
+                    <label for="beschreibung" class="col-sm-2 col-form-label">Beschreibung</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control form-control-sm" id="beschreibung" name="beschreibung"
+                                  rows="8" th:text="${event.getDescription()}" aria-describedby="beschreibung-help"></textarea>
+                        <small id="beschreibung-help" class="form-text text-muted">Ausführliche Infos.</small>
+                    </div>
+                </div>
+
+            <div class="row mb-3 align-items-start">
+                <label for="forms" class="col-sm-2 col-form-label">Forms</label>
+                <div class="col-sm-10">
+                        <textarea class="form-control form-control-sm" id="forms" name="forms"
+                                  rows="2" th:text="${event.getForms()}" aria-describedby="beschreibung-help"></textarea>
+                    <small id="forms-help" class="form-text text-muted">Forms link.</small>
+                </div>
+            </div>
+
+                <div class="row align-items-start">
+                    <label for="eventState" class="col-sm-2 col-form-label">Event Status</label>
+                    <div class="col-sm-10">
+                        <select class="form-select form-select-sm" id="eventState" name="eventState">
+                            <option th:each="s:${states}" th:text="${s.label}" th:value="${s}"
+                                    th:selected="${s.name() == event.getState().name()}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3 align-items-start">
+                    <label class="col-sm-2 col-form-label">Titelbild</label>
+                    <div class="col-sm-10">
+                        <a data-bs-toggle="modal" data-bs-target="#img">
+                            <img th:src="${event.getImgUrl()}" alt="Titelbild" class="card-img img-fluid w-25 h-25"
+                                 th:unless="${event.getImgUrl().isEmpty()}">
+                        </a>
+                        <button class="btn bg-yellow text-white btn-sm flex-fill m-1" type="button"
+                                data-bs-toggle="modal" data-bs-target="#img"
+                                th:if="${event.getImgUrl().isEmpty()}">Bild ändern</button>
+                    </div>
+                </div>
+
+                <div class="row align-items-start">
+                    <label for="eventType" class="col-sm-2 col-form-label">Event Type</label>
+                    <div class="col-sm-5">
+                        <select class="form-select form-select-sm" id="eventType" name="eventType">
+                            <option th:each="t:${types}" th:text="${t.label}" th:value="${t}"
+                                    th:selected="${t.name() == event.getType().name()}"></option>
+                        </select>
+                    </div>
+                    <div class="col-sm-5">
+                        <select class="form-select form-select-sm" id="targetgroup" name="targetgroup">
+                            <option value="1" th:selected="${event.getTargetGroup().equals('1')}">Messdiener der eigenen Ortsgruppe</option>
+                            <option value="2" th:selected="${event.getTargetGroup().equals('2')}">Messdiener der eigenen Ortsgruppe + 1</option>
+                            <option value="3" th:selected="${event.getTargetGroup().equals('3')}">Messdiener der Pfarrei / Leitung der Ortsgruppe</option>
+                            <option value="4" th:selected="${event.getTargetGroup().equals('4')}">Messdiener der Pfarrei</option>
+                            <option value="5" th:selected="${event.getTargetGroup().equals('5')}">Offen für alle</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row align-items-start">
+                    <label for="startDate" class="col-sm-2 col-form-label">Zeitraum</label>
+                    <div class="col-sm-5">
+                        <input type="datetime-local" class="form-control form-control-sm" id="startDate" name="startDate"
+                               th:value="${event.getStartDate().getEnglishDayDate()}">
+                    </div>
+                    <div class="col-sm-5">
+                        <input type="datetime-local" class="form-control form-control-sm" id="endDatum" name="endDate"
+                               th:value="${event.getEndDate().getEnglishDayDate()}">
+                    </div>
+                </div>
+
+                <div class="row align-items-start">
+                    <label for="deadline" class="col-sm-2 col-form-label">Anmelde-Schluss</label>
+                    <div class="col-sm-10">
+                        <input type="date" class="form-control form-control-sm" id="deadline" name="deadline"
+                               th:value="${event.getDeadline().getEnglishDate()}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-yellow btn-sm btn-block flex-fill">Speichern</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

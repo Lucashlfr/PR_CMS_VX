@@ -11,9 +11,6 @@ import java.util.UUID;
 public class EventComponentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "eventId", length = 36, nullable = false)
     private UUID eventId;
 

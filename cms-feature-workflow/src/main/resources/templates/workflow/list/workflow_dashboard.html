@@ -1,62 +1,111 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
 <head th:insert="~{fragments :: html_head}"></head>
-<style>
-    @media (max-width: 768px) {
-        body.bg-img-cover {
-            background-image: none !important;
-            background-color: rgb(2, 2, 102) !important;
-        }
-    }
-</style>
-<body class="nav-fixed bg-img-cover">
+<body class="nav-fixed">
 <nav th:insert="~{fragments :: topnav}"></nav>
 <div id="layoutSidenav">
     <div id="layoutSidenav_nav" th:insert="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main>
-            <header class="page-header page-header-dark pb-15 bg-img-cover"
-                    th:style="|background-image: url('@{/img/hand.jpg}')|">
+            <header class="page-header page-header-dark bg-purple mb-4">
                 <div class="container-xl px-4">
                     <div class="page-header-content pt-4">
-                        <h1 class="page-header-title mt-4"
-                            th:text="'CMS Workflows'">
-                        </h1>
-                        <div class="page-header-subtitle">Bei Fragen wende dich gerne direkt an Lucas!
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col-auto mt-4">
+                                <h1 class="page-header-title">
+                                    <span class="page-header-icon text-white"><i data-feather="zap"></i></span>
+                                    <span>Deine Workflows</span>
+                                </h1>
+                                <div class="page-header-subtitle">Bearbeite deine Workflows!
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <div class="container px-4 mt-n10">
-
-
-                <a class="card mb-4 shadow-none lift" th:each="w:${workflows}" th:href="'/workflow/jump?id=' + ${w.getWorkflowId()}" onclick="window.open(this.href, 'popupWindow', 'scrollbars=yes'); return false;">
-                    <div class="row no-gutters">
-                        <div class="col-md-2">
-                            <img class="img-fluid" alt="...">
-                        </div>
-                        <div class="col-md-10">
-
-                            <div class="card-body">
-                                <h3 class="card-title text-primary" th:text="${w.getWorkflowName()}"></h3>
-                                <p class="card-text" th:text="${w.getWorkflowDescription()}"></p>
-                                <p class="card-text"
-                                   th:text="'Folgende Schritte befinden sich in diesem Workflow: '+ ${workflowHelper.getFollowUpTasks(user.getId().toString(), w.getWorkflowId().toString())}"></p>
-
+            <div class="container-xl px-4 mt-4">
+                <div class="card mb-3">
+                    <div class="card-body p-5">
+                        <div class="row align-items-center justify-content-between">
+                            <div class="col">
+                                <h1 style="font-size: 35px" class="text-purple">Workflows</h1>
+                                <h4 class="lead mb-4">Bitte wende dich bei Fragen direkt an Lucas!</h4>
+                                <p>Liebe Messdienerinnen und Messdiener</p>
+                                <p>In dieser Abfragen fragen wir eure Daten, Verfügbarkeiten, etc ab.</p>
+                                <div class="alert alert-success alert-icon" role="alert" th:if="${forms.size() == 0}">
+                                    <div class="alert-icon-aside">
+                                        <i data-feather="check"></i>
+                                    </div>
+                                    <div class="alert-icon-content">
+                                        <span>Du hast alle Formulare bereits ausgefüllt. Danke Dir!</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 d-none d-lg-block mt-xxl-n4 text-center"><img
+                                    class="img-fluid px-xl-4 mt-xxl-n5" style="max-width: 400px!important;"
+                                    th:src="@{/dist/assets/img/illustrations/Security-rafiki.svg}"/>
                             </div>
                         </div>
                     </div>
-                </a>
+                    <div class="card-footer bg-white" th:if="${forms.size() > 0}">
+
+
+                        <div class="overflow-auto" style="max-height: 500px!important;">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Titel</th>
+                                    <th>Staus</th>
+                                    <th>Ersteller*in</th>
+                                    <th>Erstellungsdatum</th>
+                                    <th>Letztes Update</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="f : ${forms}">
+                                    <!-- Typ -->
+
+                                    <!-- Titel  Beschreibung -->
+                                    <td th:text="${f.name != null ? f.name : '—'}"></td>
+                                    <td th:text="${f.state != null ? f.state.label : '—'}"></td>
+
+                                    <!-- Personen -->
+                                    <td th:text="${f.creator != null ? personHelper.getName(f.creator) : '—'}"></td>
+
+                                    <!-- Erstellungsdatum -->
+                                    <td th:attr="data-order=${f.creationDate != null ? f.creationDate.toLong() : 0}"
+                                        th:text="${f.creationDate != null ? f.creationDate.getGermanTime() : '—'}"></td>
+
+                                    <!-- Letztes Update (fix für Null) -->
+                                    <td th:attr="data-order=${f.modificationDate != null ? f.modificationDate.toLong() : 0}"
+                                        th:text="${f.modificationDate != null ? f.modificationDate.getGermanTime() : '—'}"></td>
+
+                                    <!-- Link -->
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-primary"
+                                        th:href="'/workflow/form?id=' + ${f.getModuleId()}">Öffnen</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </main>
-
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 <div th:insert="~{fragments :: script}"></div>
-<link th:href="@{/css/main.css}" rel="stylesheet"/>
-<script th:src="@{/js/main.js}"></script>
 </body>
 </html>
+<script th:src="@{/js/jquery.min.js}"></script>
+
+
+
+

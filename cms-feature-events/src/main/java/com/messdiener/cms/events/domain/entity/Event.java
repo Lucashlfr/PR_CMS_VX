@@ -8,6 +8,7 @@ import com.messdiener.cms.utils.time.CMSDate;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.Scanner;
 import java.util.UUID;
 
 @Data
@@ -59,15 +60,40 @@ public class Event {
     private String preventionConcept;
     private String notes;
     private String application;
+    private String forms;
 
     public static Event empty(UUID eventId, Tenant tenant, String title, EventType eventType, EventState eventState, CMSDate startDate, CMSDate endDate, CMSDate deadline) {
         return new Event(eventId, tenant, 0, title, "", eventType, eventState, startDate, endDate, deadline, CMSDate.current(), CMSDate.current(), CMSDate.current(), "",
                 "", "", "", "", -1, Cache.SYSTEM_USER, Cache.SYSTEM_USER, Cache.SYSTEM_USER, Cache.SYSTEM_USER, 0.0, 0.0,
-                "", "", "", "");
+                "", "", "", "", "");
     }
 
     public String getPressRelease() {
         return pressRelease.replace("<img src=", "<img class=\"img-fluid\" src=");
     }
+
+    public String getTextTeaser() {
+
+        String text = "";
+        if(state == EventState.CONFIRMED){
+            text = application;
+        }else if(state == EventState.COMPLETED){
+            text = pressRelease;
+        }
+        if (text == null || text.isBlank()) return "";
+
+        StringBuilder sb = new StringBuilder();
+        int words = 0;
+
+        Scanner scanner = new Scanner(text);
+        while (scanner.hasNext() && words < 10) {
+            sb.append(scanner.next()).append(" ");
+            words++;
+        }
+        scanner.close();
+
+        return sb.toString().trim();
+    }
+
 
 }

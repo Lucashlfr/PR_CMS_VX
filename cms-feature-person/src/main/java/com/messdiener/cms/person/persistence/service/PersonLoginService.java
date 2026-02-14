@@ -38,20 +38,20 @@ public class PersonLoginService {
         if (!person.isCanLogin()) return;
 
         if (isBlank(person.getUsername())) {
-            String username = generateUsername(person.getFirstname(), person.getLastname());
+            String username = generateUsername(person.getFirstName(), person.getLastName());
             person.setUsername(username);
-            LOGGER.info("Generated username '{}' for '{} {}'", username, person.getFirstname(), person.getLastname());
+            LOGGER.info("Generated username '{}' for '{} {}'", username, person.getFirstName(), person.getLastName());
         }
 
         if (isBlank(person.getPassword())) {
             if (person.getBirthdate().isPresent()) {
                 String birthdatePassword = person.getBirthdate().get().getGermanDate();
                 person.setPassword(birthdatePassword);
-                LOGGER.info("Password set from birthdate for '{} {}'", person.getFirstname(), person.getLastname());
+                LOGGER.info("Password set from birthdate for '{} {}'", person.getFirstName(), person.getLastName());
             } else {
                 String randomPassword = generatePassword();
                 person.setPassword(randomPassword);
-                LOGGER.info("Generated random password for '{} {}'", person.getFirstname(), person.getLastname());
+                LOGGER.info("Generated random password for '{} {}'", person.getFirstName(), person.getLastName());
             }
         }
     }

@@ -37,7 +37,7 @@
         <!-- Documents -->
         <dependency>
             <groupId>com.messdiener</groupId>
-            <artifactId>cms-feature-documents</artifactId>
+            <artifactId>cms-feature-files</artifactId>
         </dependency>
 
         <!-- Privacy -->

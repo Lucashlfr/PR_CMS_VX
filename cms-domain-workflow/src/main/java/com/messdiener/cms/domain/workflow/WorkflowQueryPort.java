@@ -7,4 +7,6 @@ public interface WorkflowQueryPort {
     int countRelevantWorkflows(String personId);
 
     List<WorkflowSummaryDTO> getWorkflowsByUserId(UUID userId);
+
+    List<WorkflowFormView> getActiveFormsForUser(UUID currentUser);
 }

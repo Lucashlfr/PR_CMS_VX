@@ -76,6 +76,20 @@ public class LiturgieController {
 
 
             return "liturgie/list/liturgieRequest";
+        }else if (q.isPresent() && q.get().equals("statistic")) {
+            model.addAttribute("current", liturgieRequestService.currentRequest(person.getTenant()).isPresent());
+
+            Optional<LiturgieRequest> request = liturgieRequestService.currentRequest(person.getTenant());
+            model.addAttribute("currentRequest", request.orElse(null));
+
+            Map<String, Boolean> status = new HashMap<>();
+            if (request.isPresent()) {
+                status = liturgieRequestService.getPersonStatusMap(person.getTenant(), request.get().getRequestId());
+            }
+            model.addAttribute("status", status);
+
+
+            return "liturgie/list/liturgieStatistic";
         }
 
         return "liturgie/list/liturgieOverview";

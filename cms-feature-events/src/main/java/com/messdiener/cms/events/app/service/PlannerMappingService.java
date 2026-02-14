@@ -38,7 +38,7 @@ public class PlannerMappingService {
         return userIds.stream()
                 .map(personService::getPersonById) // Optional<Person>
                 .flatMap(Optional::stream)
-                .sorted(Comparator.comparing(Person::getLastname))
+                .sorted(Comparator.comparing(Person::getLastName))
                 .toList();
     }
 

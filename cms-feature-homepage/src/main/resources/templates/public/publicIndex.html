@@ -15,32 +15,13 @@
             </header>
             <section class="bg-light py-10">
                 <div class="container px-5">
-
-
-                    <div class="row align-items-stretch">
-                        <div class="col-xl-4 d-flex mb-4" th:each="a : ${articles}">
-                            <a class="card lift m-2 h-100" th:href="'/go?id=' + ${a.id}">
-                                <img class="card-img-top" th:src="${a.getImgUrl()}" alt="...">
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title" th:text="${a.title}">
-                                    </h5>
-                                    <!-- <p class="card-text flex-grow-1">Hier könnte noch ein Teaser-Text stehen.</p> -->
-                                </div>
-                                <div class="card-footer mt-auto">
-                                    Weiterlesen
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-
                     <div class="row align-items-stretch">
                         <div class="col-xl-4 d-flex mb-4" th:each="e : ${events}">
-                            <a class="card lift m-2 h-100" th:href="'/go?id=' + ${e.eventId}">
+                            <a class="card lift m-2 h-100" th:href="'/go/' + ${e.getTitle().replaceAll(' ', '-')}">
                                 <img class="card-img-top" th:src="${e.getImgUrl()}" alt="...">
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title" th:text="${e.getTitle()}">
                                     </h5>
-                                    <!-- <p class="card-text flex-grow-1">Hier könnte noch ein Teaser-Text stehen.</p> -->
                                 </div>
                                 <div class="card-footer mt-auto">
                                     Weiterlesen

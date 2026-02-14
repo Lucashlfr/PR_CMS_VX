@@ -1,0 +1,67 @@
+<div th:fragment="files(event, files, personHelper, imgUtils)" class="card card-collapsable mb-3">
+    <a class="card-header d-flex justify-content-between align-items-center py-2"
+       role="button"
+       data-bs-toggle="collapse"
+       data-bs-target="#collapse-files"
+       aria-controls="collapse-files"
+       aria-expanded="false">
+        <span><i class="mdi mdi-folder text-yellow"></i> Dateien</span>
+        <i class="mdi mdi-chevron-down card-collapsable-arrow"></i>
+    </a>
+
+    <div class="collapse" id="collapse-files">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-xl-2">
+                    <style>
+                        .border-dashed { border-style: dashed !important; }
+                        #drop-zone.dragover { background-color: #e9f7fe; border-color: #0d6efd !important; color: #0d6efd; }
+                    </style>
+                    <div id="drop-zone" class="border border-yellow border-dashed rounded p-5 text-center text-yellow">
+                        <p class="mb-2">Ziehe Dateien hierher oder</p>
+                        <button id="browse-btn" class="btn btn-yellow">Durchsuchen</button>
+
+                        <input type="text" class="d-none" name="target" id="target" th:value="${event.getEventId()}">
+                        <input type="text" class="d-none" name="type" id="type" th:value="'EVENT'">
+                        <input type="file" id="file-input" name="files" multiple class="d-none">
+
+                        <!-- CSRF Hidden Inputs (für event-files.js) -->
+                        <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+                        <input type="hidden" id="csrf_header" th:value="${_csrf.headerName}">
+                        <input type="hidden" id="csrf_param" th:value="${_csrf.parameterName}">
+                    </div>
+                    <ul id="upload-list" class="d-none"></ul>
+                </div>
+                <div class="col-xl-10">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                        <tr>
+                            <th>Nummer</th>
+                            <th>Name</th>
+                            <th>Erstellt am</th>
+                            <th>Letztes Update</th>
+                            <th>Erstellt von</th>
+                            <th>Datei-Typ</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="file : ${files}">
+                            <td th:text="${file.getTag()}"></td>
+                            <td>
+                                <a th:text="${file.getTitle()}"
+                                   th:href="@{/file(id=${file.getId()})}"
+                                   target="_blank" rel="noopener noreferrer"></a>
+                            </td>
+                            <td th:text="${file.getDate() != null ? file.getDate().getGermanDate() : ''}"></td>
+                            <!-- HIER WAR DER FEHLER: Ausdruck vollständig + Klammern schließen -->
+                            <td th:text="${file.getLastUpdate() != null ? file.getLastUpdate().getGermanDate() : ''}"></td>
+                            <td th:text="${personHelper.getName(file.getOwner())}"></td>
+                            <td th:text="${file.getType()}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> <!-- /row -->
+        </div>
+    </div>
+</div>

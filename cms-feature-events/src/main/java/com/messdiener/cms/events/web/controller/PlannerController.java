@@ -2,8 +2,6 @@ package com.messdiener.cms.events.web.controller;
 
 import com.messdiener.cms.audit.persistence.service.AuditService;
 import com.messdiener.cms.audit.domain.entity.AuditLog;
-import com.messdiener.cms.domain.documents.DocumentQueryPort;
-import com.messdiener.cms.domain.documents.DocumentView;
 import com.messdiener.cms.domain.person.PersonSessionView;
 import com.messdiener.cms.events.app.service.EventService;
 import com.messdiener.cms.events.app.service.PlannerMappingService;
@@ -42,48 +40,6 @@ public class PlannerController {
     private final PlannerMappingService plannerMappingService;
     private final AuditService auditService;
     private final PersonService personService;
-    private final DocumentQueryPort documentQueryPort;
-
-    @GetMapping("/planer/task")
-    public String getTasks(Model model,
-                           @RequestParam("eventId") UUID eventId,
-                           @RequestParam("taskId") UUID taskId) throws SQLException {
-
-        PersonSessionView sessionUser = securityHelper.getPerson()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-        Person user = personService.getPersonById(sessionUser.id())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Person not found"));
-
-        Event event = eventService.getEventById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
-        PlanerTask task = plannerTaskService.getTaskById(taskId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
-
-        model.addAttribute("event", event);
-        model.addAttribute("task", task);
-        model.addAttribute("persons", personService.getActiveMessdienerByTenant(user.getTenant()));
-
-        if (task.getLable().equals("PRINCIPAL")) {
-            return "calendar/form/principalForm";
-        } else if (task.getLable().equals("LOCATION")) {
-            return "calendar/form/locationForm";
-        } else if (task.getLable().equals("TEXT")) {
-            List<DocumentView> docs = documentQueryPort.getAllDocumentsByTarget(taskId.toString());
-            DocumentView document = docs.isEmpty()
-                    ? null
-                    : docs.get(0);
-            if (document == null) {
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Document not found");
-            }
-            model.addAttribute("document", document);
-            return "calendar/form/textForm";
-        } else if (task.getLable().equals("WEBSITE")) {
-            model.addAttribute("article", null); // TODO: ArticleQueryPort + Adapter einführen
-            model.addAttribute("states", ArticleState.values());
-            return "homepage/interface/articleInterface";
-        }
-        throw new IllegalArgumentException("Type not found");
-    }
 
     @PostMapping("/planer/principal/save")
     public String saveResponsiblePersons(@RequestParam("id") UUID id,
@@ -182,7 +138,7 @@ public class PlannerController {
 
     @GetMapping("/planer/task/check")
     public String checkTask(@RequestParam("eventId") UUID eventId,
-                            @RequestParam("taskId") UUID taskId) throws SQLException {
+                            @RequestParam("taskId") UUID taskId) {
 
         PersonSessionView sessionUser = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));

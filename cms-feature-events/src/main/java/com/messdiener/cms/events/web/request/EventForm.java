@@ -15,4 +15,5 @@ public class EventForm {
     private String startDate;
     private String endDate;
     private String deadline;
+    private String forms;
 }

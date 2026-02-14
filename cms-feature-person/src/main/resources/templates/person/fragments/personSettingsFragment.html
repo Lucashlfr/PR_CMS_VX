@@ -1,0 +1,88 @@
+<!-- personSettingsFragment.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<body>
+<th:block th:fragment="settings(person)">
+    <div class="card card-collapsable mb-3">
+        <a class="card-header" href="#collapse-settings" data-bs-toggle="collapse" role="button"
+           aria-expanded="false" aria-controls="collapse-settings">
+            <div>
+                <span class="mdi mdi-cog text-info"></span>
+                Einstellungen
+            </div>
+            <div class="card-collapsable-arrow"></div>
+        </a>
+        <div class="collapse" id="collapse-settings">
+            <div class="card-body clamp-description">
+
+                <div class="row">
+                    <div class="col-xl-4 col-12 mb-4">
+                        <h4>Status</h4>
+                        <form method="post" action="/personal/state" id="stateForm"
+                              data-ajax="true"
+                              data-success="Status aktualisiert."
+                              data-collapse="#collapse-settings">
+                            <input type="hidden" name="id" th:value="${person.id}" />
+                            <div class="d-flex flex-wrap">
+                                <div class="form-check m-1">
+                                    <input type="radio" class="form-check-input" id="radio1" name="state" value="active"
+                                           th:checked="${person.isActive()}"
+                                           onchange="this.form.requestSubmit();">
+                                    <label class="form-check-label" for="radio1">Die Person ist aktiv.</label>
+                                </div>
+                                <div class="form-check m-1">
+                                    <input type="radio" class="form-check-input" id="radio2" name="state" value="inactive"
+                                           th:checked="!${person.isActive()}"
+                                           onchange="this.form.requestSubmit();">
+                                    <label class="form-check-label" for="radio2">Die Person ist nicht aktiv.</label>
+                                </div>
+                            </div>
+                        </form>
+                        <p class="mt-2">Eine aktive Person kann sich anmelden und Funktionen nutzen. Inaktive werden nach einem Monat gelöscht.</p>
+                    </div>
+
+                    <div class="col-xl-6 col-12">
+                        <div class="row mb-1 align-items-center">
+                            <label for="username" class="col-sm-2 col-form-label">Benutzername</label>
+                            <div class="col-sm-10">
+                                <form method="post" action="/personal/username"
+                                      data-ajax="true"
+                                      data-success="Benutzername aktualisiert."
+                                      data-collapse="#collapse-settings">
+                                    <input type="hidden" name="id" th:value="${person.id}">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control form-control-sm" id="username" name="username"
+                                               placeholder="Benutzername" th:value="${person.username}">
+                                        <button class="btn btn-yellow" type="submit">Speichern</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="row mb-1 align-items-center">
+                            <label for="emailChange" class="col-sm-2 col-form-label">E-Mail</label>
+                            <div class="col-sm-10">
+                                <form method="post" action="/personal/email"
+                                      data-ajax="true"
+                                      data-success="E-Mail gespeichert."
+                                      data-collapse="#collapse-settings">
+                                    <input type="hidden" name="id" th:value="${person.id}">
+                                    <div class="input-group">
+                                        <input type="email" class="form-control form-control-sm" id="emailChange"
+                                               name="email" placeholder="E-Mail" th:value="${person.getEmail()}">
+                                        <button class="btn btn-yellow" type="submit">Speichern</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- weitere Settings-Formulare analog -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

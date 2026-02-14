@@ -1,6 +1,8 @@
 // X:\workspace\PR_CMS\cms-feature-events\src\main\java\com\messdiener\cms\events\app\service\EventService.java
 package com.messdiener.cms.events.app.service;
 
+import com.messdiener.cms.domain.document.ArticleView;
+import com.messdiener.cms.events.app.utils.SlugUtil;
 import com.messdiener.cms.events.domain.entity.Event;
 import com.messdiener.cms.events.persistence.map.EventMapper;
 import com.messdiener.cms.events.persistence.repo.EventRepository;
@@ -42,5 +44,12 @@ public class EventService {
     // <— fehlt im Controller-Aufruf: save(Event)  —>
     public void save(Event event) {
         repo.save(EventMapper.toEntity(event));
+    }
+
+    public Optional<Event> getArticleBySlug(String slug) {
+
+        return repo.findAll().stream()
+                .filter(e -> SlugUtil.toSlug(e.getTitle().toLowerCase()).equals(slug))
+                .findFirst().map(EventMapper::toDomain);
     }
 }

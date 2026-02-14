@@ -1,23 +1,21 @@
 package com.messdiener.cms.domain.workflow;
 
 import com.messdiener.cms.shared.enums.workflow.CMSState;
+import com.messdiener.cms.shared.enums.workflow.WorkflowCategory;
+import com.messdiener.cms.shared.enums.workflow.WorkflowType;
 import com.messdiener.cms.utils.time.CMSDate;
 
 import java.util.UUID;
 
-/**
- * Schlanke Projektions-DTO für Workflow-Übersichten.
- * Wird im Adapter aus WorkflowDTO + PersonHelper befüllt.
- */
 public record WorkflowSummaryDTO(
         UUID workflowId,
-        String title,            // statt workflowName
-        String description,      // statt workflowDescription
-        String processKey,       // statt WorkflowCategory enum
+        String workflowName,
+        String workflowDescription,
+        WorkflowCategory category,
         CMSState state,
-        String assigneeName,     // statt editor
-        String applicantName,    // statt creator
-        String managerName,
+        String editor,
+        String creator,
+        String manager,
         int attachments,
         int notes,
         CMSDate creationDate,

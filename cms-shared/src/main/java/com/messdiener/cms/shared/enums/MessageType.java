@@ -7,23 +7,26 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MessageType {
 
-    START("bg-green", "flag", "text-green"),
-    INFO("bg-info", "info", "text-info"),
-    COMMENT( "bg-yellow", "message-circle", "text-yellow"),
-    ENDE( "bg-success", "check-circle", "text-success"),
-    EDIT("bg-orange", "edit", "text-orange"),
-    REJECT("bg-red", "x-circle", "text-red"),
+    START("Start", "bg-green-soft text-green", "flag"),
+    INFO("Info", "bg-info-soft text-info", "info"),
+    COMMENT("Kommentar", "bg-yellow-soft text-yellow", "message-circle"),
+    ENDE("Ende", "bg-success-soft text-success", "check-circle"),
+    EDIT("Bearbeitet", "bg-orange-soft text-orange", "edit"),
+    REJECT("Abgelehnt", "bg-red-soft text-red", "x-circle"),
 
-    STEP_STARTED("bg-green", "flag", "text-green"),
-    STEP_COMPLETED ("bg-success", "check-circle", "text-success"),
-    STEP_REJECTED("bg-red", "x-circle", "text-red"),
-    STEP_SKIPPED("bg-blue", "x-circle", "text-blue"),
-    WORKFLOW_COMPLETED ("bg-success", "check-circle", "text-success"),
-    WORKFLOW_CANCELLED("bg-red", "x-circle", "text-red"),
-    ROLLBACK( "bg-yellow", "message-circle", "text-yellow"),
-    ATTACHMENT_UPLOADED( "bg-yellow", "upload", "text-yellow");
+    STEP_STARTED("Schritt gestartet", "bg-green-soft text-green", "flag"),
+    STEP_COMPLETED("Schritt abgeschlossen", "bg-success-soft text-success", "check-circle"),
+    STEP_REJECTED("Schritt abgelehnt", "bg-red-soft text-red", "x-circle"),
+    STEP_SKIPPED("Schritt übersprungen", "bg-blue-soft text-blue", "x-circle"),
+    WORKFLOW_COMPLETED("Workflow abgeschlossen", "bg-success-soft text-success", "check-circle"),
+    WORKFLOW_CANCELLED("Workflow abgebrochen", "bg-red-soft text-red", "x-circle"),
+    ROLLBACK("Rollback", "bg-yellow-soft text-yellow", "message-circle"),
+    ATTACHMENT_UPLOADED("Anhang hochgeladen", "bg-yellow-soft text-yellow", "upload"),
+    CREATED("Erstellt", "bg-yellow-soft text-yellow", "info"),
 
-    private final String color;
+    NULL("", "", "");
+
+    private final String label;
+    private final String color; // enthält bg-... und text-...
     private final String icon;
-    private final String textColor;
 }

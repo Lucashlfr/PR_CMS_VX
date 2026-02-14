@@ -30,6 +30,7 @@
         <module>cms-domain-liturgy</module>
         <module>cms-domain-privacy</module>
         <module>cms-domain-audit</module>
+        <module>cms-domain-events</module>
 
         <!-- Infrastruktur & Common -->
         <module>cms-infrastructure</module>
@@ -38,7 +39,6 @@
         <!-- Features -->
         <module>cms-feature-auth</module>
         <module>cms-feature-person</module>
-        <module>cms-feature-documents</module>
         <module>cms-feature-liturgy</module>
         <module>cms-feature-privacy</module>
         <module>cms-feature-audit</module>
@@ -47,6 +47,9 @@
         <module>cms-feature-task</module>
         <module>cms-feature-events</module>
         <module>cms-feature-notifications</module>
+        <module>cms-feature-api</module>
+        <module>cms-feature-article</module>
+        <module>cms-feature-files</module>
 
         <module>cms-web-templates</module>
         <module>cms-feature-homepage</module>
@@ -119,6 +122,11 @@
                 <artifactId>cms-domain-audit</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-domain-events</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Infrastruktur & Common -->
             <dependency>
@@ -141,11 +149,6 @@
             <dependency>
                 <groupId>com.messdiener</groupId>
                 <artifactId>cms-feature-person</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.messdiener</groupId>
-                <artifactId>cms-feature-documents</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -186,6 +189,23 @@
             <dependency>
                 <groupId>com.messdiener</groupId>
                 <artifactId>cms-feature-notifications</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-article</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.messdiener</groupId>
+                <artifactId>cms-feature-files</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -249,6 +269,22 @@
                 <version>${jakarta-annotation.version}</version>
             </dependency>
 
+            <!-- Importiere die JJWT-BOM, dann keine Einzelversionen mehr nötig -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>0.11.5</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>0.11.5</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>0.11.5</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

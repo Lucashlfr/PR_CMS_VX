@@ -56,6 +56,13 @@
             <groupId>com.messdiener</groupId>
             <artifactId>cms-feature-task</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-domain-events</artifactId>
+        </dependency>
+
+
     </dependencies>
 
     <build>

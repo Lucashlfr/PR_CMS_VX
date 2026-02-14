@@ -1,0 +1,84 @@
+<div th:fragment="modals(event, files, personHelper, eventMessageTypes, imgUtils)">
+    <!-- Meldung anlegen Modal -->
+    <form th:method="post" th:action="@{/event/message}"
+          data-ajax="true"
+          data-success="Meldung angelegt."
+          data-collapse="#collapse-messages"
+          data-modal="#edit"
+          th:attr="data-refresh-url=@{|/event/fragment/messages?id=${event.getEventId()}|}"
+          data-refresh-target="#messages-container">
+        <input type="hidden" id="eventId" name="eventId" th:value="${event.getEventId()}"/>
+        <div class="modal fade" id="edit">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Meldung anlegen</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row align-items-start">
+                            <label for="title" class="col-sm-2 col-form-label">Titel</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" id="title" name="title" required>
+                            </div>
+                        </div>
+                        <div class="row align-items-start">
+                            <label for="eventMessageType" class="col-sm-2 col-form-label">Typ</label>
+                            <div class="col-sm-10">
+                                <select class="form-select form-select-sm" id="eventMessageType" name="eventMessageType">
+                                    <option th:each="t:${eventMessageTypes}" th:text="${t.label}" th:value="${t}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row align-items-start">
+                            <label for="description" class="col-sm-2 col-form-label">Beschreibung</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control form-control-sm" id="description" name="description" rows="8"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="btn btn-success">Speichern</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Bildauswahl Modal -->
+    <div class="modal fade" id="img">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Bild definieren</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                        <tr>
+                            <th>Nummer</th>
+                            <th>Name</th>
+                            <th>Erstellt von</th>
+                            <th>Bild</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="file : ${files}" th:if="${imgUtils.isImageFile(file.getTitle())}">
+                            <td th:text="${file.getTag()}"></td>
+                            <td>
+                                <a th:href="'/event/img?event=' + ${event.getEventId()} + '&img=' + ${file.getId()}" th:text="${file.getTitle()}"></a>
+                            </td>
+                            <td th:text="${personHelper.getName(file.getOwner())}"></td>
+                            <td>
+                                <img alt="..." th:src="'/file?id=' + ${file.getId()}" class="img-fluid" style="max-height:50px">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

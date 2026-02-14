@@ -3,7 +3,6 @@ package com.messdiener.cms.person.web.controller;
 import com.messdiener.cms.domain.audit.AuditQueryPort;
 import com.messdiener.cms.domain.auth.UserAdminPort;
 import com.messdiener.cms.domain.auth.UserCredential;
-import com.messdiener.cms.domain.documents.DocumentQueryPort;
 import com.messdiener.cms.domain.documents.StorageFileView;
 import com.messdiener.cms.domain.documents.StorageQueryPort;
 import com.messdiener.cms.domain.liturgy.LiturgyHelperPort;
@@ -41,7 +40,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,8 +57,7 @@ public class PersonManagementController {
     private final PersonService personService;
 
     // ---- Domain-Ports statt Feature-Services
-    private final DocumentQueryPort documentService;
-    private final StorageQueryPort storageService;
+    private final StorageQueryPort storageQueryPort;
     private final WorkflowQueryPort workflowQueryPort;
     private final AuditQueryPort auditService;
     private final PrivacyQueryPort privacyService;
@@ -85,7 +82,7 @@ public class PersonManagementController {
             @RequestParam("statusState") Optional<StatusState> statusState,
             @RequestParam("file") Optional<String> fileType,
             @RequestParam("startDate") Optional<String> startDateS,
-            @RequestParam("endDate") Optional<String> endDateS) throws SQLException {
+            @RequestParam("endDate") Optional<String> endDateS) {
 
         UUID userId = securityHelper.getPerson().map(com.messdiener.cms.domain.person.PersonSessionView::id).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         Person user = personService.getPersonById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
@@ -121,7 +118,6 @@ public class PersonManagementController {
             model.addAttribute("files", personFileService.listFilesUsingJavaIO(person.getId()));
 
             // Documents via Domain-Port
-            model.addAttribute("documents", documentService.getAllDocumentsByTarget(person.getId().toString()));
             model.addAttribute("managers", personService.getManagers());
 
             // Privacy & Audit via Domain-Port
@@ -129,41 +125,26 @@ public class PersonManagementController {
             model.addAttribute("audit", auditService.getLogsByConnectId(person.getId()));
             model.addAttribute("flags", personFlagService.getAllFlagsByPerson(personUUID));
 
-            switch (step) {
-                case "overview" -> {
-                    liturgieHelper.loadOverview(
-                            model,
-                            startDateS,
-                            endDateS,
-                            person.getTenant(),
-                            Optional.of(person.getId())
-                    );
-                }
-                case "contact" -> {
-                    return "person/interface/personInterfaceContact";
-                }
-                case "documents" -> {
-                    List<StorageFileView> files = storageService.getFiles(person.getId());
-                    model.addAttribute("files", files);
-                    return "person/interface/personInterfaceDocuments";
-                }
-                case "liturgy" -> {
-                    liturgieHelper.loadOverview(
-                            model,
-                            startDateS,
-                            endDateS,
-                            person.getTenant(),
-                            Optional.of(person.getId())
-                    );
-                    return "person/interface/personInterfaceLiturgy";
-                }
-                case "flags" -> {
-                    return "person/interface/personInterfaceFlags";
-                }
-                case "settings" -> {
-                    return "person/interface/personInterfaceSettings";
-                }
-                default -> throw new IllegalStateException("Unknown step: " + step);
+            List<StorageFileView> files = storageQueryPort.getFiles(person.getId());
+            model.addAttribute("files", files);
+            liturgieHelper.loadOverview(
+                    model,
+                    startDateS,
+                    endDateS,
+                    person.getTenant(),
+                    Optional.of(person.getId())
+            );
+
+            if (step.equals("contact")) {
+                return "person/interface/personInterfaceContact";
+            } else {
+                liturgieHelper.loadOverview(
+                        model,
+                        startDateS,
+                        endDateS,
+                        person.getTenant(),
+                        Optional.of(person.getId())
+                );
             }
             return "person/interface/personInterfaceOverview";
         }
@@ -173,7 +154,7 @@ public class PersonManagementController {
         model.addAttribute("step", step);
         model.addAttribute("htmlClasses", new HTMLClasses());
 
-        List<PersonOverviewDTO> persons = new ArrayList<>();
+        List<PersonOverviewDTO> persons;
         switch (step) {
             case "principal" -> persons = personService.getActivePersonsByPermissionDTO(user.getFRank(), user.getTenant());
             case "tenant"    -> persons = personService.getActiveMessdienerByTenantDTO(user.getTenant());
@@ -220,7 +201,7 @@ public class PersonManagementController {
             @RequestParam("bic") String bic,
             @RequestParam("bank") String bank,
             @RequestParam("accountHolder") String accountHolder
-    ) throws SQLException {
+    ) {
 
         Person person = personService.getPersonById(id).orElseThrow();
         person.setType(PersonAttributes.Type.valueOf(type));
@@ -228,8 +209,8 @@ public class PersonManagementController {
         person.setFRank(fRank);
         person.setPrincipal(principal);
         person.setSalutation(PersonAttributes.Salutation.valueOf(salutation));
-        person.setFirstname(firstname);
-        person.setLastname(lastname);
+        person.setFirstName(firstname);
+        person.setLastName(lastname);
         person.setGender(PersonAttributes.Gender.valueOf(gender));
 
         person.setBirthdate(CMSDate.generateOptionalString(birthdateE, DateUtils.DateType.ENGLISH));
@@ -354,8 +335,8 @@ public class PersonManagementController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         Person person = Person.empty(user.getTenant());
-        person.setFirstname(firstname);
-        person.setLastname(lastname);
+        person.setFirstName(firstname);
+        person.setLastName(lastname);
         person.setCanLogin(true);
         person.setActive(true);
         person.setUsername(firstname.toLowerCase() + "." + lastname.toLowerCase());

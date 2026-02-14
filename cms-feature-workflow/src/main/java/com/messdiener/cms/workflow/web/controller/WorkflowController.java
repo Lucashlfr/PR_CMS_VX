@@ -9,16 +9,15 @@ import com.messdiener.cms.shared.enums.workflow.CMSState;
 import com.messdiener.cms.shared.enums.workflow.WorkflowType;
 import com.messdiener.cms.shared.utils.html.HTMLClasses;
 import com.messdiener.cms.web.common.security.SecurityHelper;
-import com.messdiener.cms.workflow.domain.dto.WorkflowDTO;
-import com.messdiener.cms.workflow.persistence.repo.AutomationRuleRepository;
-import com.messdiener.cms.workflow.persistence.repo.FormDefinitionRepository;
-import com.messdiener.cms.workflow.persistence.repo.ProcessDefinitionRepository;
-import com.messdiener.cms.workflow.persistence.repo.WorkflowNotificationTemplateRepository;
-import com.messdiener.cms.workflow.persistence.service.*;
+import com.messdiener.cms.workflow.domain.entity.Workflow;
+import com.messdiener.cms.workflow.persistence.service.FormService;
+import com.messdiener.cms.workflow.persistence.service.WorkflowService;
+import com.messdiener.cms.workflow.web.view.TimelineService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,46 +26,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class WorkflowController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkflowController.class);
     private final SecurityHelper securityHelper;
+    private final WorkflowService workflowService;
     private final PersonHelper personHelper;
-
-    // Neue Services (V2 + Subressourcen)
-    private final WorkflowServiceV2 workflowService;
-    private final FormSubmissionService submissionService;
-    private final DocumentationService documentationService;
-    private final WorkflowTaskService taskService;
-    private final WorkflowNotificationService notificationService;
-    private final NotificationTemplateService templateService;
-
+    private final FormService workflowModuleService;
     private final AuditService auditService;
     private final PersonService personService;
-    private final AutomationRuleRepository automationRuleRepository;
-    private final FormDefinitionRepository formDefinitionRepository;
-    private final WorkflowNotificationTemplateRepository workflowNotificationTemplateRepository;
-    private final ProcessDefinitionRepository processDefinitionRepository;
+    private final TimelineService timelineService;
 
     @PostConstruct
     public void init() {
-        log.info("WorkflowController (V2) initialized.");
+        LOGGER.info("WorkflowController initialized.");
     }
 
     @GetMapping("/workflow")
-    public String workflows(
-            HttpSession httpSession,
-            Model model,
-            @RequestParam("s") Optional<String> s,
-            @RequestParam("q") Optional<String> qs,
-            @RequestParam("id") Optional<String> idS
-    ) {
-        // Security / User laden
+    public String workflows(HttpSession httpSession, Model model, @RequestParam("s") Optional<String> s, @RequestParam("q") Optional<String> qs, @RequestParam("id") Optional<String> idS) {
         PersonSessionView sessionUser = securityHelper.getPerson()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
         Person user = personService.getPersonById(sessionUser.id())
@@ -76,104 +56,47 @@ public class WorkflowController {
         model.addAttribute("htmlClasses", new HTMLClasses());
         model.addAttribute("personHelper", personHelper);
 
-        final String step = s.orElse("me");
+        String step = s.orElse("me");
         model.addAttribute("step", step);
 
-        final String query = qs.orElse("null");
+        String query = qs.orElse("null");
 
-         if("admin".equalsIgnoreCase(step)) {
-             // immer für Admin-Tab befüllen (oder bedingt, wenn step.orElse("").equals("admin"))
-             model.addAttribute("automationRules", automationRuleRepository.findAll());
-             model.addAttribute("formDefinitions", formDefinitionRepository.findAll());
-             model.addAttribute("notificationTemplates", workflowNotificationTemplateRepository.findAll());
-             model.addAttribute("processDefinitions", processDefinitionRepository.findAll());
-
-             return "workflow/interface/admin";
-        }
-
-        // Detailansicht
-        if ("info".equalsIgnoreCase(query) && idS.isPresent()) {
+        if (query.equals("info") && idS.isPresent()) {
             UUID workflowId = UUID.fromString(idS.get());
-
-            WorkflowDTO workflow = workflowService.getById(workflowId)
+            Workflow workflow = workflowService.getWorkflowById(workflowId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workflow not found"));
-
             model.addAttribute("workflow", workflow);
-
-            // Optionale Sub-Ressourcen für die Detailseite (wenn deine View sie nutzt)
-            model.addAttribute("submissions", submissionService.getByWorkflow(workflowId));
-            model.addAttribute("documents", documentationService.getByWorkflow(workflowId));
-            model.addAttribute("tasks", taskService.getByWorkflow(workflowId));
-            model.addAttribute("notifications", notificationService.getByTemplate(null) /* leer → in View filtern */);
+            model.addAttribute("steps", workflowModuleService.getWorkflowModulesByWorkflowId(workflowId));
             model.addAttribute("audit", auditService.getLogsByConnectId(workflowId));
 
-            // Wenn du Prozessschritte/Module weiterhin anzeigen willst und eine Methode dafür hast:
-            //model.addAttribute("steps", workflowModuleService.getWorkflowModulesByWorkflowId(workflowId));
+            model.addAttribute("timeline", timelineService.buildForWorkflow(workflowId));
 
             return "workflow/interface/workflowInterface";
         }
 
-        // Listenansicht
-        List<WorkflowDTO> workflows;
+        List<Workflow> workflows;
         Map<String, Integer> stateCountMap;
-
-        if ("all".equalsIgnoreCase(step)) {
-            // Kein Tenants-Getter in V2 → wir aggregieren alle States und deduplizieren
-            workflows = Stream.of(CMSState.values())
-                    .flatMap(st -> workflowService.getByState(st).stream())
-                    .collect(Collectors.collectingAndThen(
-                            Collectors.toMap(WorkflowDTO::workflowId, w -> w, (a, b) -> a, LinkedHashMap::new),
-                            m -> new ArrayList<>(m.values())
-                    ));
-        } else if ("me".equalsIgnoreCase(step)) {
-            // „Meine“ = mir zugewiesen ∪ von mir beantragt
-            var assigned = workflowService.getByAssignee(user.getId());
-            var applied = workflowService.getByApplicant(user.getId());
-            workflows = Stream.concat(assigned.stream(), applied.stream())
-                    .collect(Collectors.collectingAndThen(
-                            Collectors.toMap(WorkflowDTO::workflowId, w -> w, (a, b) -> a, LinkedHashMap::new),
-                            m -> new ArrayList<>(m.values())
-                    ));
-        } else if ("create".equalsIgnoreCase(step)) {
-            // Types direkt aus dem Enum (statt nicht vorhandenen workflowTypeService)
-            model.addAttribute("types", WorkflowType.values());
-
-            // Personenliste analog zu deiner bestehenden Logik:
-            model.addAttribute("persons",
-                    personService.getActivePersonsByPermissionDTO(user.getFRank(), user.getTenant()));
-
-            // neue Strukturen bereitstellen
-            model.addAttribute("processDefinitions", processDefinitionRepository.findAll());
-            model.addAttribute("formDefinitions", formDefinitionRepository.findAll());
-
-            return "workflow/interface/createWorkflow";
-        }
-        else {
-            workflows = Collections.emptyList();
+        if (step.equals("all")) {
+            workflows = workflowService.getAllWorkflowsByTenant(user.getTenant());
+            stateCountMap = workflowService.countWorkflowStatesByTenant(user.getTenant());
+        } else if (step.equals("me")) {
+            workflows = workflowService.getWorkflowsByUserId(user.getId());
+            stateCountMap = workflowService.countWorkflowStates(user.getId());
+        } else {
+            workflows = new ArrayList<>();
+            stateCountMap = new HashMap<>();
         }
 
-        // Zähler pro State (aus der angezeigten Liste, nicht DB-weite Counts)
-        stateCountMap = Arrays.stream(CMSState.values())
-                .collect(Collectors.toMap(
-                        Enum::name,
-                        st -> (int) workflows.stream().filter(w -> st.equals(w.state())).count(),
-                        (a, b) -> a,
-                        LinkedHashMap::new
-                ));
-
-        fillCommonModel(model, workflows, user);
-        model.addAttribute("counter", stateCountMap);
-
-        return "workflow/interface/workflowOverview";
-    }
-
-    // -----------------------------------------------------
-
-    private void fillCommonModel(Model model, List<WorkflowDTO> workflows, Person user) {
         model.addAttribute("workflows", workflows);
+        model.addAttribute("counter", stateCountMap);
         model.addAttribute("state", CMSState.class);
         model.addAttribute("types", WorkflowType.values());
         model.addAttribute("persons",
                 personService.getActivePersonsByPermissionDTO(user.getFRank(), user.getTenant()));
+
+        if (step.equals("create")) {
+            return "workflow/interface/createWorkflow";
+        }
+        return "workflow/interface/workflowOverview";
     }
 }

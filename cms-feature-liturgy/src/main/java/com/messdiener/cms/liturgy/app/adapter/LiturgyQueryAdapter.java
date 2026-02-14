@@ -1,7 +1,6 @@
 package com.messdiener.cms.liturgy.app.adapter;
 
-import com.messdiener.cms.domain.liturgy.LiturgyQueryPort;
-import com.messdiener.cms.domain.liturgy.LiturgyView;
+import com.messdiener.cms.domain.liturgy.*;
 import com.messdiener.cms.domain.person.PersonOverviewLite;
 import com.messdiener.cms.liturgy.persistence.service.LiturgieMappingService;
 import com.messdiener.cms.liturgy.persistence.service.LiturgieService;
@@ -12,9 +11,9 @@ import com.messdiener.cms.shared.enums.tenant.Tenant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -45,12 +44,12 @@ public class LiturgyQueryAdapter implements LiturgyQueryPort {
         // 1) LiturgyView -> Liturgie (minimal) für MappingService
         List<Liturgie> lits = liturgies.stream()
                 .map(v -> new Liturgie(
-                        v.getId(),   // liturgieId
+                        v.id(),   // liturgieId
                         0,           // number (für State-Abfrage irrelevant)
                         null,        // tenant (nicht benötigt)
                         null,        // type (nicht benötigt)
-                        v.getDate(), // CMSDate
-                        v.isLocal()  // local
+                        v.date(),    // CMSDate
+                        v.local()    // local
                 ))
                 .toList();
 
@@ -67,6 +66,28 @@ public class LiturgyQueryAdapter implements LiturgyQueryPort {
 
         // 3) MappingService liefert bereits die gewünschte Struktur:
         return liturgieMappingService.getStatesForLiturgies(lits, personDtos);
+    }
 
+    @Override
+    public Optional<LiturgyView> getById(UUID id) {
+        return liturgieService.getLiturgie(id)
+                .map(l -> new LiturgyView(
+                        l.getLiturgieId(),
+                        l.getLiturgieType().getLabel(),
+                        l.getDate(),
+                        l.isLocal()
+                ));
+    }
+
+    @Override
+    public List<PersonStateView> getPersonStatesForLiturgy(Tenant tenant, UUID liturgyId) {
+        return liturgieMappingService.getStateForLiturgy(tenant, liturgyId).stream()
+                .map(p -> new PersonStateView(
+                        p.getFirst().getId(),
+                        p.getFirst().getFirstName(),
+                        p.getFirst().getLastName(),
+                        p.getSecond() != null ? p.getSecond() : LiturgieState.UNAVAILABLE
+                ))
+                .toList();
     }
 }

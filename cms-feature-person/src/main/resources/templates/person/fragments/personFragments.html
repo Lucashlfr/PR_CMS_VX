@@ -31,22 +31,6 @@
            th:href="@{/personal(q='profil', s='contact', id=${id})}">
             <i class="mdi mdi-contacts me-1"></i>
             Kontakt</a>
-        <a th:class="${s == 'documents'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='documents', id=${id})}">
-            <i class="mdi mdi-folder me-1"></i>
-            Dokumente</a>
-        <a th:class="${s == 'liturgy'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='liturgy', id=${id})}">
-            <i class="mdi mdi-calendar me-1"></i>
-            Gottesdienste</a>
-        <a th:class="${s == 'flags'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='flags', id=${id})}">
-            <i class="mdi mdi-flag me-1"></i>
-            Flags</a>
-        <a th:class="${s == 'settings'} ? 'nav-link active bg-info' : 'nav-link text-info'"
-           th:href="@{/personal(q='profil', s='settings', id=${id})}">
-            <i class="mdi mdi-cog me-1"></i>
-            Einstellungen</a>
     </nav>
 </div>
 

@@ -100,4 +100,7 @@ public class EventEntity {
 
     @Lob @Column(name = "application")
     private String application;
+
+    @Lob @Column(name = "forms")
+    private String forms;
 }

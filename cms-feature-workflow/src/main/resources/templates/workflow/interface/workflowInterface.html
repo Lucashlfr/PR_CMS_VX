@@ -16,27 +16,15 @@
                                     <span class="page-header-icon text-white"><i data-feather="zap"></i></span>
                                     <span>Workflows</span>
                                 </h1>
-                                <div class="page-header-subtitle">Workflows für deine Gruppe</div>
-                            </div>
-                            <!-- Quick Actions Button -->
-                            <div class="col-auto mt-4">
-                                <button class="btn btn-light text-purple" data-bs-toggle="modal" data-bs-target="#wfActionsModal">
-                                    <i class="mdi mdi-flash"></i> Quick Actions
-                                </button>
+                                <div class="page-header-subtitle">Workflows für deine Gruppe
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </header>
-
-            <div class="container-fluid"
-                 id="wf-root"
-                 th:attr="data-workflow-id=${workflow != null ? workflow.workflowId() : ''}">
-                <!-- CSRF: robust bereitstellen (Headername + Token) -->
-                <div id="csrf"
-                     th:data-header-name="${_csrf != null ? _csrf.headerName : 'X-CSRF-TOKEN'}"
-                     th:data-token="${_csrf != null ? _csrf.token : ''}"></div>
-
+            <!-- Main page content-->
+            <div class="container-fluid">
                 <div class="row g-3 align-items-stretch">
 
                     <!-- LINKER BEREICH -->
@@ -51,23 +39,22 @@
                                     </div>
                                     <div>
                                         <h5 class="card-title mb-0"
-                                            th:text="${workflow != null ? workflow.title() : '—'}"></h5>
+                                            th:text="${workflow != null ? workflow.getCategory().getLabel() : '—'}"></h5>
                                         <div class="text-warning small">
                                             <i class="bi bi-star-fill"></i>
-                                            <span th:text="${workflow != null && workflow.state() != null ? workflow.state().getLabel() : '—'}"></span>
+                                            <span th:text="${workflow != null && workflow.getState() != null ? workflow.getState().getLabel() : '—'}"></span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Aktionen (VERMERK ENTFERNT) -->
+                                <!-- Aktionen -->
                                 <div class="d-flex gap-2 mt-3">
-                                    <!-- Ersetzt: Quick Actions -->
-                                    <button class="btn btn-primary flex-grow-1"
-                                            data-bs-toggle="modal" data-bs-target="#wfActionsModal">
+                                    <!-- Statt Modal: neues Fenster -->
+                                    <button type="button" class="btn btn-primary flex-grow-1" onclick="openQuickActions()">
                                         Quick Actions
                                     </button>
                                     <a class="btn btn-outline-black"
-                                       th:href="'/workflow?q=complete&id=' + ${workflow != null ? workflow.workflowId() : ''}">
+                                       th:href="'/workflow?q=complete&id=' + ${workflow != null ? workflow.getWorkflowId() : ''}">
                                         <i data-feather="check"></i>
                                     </a>
                                 </div>
@@ -78,35 +65,28 @@
                                     <ul class="list-unstyled mb-0">
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-key-variant"></i>
-                                            <span th:text="${workflow != null ? workflow.processKey() : '—'}"></span>
+                                            <span th:text="${workflow != null ? workflow.getCategory() : '—'}"></span>
                                             <span class="text-muted"
-                                                  th:text="${workflow != null ? ' · v' + workflow.processVersion() : ''}"></span>
+                                                  th:text="${workflow != null ? ' · v' + workflow.getCategory() : ''}"></span>
                                         </li>
-                                        <li class="mb-2">
-                                            <i class="text-muted me-2 mdi mdi-tag-multiple"></i>
-                                            <span th:if="${workflow != null && workflow.tags() != null && !workflow.tags().isEmpty()}">
-                                                <span class="badge bg-light text-dark me-1"
-                                                      th:each="t : ${workflow.tags()}" th:text="${t}"></span>
-                                            </span>
-                                            <span th:if="${workflow == null || workflow.tags() == null || workflow.tags().isEmpty()}">—</span>
-                                        </li>
+
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-paperclip"></i>
                                             <span>Anhänge:</span>
                                             <span class="fw-semibold"
-                                                  th:text="${workflow != null ? workflow.attachments() : 0}"></span>
+                                                  th:text="${workflow != null ? workflow.getAttachments() : 0}"></span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-note-text"></i>
                                             <span>Vermerke:</span>
                                             <span class="fw-semibold"
-                                                  th:text="${workflow != null ? workflow.notes() : 0}"></span>
+                                                  th:text="${workflow != null ? workflow.getNotes() : 0}"></span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-alert-decagram"></i>
                                             <span>Prio:</span>
                                             <span class="fw-semibold"
-                                                  th:text="${workflow != null ? workflow.priority() : 0}"></span>
+                                                  th:text="${workflow != null ? workflow.getEndDate() : 0}"></span>
                                         </li>
                                     </ul>
                                 </div>
@@ -117,15 +97,15 @@
                                     <ul class="list-unstyled mb-0">
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-creation"></i>
-                                            <span th:text="${workflow != null && workflow.creationDate() != null ? workflow.creationDate().getGermanTime() : '—'}"></span>
+                                            <span th:text="${workflow != null && workflow.getCreationDate() != null ? workflow.getCreationDate().getGermanTime() : '—'}"></span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-clock"></i>
-                                            <span th:text="${workflow != null && workflow.modificationDate() != null ? workflow.modificationDate().getGermanTime() : '—'}"></span>
+                                            <span th:text="${workflow != null && workflow.getModificationDate() != null ? workflow.getModificationDate().getGermanTime() : '—'}"></span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-clock-check"></i>
-                                            <span th:text="${workflow != null && workflow.endDate() != null ? workflow.endDate().getGermanTime() : '—'}"></span>
+                                            <span th:text="${workflow != null && workflow.getEndDate() != null ? workflow.getEndDate().getGermanTime() : '—'}"></span>
                                         </li>
                                     </ul>
                                 </div>
@@ -136,22 +116,22 @@
                                     <ul class="list-unstyled mb-0">
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-account-plus"></i>
-                                            <span th:text="${workflow != null && workflow.applicantId() != null ? personHelper.getName(workflow.applicantId()) : '—'}"></span>
+                                            <span th:text="${workflow != null && workflow.getCreator() != null ? personHelper.getName(workflow.getCreator()) : '—'}"></span>
                                             <span class="text-muted small ms-1">(Ersteller*in)</span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-shield-account"></i>
-                                            <span th:text="${workflow != null && workflow.manager() != null ? personHelper.getName(workflow.manager()) : '—'}"></span>
+                                            <span th:text="${workflow != null && workflow.getManager() != null ? personHelper.getName(workflow.getManager()) : '—'}"></span>
                                             <span class="text-muted small ms-1">(Manager*in)</span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-account-edit"></i>
-                                            <span th:text="${workflow != null && workflow.assigneeId() != null ? personHelper.getName(workflow.assigneeId()) : '—'}"></span>
+                                            <span th:text="${workflow != null && workflow.getEditor() != null ? personHelper.getName(workflow.getEditor()) : '—'}"></span>
                                             <span class="text-muted small ms-1">(Bearbeiter*in)</span>
                                         </li>
                                         <li class="mb-2">
                                             <i class="text-muted me-2 mdi mdi-account-search"></i>
-                                            <span th:text="${workflow != null && workflow.targetElement() != null ? personHelper.getName(workflow.targetElement()) : '—'}"></span>
+                                            <span th:text="${workflow != null && workflow.getTarget() != null ? personHelper.getName(workflow.getTarget()) : '—'}"></span>
                                             <span class="text-muted small ms-1">(Zielperson)</span>
                                         </li>
                                     </ul>
@@ -165,333 +145,107 @@
                     <main class="col-lg-10">
                         <div class="card h-100">
                             <div class="card-header border-0 bg-white">
-                                <ul class="nav nav-tabs card-header-tabs" role="tablist">
-                                    <li class="nav-item">
-                                        <button class="nav-link active" data-bs-toggle="tab"
-                                                data-bs-target="#tab-details" type="button" role="tab">Details
-                                        </button>
-                                    </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tasks"
-                                                type="button" role="tab">
-                                            Aufgaben <span class="badge bg-light text-dark ms-1"
-                                                           th:text="${tasks != null ? #lists.size(tasks) : 0}"></span>
-                                        </button>
-                                    </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-submissions"
-                                                type="button" role="tab">
-                                            Formulare <span class="badge bg-light text-dark ms-1"
-                                                            th:text="${submissions != null ? #lists.size(submissions) : 0}"></span>
-                                        </button>
-                                    </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-docs"
-                                                type="button" role="tab">
-                                            Dokumente <span class="badge bg-light text-dark ms-1"
-                                                            th:text="${documents != null ? #lists.size(documents) : 0}"></span>
-                                        </button>
-                                    </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link" data-bs-toggle="tab"
-                                                data-bs-target="#tab-notifications" type="button" role="tab">
-                                            Benachrichtigungen
-                                        </button>
-                                    </li>
-                                    <li class="nav-item">
-                                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-audit"
-                                                type="button" role="tab">
-                                            Audit-Log <span class="badge bg-light text-dark ms-1"
-                                                            th:text="${audit != null ? #lists.size(audit) : 0}"></span>
-                                        </button>
-                                    </li>
-                                </ul>
+
                             </div>
-
                             <div class="card-body">
-                                <div id="wf-alerts"></div>
-                                <div class="tab-content">
 
-                                    <!-- DETAILS -->
-                                    <div class="tab-pane fade show active" id="tab-details" role="tabpanel">
-                                        <div class="row align-items-start mb-3">
-                                            <label for="titel" class="col-sm-1 col-form-label">Titel</label>
-                                            <div class="col-sm-11">
-                                                <input type="text" class="form-control form-control-sm bg-white"
-                                                       id="titel" name="titel"
-                                                       readonly th:value="${workflow != null ? workflow.title() : ''}">
-                                            </div>
-                                        </div>
-
-                                        <div class="row mb-4 align-items-start">
-                                            <label for="beschreibung"
-                                                   class="col-sm-1 col-form-label">Beschreibung</label>
-                                            <div class="col-sm-11">
-                                                <textarea class="form-control form-control-sm bg-white"
-                                                          id="beschreibung" name="beschreibung" rows="8"
-                                                          readonly
-                                                          th:text="${workflow != null ? workflow.description() : ''}"></textarea>
-                                            </div>
-                                        </div>
+                                <div class="row align-items-start">
+                                    <label for="titel" class="col-sm-1 col-form-label">Titel</label>
+                                    <div class="col-sm-11">
+                                        <input type="text" class="form-control form-control-sm bg-white" id="titel"
+                                               name="titel"
+                                               required
+                                               readonly
+                                               th:value="${workflow.getWorkflowName()}">
                                     </div>
+                                </div>
 
-                                    <!-- AUFGABEN -->
-                                    <div class="tab-pane fade" id="tab-tasks" role="tabpanel">
-                                        <div class="d-flex justify-content-end mb-2">
-                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#wfActionsModal">
-                                                <i class="mdi mdi-plus"></i> Task anlegen
-                                            </button>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-hover align-middle">
-                                                <thead>
-                                                <tr>
-                                                    <th></th>
-                                                    <th>#</th>
-                                                    <th>Beschreibung</th>
-                                                    <th>Typ</th>
-                                                    <th>Bearbeiter*in</th>
-                                                    <th>Ersteller*in</th>
-                                                    <th>Start</th>
-                                                    <th>Ende</th>
-                                                    <th>S-Level</th>
-                                                    <th>Mail</th>
-                                                    <th>Form</th>
-                                                    <th>Datei</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr th:each="t,iter : ${tasks}">
-                                                    <td>
-                                                        <span th:if="${t.getStatus() == null}">—</span>
-                                                        <span th:if="${t.getStatus() != null}">
-                                                            <span th:if="${t.getStatus().toString().equals('OPEN')}"
-                                                                  class="mdi mdi-circle text-yellow"></span>
-                                                            <span th:if="${t.getStatus().toString().equals('IN_PROGRESS') || t.getStatus().toString().equals('PROGRESS')}"
-                                                                  class="mdi mdi-circle text-blue"></span>
-                                                            <span th:if="${t.getStatus().toString().equals('COMPLETED')}"
-                                                                  class="mdi mdi-check-circle text-green"></span>
-                                                            <span th:if="${t.getStatus().toString().equals('SKIPPED')}"
-                                                                  class="mdi mdi-arrow-u-down-right text-green"></span>
-                                                            <span th:if="${t.getStatus().toString().equals('REJECTED')}"
-                                                                  class="mdi mdi-alert-circle text-red"></span>
-                                                            <span th:if="${t.getStatus().toString().equals('WAITING')}"
-                                                                  class="mdi mdi-clock text-blue"></span>
-                                                        </span>
-                                                    </td>
-                                                    <td th:text="${t.getNumber() != null ? t.getNumber() : '—'}"></td>
-                                                    <td>
-                                                        <a th:href="'/workflow/module?id=' + ${t.getModuleId()} + '&wf=' + ${workflow != null ? workflow.workflowId() : ''}"
-                                                           th:text="${t.getName() != null ? t.getName() : '—'}"></a>
-                                                    </td>
-                                                    <td th:text="${t.getType() != null ? t.getType() : '—'}"></td>
-                                                    <td th:text="${t.getOwner() != null ? personHelper.getName(t.getOwner()) : '—'}"></td>
-                                                    <td th:text="${t.getCreator() != null ? personHelper.getName(t.getCreator()) : '—'}"></td>
-                                                    <td th:text="${t.getStartDate() != null ? t.getStartDate().getGermanDate() : '—'}"></td>
-                                                    <td th:text="${t.getEndDate() != null ? t.getEndDate().getGermanDate() : '—'}"></td>
-                                                    <td th:text="${t.getSeverity() != null ? t.getSeverity() : 0}"></td>
-                                                    <td>
-                                                        <div class="form-check m-0">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                   th:id="${'taskMail_' + iter.index}" disabled
-                                                                   th:checked="${t.isMailCommunicationEnabled() != null ? t.isMailCommunicationEnabled() : false}">
-                                                            <label class="form-check-label"
-                                                                   th:for="${'taskMail_' + iter.index}"></label>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="form-check m-0">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                   th:id="${'taskForm_' + iter.index}" disabled
-                                                                   th:checked="${t.hasForm() != null ? t.hasForm() : false}">
-                                                            <label class="form-check-label"
-                                                                   th:for="${'taskForm_' + iter.index}"></label>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <div class="form-check m-0">
-                                                            <input class="form-check-input" type="checkbox"
-                                                                   th:id="${'taskFile_' + iter.index}" disabled
-                                                                   th:checked="${t.hasFile() != null ? t.hasFile() : false}">
-                                                            <label class="form-check-label"
-                                                                   th:for="${'taskFile_' + iter.index}"></label>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr th:if="${tasks == null || #lists.isEmpty(tasks)}">
-                                                    <td colspan="12" class="text-muted">Keine Aufgaben.</td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                <div class="row mb-3 align-items-start">
+                                    <label for="beschreibung" class="col-sm-1 col-form-label">Beschreibung</label>
+                                    <div class="col-sm-11">
+                            <textarea class="form-control form-control-sm bg-white" id="beschreibung" name="beschreibung"
+                                      rows="8"
+                                      readonly
+                                      th:text="${workflow.getWorkflowDescription()}"></textarea>
                                     </div>
+                                </div>
 
-                                    <!-- FORMULARE / SUBMISSIONS -->
-                                    <div class="tab-pane fade" id="tab-submissions" role="tabpanel">
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-hover align-middle">
-                                                <thead>
-                                                <tr>
-                                                    <th>Id</th>
-                                                    <th>Form-Key</th>
-                                                    <th>Version</th>
-                                                    <th>Status</th>
-                                                    <th>Bezeichnung</th>
-                                                    <th>Person</th>
-                                                    <th>Eingereicht am</th>
-                                                    <th>Aktion</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr th:each="s : ${submissions}">
-                                                    <td th:text="${s.id() != null ? s.id() : '—'}"></td>
-                                                    <td th:text="${s.formKey() != null ? s.formKey() : '—'}"></td>
-                                                    <td th:text="${s.formVersion()}"></td>
-                                                    <td>
-                                                        <span class="badge bg-secondary" th:text="${s.state() != null ? s.state() : 'OPEN'}"></span>
-                                                    </td>
-                                                    <td th:text="${s.payload() != null && s.payload().get('title') != null ? s.payload().get('title') : s.formKey()}"></td>
-                                                    <td th:text="${s.submittedBy() != null ? personHelper.getName(s.submittedBy()) : '—'}"></td>
-                                                    <td th:text="${s.submittedAt() != null ? s.submittedAt().getGermanTime() : '—'}"></td>
-                                                    <td>
-                                                        <a class="btn btn-sm btn-outline-primary"
-                                                           th:href="@{'/workflow/submission'(id=${s.id()})}">Öffnen</a>
-                                                    </td>
-                                                </tr>
-                                                <tr th:if="${submissions == null || #lists.isEmpty(submissions)}">
-                                                    <td colspan="7" class="text-muted">Keine Formulare.</td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                <!-- Infos -->
+                                <div class="mb-3">
+                                    <div class="overflow-auto" style="max-height: 500px!important;">
+                                        <table class="table table-sm table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th>Typ</th>
+                                                <th>Status</th>
+                                                <th>Titel</th>
+                                                <th>Beschreibung</th>
+                                                <th>Bearbeiter*in</th>
+                                                <th>Ersteller*in</th>
+                                                <th>Erstellungsdatum</th>
+                                                <th>Letztes Update</th>
+                                                <th>S-Level</th>
+                                                <th></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="t : ${timeline}">
+                                                <!-- Typ -->
+                                                <td>
+        <span class="badge w-100"
+              th:classappend="${t.type() != null ? t.type().bgColor : ''}"
+              th:text="${t.type() != null ? t.type().label : '—'}">TYPE</span>
+                                                </td>
+
+                                                <!-- Status -->
+                                                <td><span class="badge w-100"
+                                                          th:if="${t.state() != null and !t.state().toString().equals('NULL')}"
+                                                          th:classappend="${t.state().getColor()}" th:text="${t.state().label}"></span>
+
+                                                    <span class="badge w-100"
+                                                          th:if="${t.messageType() != null and !t.messageType().toString().equals('NULL')}"
+                                                          th:classappend="${t.messageType().getColor()}"
+                                                          th:text="${t.messageType().getLabel()}"></span>
+                                                </td>
+
+                                                <!-- Titel / Beschreibung -->
+                                                <td th:text="${t.title() != null ? t.title() : '—'}"></td>
+                                                <td th:text="${t.description() != null ? t.description() : '—'}"></td>
+
+                                                <!-- Personen -->
+                                                <td th:text="${t.currentUser() != null ? personHelper.getName(t.currentUser()) : '—'}"></td>
+                                                <td th:text="${t.creator() != null ? personHelper.getName(t.creator()) : '—'}"></td>
+
+                                                <!-- Erstellungsdatum -->
+                                                <td th:attr="data-order=${t.creationDate() != null ? t.creationDate().toLong() : 0}"
+                                                    th:text="${t.creationDate() != null ? t.creationDate().getGermanTime() : '—'}"></td>
+
+                                                <!-- Letztes Update (fix für Null) -->
+                                                <td th:attr="data-order=${t.modificationDate() != null ? t.modificationDate().toLong() : 0}"
+                                                    th:text="${t.modificationDate() != null ? t.modificationDate().getGermanTime() : '—'}"></td>
+
+                                                <!-- S-Level (falls noch nicht angebunden) -->
+                                                <td th:text="${t.sLevel() != null ? t.sLevel() : 0}">0</td>
+
+                                                <!-- Link -->
+                                                <td>
+                                                    <a class="btn btn-sm btn-outline-primary"
+                                                       th:if="${t.link != null}"
+                                                       th:href="${t.link}">Öffnen</a>
+                                                </td>
+                                            </tr>
+
+                                            <tr th:if="${timeline == null or #lists.isEmpty(timeline)}">
+                                                <!-- Header hat 10 Spalten → colspan angleichen -->
+                                                <td colspan="10" class="text-muted">Keine Einträge.</td>
+                                            </tr>
+                                            </tbody>
+
+                                        </table>
+
                                     </div>
-
-                                    <!-- DOKUMENTE -->
-                                    <div class="tab-pane fade" id="tab-docs" role="tabpanel">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <div class="fw-semibold">Dokumente</div>
-                                            <form id="wf-upload-inline" class="d-flex gap-2" enctype="multipart/form-data">
-                                                <input class="form-control form-control-sm" type="file" name="file" required>
-                                                <button class="btn btn-sm btn-outline-primary">Upload</button>
-                                            </form>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-hover align-middle">
-                                                <thead>
-                                                <tr>
-                                                    <th>Id</th>
-                                                    <th>Name</th>
-                                                    <th>Typ</th>
-                                                    <th>Größe</th>
-                                                    <th>Erstellt von</th>
-                                                    <th>Erstellt am</th>
-                                                    <th>Aktion</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr th:each="d : ${documents}">
-                                                    <td th:text="${d.getDocumentationId() != null ? d.getDocumentationId() : '—'}"></td>
-                                                    <td th:text="${d.getTitle() != null ? d.getTitle() : d.getFilename()}"></td>
-                                                    <td th:text="${d.getMimeType() != null ? d.getMimeType() : '—'}"></td>
-                                                    <td th:text="${d.getSizeReadable() != null ? d.getSizeReadable() : (d.getSize() != null ? d.getSize() + ' B' : '—')}"></td>
-                                                    <td th:text="${d.getCreator() != null ? personHelper.getName(d.getCreator()) : '—'}"></td>
-                                                    <td th:text="${d.getCreatedAt() != null ? d.getCreatedAt().getGermanTime() : '—'}"></td>
-                                                    <td class="d-flex gap-2">
-                                                        <a class="btn btn-sm btn-outline-primary"
-                                                           th:href="'/storage/file/' + ${d.getStorageId()}">Download</a>
-                                                        <a class="btn btn-sm btn-outline-secondary"
-                                                           th:href="'/workflow/document?id=' + ${d.getDocumentationId()}">Details</a>
-                                                    </td>
-                                                </tr>
-                                                <tr th:if="${documents == null || #lists.isEmpty(documents)}">
-                                                    <td colspan="7" class="text-muted">Keine Dokumente.</td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <!-- BENACHRICHTIGUNGEN -->
-                                    <div class="tab-pane fade" id="tab-notifications" role="tabpanel">
-                                        <div class="d-flex justify-content-end mb-2">
-                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#wfActionsModal">
-                                                <i class="mdi mdi-plus"></i> Benachrichtigung
-                                            </button>
-                                        </div>
-                                        <div class="table-responsive"
-                                             th:with="wfId=${workflow != null ? workflow.workflowId() : null}">
-                                            <table class="table table-sm table-hover align-middle">
-                                                <thead>
-                                                <tr>
-                                                    <th>Id</th>
-                                                    <th>Template</th>
-                                                    <th>Kanal</th>
-                                                    <th>Status</th>
-                                                    <th>Empfänger</th>
-                                                    <th>Erstellt</th>
-                                                    <th>Gesendet</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr th:each="n : ${notifications}"
-                                                    th:if="${wfId != null} ? ((n.connectId != null and n.connectId == wfId) or (n.workflowId != null and n.workflowId == wfId)) : false">
-                                                    <td th:text="${n.notificationId != null ? n.notificationId : '—'}"></td>
-                                                    <td th:text="${n.templateKey != null ? n.templateKey : (n.key != null ? n.key : '—')}"></td>
-                                                    <td th:text="${n.channel != null ? n.channel : '—'}"></td>
-                                                    <td th:text="${n.status != null ? n.status : '—'}"></td>
-                                                    <td th:text="${n.recipient != null ? n.recipient : (n.personId != null ? personHelper.getName(n.personId) : '—')}"></td>
-                                                    <td th:text="${n.createdAt != null ? n.createdAt.germanTime : '—'}"></td>
-                                                    <td th:text="${n.sentAt != null ? n.sentAt.germanTime : '—'}"></td>
-                                                </tr>
-
-                                                <tr th:if="${notifications == null or #lists.isEmpty(notifications)}">
-                                                    <td colspan="7" class="text-muted">Keine Benachrichtigungen.</td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    <!-- AUDIT LOG -->
-                                    <div class="tab-pane fade" id="tab-audit" role="tabpanel">
-                                        <div class="d-flex justify-content-end mb-2">
-                                            <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#wfActionsModal">
-                                                <i class="mdi mdi-plus"></i> Audit-Eintrag
-                                            </button>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-sm table-hover align-middle">
-                                                <thead>
-                                                <tr>
-                                                    <th>Zeit</th>
-                                                    <th>Aktion</th>
-                                                    <th>Person</th>
-                                                    <th>Details</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                <tr th:each="a : ${audit}">
-                                                    <td th:text="${a.getTimestamp() != null ? a.getTimestamp().getGermanTime() : '—'}"></td>
-                                                    <td th:text="${a.getAction() != null ? a.getAction() : '—'}"></td>
-                                                    <td th:text="${a.getActor() != null ? personHelper.getName(a.getActor()) : 'System'}"></td>
-                                                    <td>
-                                                        <span th:text="${a.getMessage() != null ? a.getMessage() : '—'}"></span>
-                                                        <div class="text-muted small"
-                                                             th:if="${a.getChangesJson() != null}">
-                                                            <code th:text="${a.getChangesJson()}"></code>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr th:if="${audit == null || #lists.isEmpty(audit)}">
-                                                    <td colspan="4" class="text-muted">Keine Audit-Einträge.</td>
-                                                </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                </div> <!-- /.tab-content -->
-                            </div> <!-- /.card-body -->
+                                </div>
+                            </div>
                         </div>
                     </main>
 
@@ -501,244 +255,7 @@
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
 </div>
-
-<!-- Quick Actions Modal -->
-<div class="modal fade" id="wfActionsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Quick Actions</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-            </div>
-            <div class="modal-body">
-                <ul class="nav nav-pills mb-3" role="tablist">
-                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#qa-task" type="button" role="tab">Task</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#qa-noti" type="button" role="tab">Notification</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#qa-upload" type="button" role="tab">Upload</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#qa-audit" type="button" role="tab">Audit</button></li>
-                </ul>
-                <div class="tab-content">
-
-                    <!-- Task -->
-                    <div class="tab-pane fade show active" id="qa-task" role="tabpanel">
-                        <form id="qa-form-task" class="row g-2">
-                            <div class="col-12">
-                                <label class="form-label">Titel</label>
-                                <input class="form-control" name="title" required>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" name="state">
-                                    <option value="">(default OPEN)</option>
-                                    <option value="OPEN">OPEN</option>
-                                    <option value="PROGRESS">PROGRESS</option>
-                                    <option value="COMPLETED">COMPLETED</option>
-                                    <option value="REJECTED">REJECTED</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Assignee UUID (optional)</label>
-                                <input class="form-control" name="assigneeId" placeholder="UUID">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Fällig (ISO, optional)</label>
-                                <input class="form-control" name="dueAt" placeholder="2025-09-21T19:00:00">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Payload (JSON, optional)</label>
-                                <textarea class="form-control" name="payload" rows="4" placeholder='{"prio":2}'></textarea>
-                            </div>
-                            <div class="col-12 d-grid">
-                                <button class="btn btn-primary">Task anlegen</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Notification -->
-                    <div class="tab-pane fade" id="qa-noti" role="tabpanel">
-                        <form id="qa-form-noti" class="row g-2">
-                            <div class="col-12">
-                                <label class="form-label">Titel</label>
-                                <input class="form-control" name="title" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Nachricht</label>
-                                <textarea class="form-control" name="body" rows="4" required></textarea>
-                            </div>
-                            <div class="col-12 d-grid">
-                                <button class="btn btn-primary">Senden</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Upload -->
-                    <div class="tab-pane fade" id="qa-upload" role="tabpanel">
-                        <form id="qa-form-upload" enctype="multipart/form-data" class="d-flex gap-2 align-items-center">
-                            <input class="form-control" type="file" name="file" required>
-                            <button class="btn btn-primary">Hochladen</button>
-                        </form>
-                        <div class="form-text mt-1">Datei wird als Artefakt am Workflow registriert.</div>
-                    </div>
-
-                    <!-- Audit -->
-                    <div class="tab-pane fade" id="qa-audit" role="tabpanel">
-                        <form id="qa-form-audit" class="row g-2">
-                            <div class="col-12">
-                                <label class="form-label">Action</label>
-                                <input class="form-control" name="action" placeholder="NOTE_ADDED" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">After (JSON, optional)</label>
-                                <textarea class="form-control" name="after" rows="4" placeholder='{"note":"..."}'></textarea>
-                            </div>
-                            <div class="col-12 d-grid">
-                                <button class="btn btn-secondary">Eintragen</button>
-                            </div>
-                        </form>
-                    </div>
-
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Schließen</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div th:insert="~{fragments :: script}"></div>
-
-<!-- Inline JS -->
-<script th:inline="javascript">
-    (function(){
-        const root = document.getElementById('wf-root');
-        const WF_ID = root ? root.getAttribute('data-workflow-id') : null;
-
-        // CSRF: Header-Name + Token aus verstecktem DIV oder Cookie als Fallback
-        const csrfEl = document.getElementById('csrf');
-        let CSRF_HEADER = csrfEl?.getAttribute('data-header-name') || 'X-CSRF-TOKEN';
-        let CSRF_TOKEN  = csrfEl?.getAttribute('data-token') || '';
-
-        function readCookie(name){
-            const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\\[\\]\\\\/+^])/g,'\\$1') + '=([^;]*)'));
-            return m ? decodeURIComponent(m[1]) : null;
-        }
-        if (!CSRF_TOKEN) {
-            // typischer Fallback, wenn CookieCsrfTokenRepository aktiv ist
-            const cookieToken = readCookie('XSRF-TOKEN');
-            if (cookieToken) { CSRF_TOKEN = cookieToken; CSRF_HEADER = 'X-CSRF-TOKEN'; }
-        }
-
-        function api(path, opts = {}) {
-            const headers = opts.headers ? {...opts.headers} : {};
-            // Content-Type nur setzen, wenn nicht FormData:
-            if (!(opts.body instanceof FormData)) {
-                headers['Content-Type'] = 'application/json';
-            }
-            if (CSRF_TOKEN) {
-                headers[CSRF_HEADER] = CSRF_TOKEN;
-            }
-            return fetch(path, {credentials:'same-origin', ...opts, headers});
-        }
-
-        function alertBox(type, msg){
-            const wrap = document.getElementById('wf-alerts');
-            if (!wrap) return;
-            const cls = type === 'error' ? 'danger' : (type === 'warn' ? 'warning' : 'success');
-            const id = 'a_' + Math.random().toString(36).slice(2);
-            const el = document.createElement('div');
-            el.id = id;
-            el.className = 'alert alert-' + cls + ' alert-dismissible fade show';
-            el.innerHTML = '<div>'+msg+'</div><button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
-            wrap.appendChild(el);
-            setTimeout(()=>{ try{ bootstrap.Alert.getOrCreateInstance(el).close(); }catch(e){} }, 4500);
-        }
-
-        function parseJsonOrNull(s){ if(!s || !s.trim()) return null; try { return JSON.parse(s); } catch { return null; } }
-
-        // Quick Modal: Task
-        const qaTask = document.getElementById('qa-form-task');
-        qaTask?.addEventListener('submit', async (e)=>{
-            e.preventDefault();
-            if (!WF_ID) return alertBox('error','Workflow-ID fehlt.');
-            const fd = new FormData(qaTask);
-            const payload = parseJsonOrNull(fd.get('payload'));
-            const dueAt = (fd.get('dueAt') || '').toString().trim();
-            const body = {
-                title: fd.get('title'),
-                state: (fd.get('state') || '') || null,
-                assigneeId: (fd.get('assigneeId') || '') || null,
-                dueAt: dueAt ? { iso8601: dueAt } : null,
-                payload: payload,
-                actorId: null
-            };
-            try {
-                const res = await api(`/api/workflows/${WF_ID}/actions/task`, {method:'POST', body: JSON.stringify(body)});
-                if (!res.ok) throw new Error(await res.text());
-                alertBox('ok','Task angelegt.');
-                qaTask.reset();
-            } catch(err){ alertBox('error','Task fehlgeschlagen: ' + err.message); }
-        });
-
-        // Quick Modal: Notification
-        const qaNoti = document.getElementById('qa-form-noti');
-        qaNoti?.addEventListener('submit', async (e)=>{
-            e.preventDefault();
-            if (!WF_ID) return alertBox('error','Workflow-ID fehlt.');
-            const fd = new FormData(qaNoti);
-            const body = { title: fd.get('title'), body: fd.get('body'), actorId: null };
-            try {
-                const res = await api(`/api/workflows/${WF_ID}/actions/notification`, {method:'POST', body: JSON.stringify(body)});
-                if (!res.ok) throw new Error(await res.text());
-                alertBox('ok','Benachrichtigung gesendet.');
-                qaNoti.reset();
-            } catch(err){ alertBox('error','Benachrichtigung fehlgeschlagen: ' + err.message); }
-        });
-
-        // Quick Modal: Upload
-        const qaUpload = document.getElementById('qa-form-upload');
-        qaUpload?.addEventListener('submit', async (e)=>{
-            e.preventDefault();
-            if (!WF_ID) return alertBox('error','Workflow-ID fehlt.');
-            const fd = new FormData(qaUpload);
-            try {
-                const res = await api(`/api/workflows/${WF_ID}/actions/upload`, {method:'POST', body: fd});
-                if (!res.ok) throw new Error(await res.text());
-                alertBox('ok','Datei hochgeladen & Artefakt registriert.');
-                qaUpload.reset();
-            } catch(err){ alertBox('error','Upload fehlgeschlagen: ' + err.message); }
-        });
-
-        // Quick Modal: Audit
-        const qaAudit = document.getElementById('qa-form-audit');
-        qaAudit?.addEventListener('submit', async (e)=>{
-            e.preventDefault();
-            if (!WF_ID) return alertBox('error','Workflow-ID fehlt.');
-            const fd = new FormData(qaAudit);
-            const after = parseJsonOrNull(fd.get('after'));
-            const body = { action: fd.get('action'), before: null, after: after, actorId: null };
-            try {
-                const res = await api(`/api/workflows/${WF_ID}/actions/audit`, {method:'POST', body: JSON.stringify(body)});
-                if (!res.ok) throw new Error(await res.text());
-                alertBox('ok','Audit-Eintrag erstellt.');
-                qaAudit.reset();
-            } catch(err){ alertBox('error','Audit fehlgeschlagen: ' + err.message); }
-        });
-
-        // Inline Upload im Dokumente-Tab
-        const inlineUpload = document.getElementById('wf-upload-inline');
-        inlineUpload?.addEventListener('submit', async (e)=>{
-            e.preventDefault();
-            if (!WF_ID) return alertBox('error','Workflow-ID fehlt.');
-            const fd = new FormData(inlineUpload);
-            try {
-                const res = await api(`/api/workflows/${WF_ID}/actions/upload`, {method:'POST', body: fd});
-                if (!res.ok) throw new Error(await res.text());
-                alertBox('ok','Datei hochgeladen & Artefakt registriert.');
-                inlineUpload.reset();
-            } catch(err){ alertBox('error','Upload fehlgeschlagen: ' + err.message); }
-        });
-    })();
-</script>
 </body>
 </html>
+

@@ -61,8 +61,7 @@ spring:
     show-sql: false
     properties:
       hibernate.format_sql: true
-      # dein UUID-Fix
-      hibernate.type.preferred_uuid_jdbc_type: CHAR
+      hibernate.type.preferred_uuid_jdbc_type: CHAR  # UUID-Fix
 
 server:
   port: 9101
@@ -88,6 +87,10 @@ logging:
 cms:
   notifications:
     push: fcm
+  sso:
+    secret: "5Iy4joWYiKmI06MoLCJxryfa79jus20b0"
+    ttlSeconds: 60
+    webBaseUrl: "https://10.0.2.2:9101"          # Emulator greift per https auf Backend/Web zu
 
 notifications:
   fcm:

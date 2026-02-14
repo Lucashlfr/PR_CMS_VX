@@ -12,7 +12,8 @@ public enum WorkflowType {
     SAE("Selbstauskunftserklärung","Die Selbstauskunftserklärung ist eine verpflichtende Erklärung für alle, die innerhalb der katholischen Kirche Verantwortung übernehmen möchten. Mit deiner Unterschrift bestätigst du, dass du entsprechend den kirchlichen Vorgaben für diese Aufgabe geeignet bist.","/img/wf_sae.png"),
     FINANCE("Rechnung einreichen","Nutze diesen Workflow, um Rechnungen oder Auslagen zur Erstattung einzureichen. Hier kannst du alle erforderlichen Informationen angeben sowie Belege hochladen, damit deine Ausgaben geprüft und anschließend erstattet werden können.",""),
     DOCUMENTATION("Dokumentation","Dokumentation",""),
-    NULL("NULL", "", "");
+    NULL("NULL", "", ""),
+    GENERIC("Generisch", "","");
 
     private final String label;
     private final String description;

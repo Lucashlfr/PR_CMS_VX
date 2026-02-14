@@ -74,127 +74,75 @@
                     }
 
                 </style>
-                <div class="row row-cols-1 row-cols-xxl-2 g-4 d-flex align-items-stretch">
-                    <div class="col">
-                        <div class="card card-limit-height h-100">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 48px; height: 48px;">
-                                            <i data-feather="calendar" class="text-pink fs-4"></i>
-                                        </div>
+                <div class="card card-limit-height h-100">
+                    <div class="card-header">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icon -->
+                                <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
+                                     style="width: 48px; height: 48px;">
+                                    <i data-feather="calendar" class="text-pink fs-4"></i>
+                                </div>
 
-                                        <!-- Text content -->
-                                        <div>
-                                            <h5 class="mb-1 fw-semibold">
-                                                <span>Anstehende Gottesdienste</span>
-                                            </h5>
-                                            <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                <div th:text="' Gottesdienste'">
-                                                </div>
-                                            </div>
+                                <!-- Text content -->
+                                <div>
+                                    <h5 class="mb-1 fw-semibold">
+                                        <span>Anstehende Gottesdienste</span>
+                                    </h5>
+                                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                                        <div th:text="' Gottesdienste'">
                                         </div>
-                                    </div>
-                                    <div>
-                                        <a class="btn btn-pink btn-sm mdi mdi-download-circle"
-                                           th:href="'/liturgie/export?startDate=' + ${startDate} + '&endDate=' + ${endDate}">
-                                        </a>
-                                        <a class="btn btn-pink btn-sm mdi mdi-plus" href="javascript:void(0);"
-                                           data-bs-toggle="modal" data-bs-target="#create">
-                                        </a>
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-responsive-sm table-sm">
-                                        <thead class="table-light">
-                                        <tr>
-                                            <th>Bezeichnung</th>
-                                            <th>Datum</th>
-                                            <th th:each="p:${persons}" th:text="${p.firstName}"></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <tr th:each="v : ${liturgieViews}">
-                                            <td>
-                                                <a th:text="${v.typeLabel}" th:href="'/liturgie?q=edit&id=' + ${v.id}"></a>
-                                            </td>
-                                            <td th:text="${v.date.getGermanShortDate()}"></td>
-                                            <td th:each="p : ${persons}" class="text-center">
-                                                <button th:if="${v.personStates[p.id].toString().equals('DUTY')}"
-                                                        th:data-liturgie-id="${v.id}"
-                                                        th:data-participant-id="${p.getId()}"
-                                                        onclick="triggerAjax(this)"
-                                                        class="btn btn-sm btn-success">
-                                                    <i class="mdi mdi-check-circle"></i>
-                                                </button>
-                                                <button th:if="${v.personStates[p.id].toString().equals('AVAILABLE')}"
-                                                        th:data-liturgie-id="${v.id}"
-                                                        th:data-participant-id="${p.getId()}"
-                                                        onclick="triggerAjax(this)"
-                                                        class="btn btn-sm btn-yellow">
-                                                    <i class="mdi mdi-calendar"></i>
-                                                </button>
-                                                <button th:if="${v.personStates[p.id].toString().equals('UNAVAILABLE')}" class="btn btn-sm btn-danger mdi mdi-calendar-lock"></button>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                            <div>
+                                <a class="btn btn-pink btn-sm mdi mdi-download-circle"
+                                   th:href="'/liturgie/export?startDate=' + ${startDate} + '&endDate=' + ${endDate}">
+                                </a>
+                                <a class="btn btn-pink btn-sm mdi mdi-plus" href="javascript:void(0);"
+                                   data-bs-toggle="modal" data-bs-target="#create">
+                                </a>
                             </div>
                         </div>
                     </div>
-                    <div class="col">
-                        <div class="card card-limit-height h-100">
-                            <div class="card-header">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-start gap-3">
-                                        <!-- Icon -->
-                                        <div class="bg-pink-soft rounded-3 d-flex align-items-center justify-content-center"
-                                             style="width: 48px; height: 48px;">
-                                            <i data-feather="bar-chart-2" class="text-pink fs-4"></i>
-                                        </div>
-
-                                        <!-- Text content -->
-                                        <div>
-                                            <h5 class="mb-1 fw-semibold">
-                                                <span>Statistik</span>
-                                            </h5>
-                                            <div class="d-flex flex-wrap gap-3 small text-muted">
-                                                <div th:text="' Gottesdienste'">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <table class="table table-bordered table-responsive-sm table-sm mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>Datum</th>
-                                        <th class="text-center">Eingeteilt</th>
-                                        <th class="text-center">Verfügbar</th>
-                                        <th class="text-center">Nicht Verfügbar</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr th:each="ep : ${eventParticipations}">
-                                        <td th:text="${ep.getDate()}"></td>
-                                        <td class="text-center" th:text="${ep.dutyCount}"></td>
-                                        <td class="text-center" th:text="${ep.availableCount}"></td>
-                                        <td class="text-center" th:text="${ep.unavailableCount}"></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                                <div class="chart-bar"><canvas id="myBarChart" width="100%" height="30"></canvas></div>
-                            </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-responsive-sm table-sm">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>Bezeichnung</th>
+                                    <th>Datum</th>
+                                    <th th:each="p:${persons}" th:text="${p.firstName}"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="v : ${liturgieViews}">
+                                    <td>
+                                        <a th:text="${v.typeLabel}" th:href="'/liturgie?q=edit&id=' + ${v.id}"></a>
+                                    </td>
+                                    <td th:text="${v.date.getGermanShortDate()}"></td>
+                                    <td th:each="p : ${persons}" class="text-center">
+                                        <button th:if="${v.personStates[p.id].toString().equals('DUTY')}"
+                                                th:data-liturgie-id="${v.id}"
+                                                th:data-participant-id="${p.getId()}"
+                                                onclick="triggerAjax(this)"
+                                                class="btn btn-sm btn-success">
+                                            <i class="mdi mdi-check-circle"></i>
+                                        </button>
+                                        <button th:if="${v.personStates[p.id].toString().equals('AVAILABLE')}"
+                                                th:data-liturgie-id="${v.id}"
+                                                th:data-participant-id="${p.getId()}"
+                                                onclick="triggerAjax(this)"
+                                                class="btn btn-sm btn-yellow">
+                                            <i class="mdi mdi-calendar"></i>
+                                        </button>
+                                        <button th:if="${v.personStates[p.id].toString().equals('UNAVAILABLE')}" class="btn btn-sm btn-danger mdi mdi-calendar-lock"></button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-
                 </div>
             </div>
         </main>
@@ -366,75 +314,6 @@
                 alert('Registrierung fehlgeschlagen!');
             });
     }
-</script>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    // Thymeleaf-Projektion: aus List<EventParticipationDto> → JS-Array
-    var labels          = [[${eventParticipations.![date]}]];
-    var dutyData        = [[${eventParticipations.![dutyCount]}]];
-    var availableData   = [[${eventParticipations.![availableCount]}]];
-    var unavailableData = [[${eventParticipations.![unavailableCount]}]];
-    /*]]>*/
-
-    var ctx = document.getElementById("myBarChart").getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Eingeteilt',
-                    data: dutyData,
-                    backgroundColor: '#00ac69',
-                    borderColor:   '#00ac69',
-                },
-                {
-                    label: 'Verfügbar',
-                    data: availableData,
-                    backgroundColor: '#f4a100',
-                    borderColor:   '#f4a100',
-                },
-                {
-                    label: 'Nicht Verfügbar',
-                    data: unavailableData,
-                    backgroundColor: '#e81500',
-                    borderColor:   '#e81500',
-                }
-            ]
-        },
-        options: {
-            maintainAspectRatio: false,
-            layout: {
-                padding: { left: 10, right: 25, top: 25, bottom: 0 }
-            },
-            scales: {
-                x: {
-                    grid: { display: false, drawBorder: false },
-                    ticks: { maxRotation: 0, autoSkip: true }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color:            "rgb(234, 236, 244)",
-                        borderDash:       [2],
-                        zeroLineBorderDash: [2]
-                    }
-                }
-            },
-            plugins: {
-                legend: { display: true, position: 'bottom' },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y;
-                        }
-                    }
-                }
-            }
-        }
-    });
 </script>
 
 

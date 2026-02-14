@@ -25,176 +25,266 @@
             </header>
             <div class="container-fluid px-4 mt-4">
 
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <div class="row align-items-center g-3">
-                            <!-- Tabs -->
-                            <div class="col-auto">
-                                <ul class="nav nav-borders small">
-                                    <li class="nav-item">
-                                        <a class="nav-link active text-primary fw-semibold" href="#">Alle Termine</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-muted" href="#">In Bearbeitung</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link text-muted" href="#">Abgeschlossen</a>
-                                    </li>
-                                </ul>
-                            </div>
+                <style>
+                    .card-body.clamp-description {
+                        overflow: auto;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 6; /* z.B. max. 6 Zeilen */
+                        -webkit-box-orient: vertical;
+                    }
 
-                            <div class="col"></div>
+                    .card-limit-height {
+                        min-height: 400px;
+                    }
 
-                            <!-- Search -->
-                            <div class="col">
-                                <div class="input-group input-group-joined input-group-sm">
-                                    <input class="form-control form-control-sm" type="text" placeholder="Search..." aria-label="Search" autofocus />
-                                    <span class="input-group-text"><i data-feather="search"></i></span>
+                    .row.d-flex {
+                        align-items: stretch;
+                    }
+                </style>
+                <div class="row d-flex align-items-stretch">
+                    <div class="col-xl-2 col-12 mb-4">
+                        <div class="card card-limit-height h-100">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-purple-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="bar-chart-2" class="text-purple fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">
+                                                <span>Statistik</span>
+                                            </h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted">
+                                                <div th:text="'Die aktuelle Statistik'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="col"></div>
-
-
-                            <!-- Filter + Add Button -->
-                            <div class="col-auto d-flex gap-2">
-                                <!-- Default Behavior -->
-                                <div class="dropdown">
-                                    <button class="btn btn-yellow btn-sm dropdown-toggle" id="dropdownNoAnimation" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filter</button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownNoAnimation">
-                                        <a class="dropdown-item" href="#!">Alle Gruppen</a>
-                                        <a class="dropdown-item" href="#!">Deine Gruppe</a>
-                                        <a class="dropdown-item" href="#!">Hohes Risiko</a>
+                            <div class="card-body clamp-description " style="overflow: auto;">
+                                <div class="chart-pie mb-4">
+                                    <canvas id="myPieChart" width="100%" height="50"></canvas>
+                                </div>
+                                <div class="list-group list-group-flush">
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="mdi mdi-circle me-1 text-yellow"></i>
+                                            Aktiv
+                                        </div>
+                                        <div class="fw-500 text-dark" id="active"
+                                             th:text="${0}"></div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="mdi mdi-circle me-1 text-green"></i>
+                                            Abgeschlossen
+                                        </div>
+                                        <div class="fw-500 text-dark" id="completed"
+                                             th:text="${0}"></div>
+                                    </div>
+                                    <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
+                                        <div class="me-3">
+                                            <i class="mdi mdi-circle me-1 text-red"></i>
+                                            Verworfen
+                                        </div>
+                                        <div class="fw-500 text-dark" id="cancelled"
+                                             th:text="${0}"></div>
                                     </div>
                                 </div>
 
-                                <button class="btn btn-yellow btn-sm mdi mdi-plus" type="button" data-bs-toggle="modal" data-bs-target="#create"></button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-xl-10 col-12 mb-4">
+                        <div class="card h-100" id="reference-card">
+                            <div class="card-header">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <!-- Icon -->
+                                        <div class="bg-yellow-soft rounded-3 d-flex align-items-center justify-content-center"
+                                             style="width: 48px; height: 48px;">
+                                            <i data-feather="calendar" class="text-purple fs-4"></i>
+                                        </div>
+
+                                        <!-- Text content -->
+                                        <div>
+                                            <h5 class="mb-1 fw-semibold">Events</h5>
+                                            <div class="d-flex flex-wrap gap-3 small text-muted"
+                                                 th:text="${events.size()} + ' in der Liste'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body ">
+                                <div class="text-center" id="load">
+                                    <span class="spinner-border card-img"
+                                          style="min-height: 200px; min-width: 200px;"></span>
+                                </div>
+                                <div class="d-none" id="content" style="overflow-y: auto">
+                                    <table id="table_id" class="display" style="min-width:100%; max-width: 100%">
+                                        <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th></th>
+                                            <th>Name</th>
+                                            <th>Kategorie</th>
+                                            <th>Status</th>
+                                            <th>Bearbeiter</th>
+                                            <th>Letztes Update</th>
+                                            <th>Start</th>
+                                            <th>Ende</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        <tr th:each="e:${events}">
+                                            <td th:text="${e.getStartDate().toLong()}"></td>
+                                            <td class="text-center">
+                                                <span class="mdi mdi-lightning-bolt" th:classappend="${e.getState().getTextColor()}"></span>
+                                            </td>
+                                            <td>
+                                                <a th:href="'/event?q=info&id=' + ${e.getEventId()} + '&s=info'"
+                                                   th:text="${e.getTitle()}"></a>
+                                            </td>
+                                            <td th:text="${e.getType().label}"></td>
+                                            <td th:text="${e.getState().getLabel()}"></td>
+                                            <td th:text="${personHelper.getName(e.getCreatedBy())}"></td>
+                                            <td th:text="${e.getLastUpdate().getGermanTime()}"></td>
+                                            <td th:text="${e.getStartDate().getGermanTime()}"></td>
+                                            <td th:text="${e.getEndDate().getGermanDate()}"></td>
+                                        </tr>
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="row row-cols-1 row-cols-md-2 row-cols-xl-2 row-cols-xxl-4 g-4">
-                    <div class="col" th:each="event : ${events}">
-                        <a class="card shadow-sm h-100 d-flex flex-column lift" th:href="'/event?q=info&id=' + ${event.getEventId()} + '&s=info'">
-                            <div class="card-body d-flex flex-column">
-                                <!-- Tag -->
-                                <span th:class="'badge fw-semibold rounded-pill mb-3 ' + ${event.getState().getColors()}" th:text="${event.getState().getLabel()}"></span>
-
-                                <!-- Title & Description -->
-                                <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
-                                <p class="text-muted mb-3" th:text="${event.getDescription()}"></p>
-
-                                <!-- Task Info -->
-                                <div class="d-flex align-items-center justify-content-between gap-3 p-3 bg-light rounded mb-3">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <!-- Icon -->
-                                        <div class="rounded d-flex align-items-center justify-content-center bg-info-soft" style="width: 48px; height: 48px;">
-                                            <i data-feather="info" class="text-info"></i>
-                                        </div>
-
-                                        <!-- Text content -->
-                                        <h6 class="mb-0 fw-semibold" th:text="${event.getType().getLabel()}"></h6>
-                                    </div>
-                                </div>
-
-
-                                <!-- Spacer to push footer down -->
-                                <div class="mt-auto d-flex justify-content-between align-items-center pt-2">
-                                    <!-- Avatars -->
-                                    <div class="d-flex">
-                                        <img src="https://i.pravatar.cc/32?img=1" class="rounded-circle me-1 border border-white" alt="User 1">
-                                        <img src="https://i.pravatar.cc/32?img=2" class="rounded-circle me-1 border border-white" alt="User 2">
-                                    </div>
-                                    <!-- Date -->
-                                    <small class="text-muted">
-                                        <i data-feather="calendar"></i>
-                                        <span th:text="${event.getStartDate().getGermanTime()}"></span>
-                                    </small>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-
             </div>
+
         </main>
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
 </div>
-</body>
-
-
-<form th:method="post" th:action="@{/event/create}">
-
-    <div class="modal fade" id="create">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">Termin erstellen</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <!-- Modal body -->
-                <div class="modal-body">
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="titel" class="col-sm-2 col-form-label">Titel</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" id="titel" name="titel" required>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="eventType" class="col-sm-2 col-form-label">Event Type</label>
-                        <div class="col-sm-10">
-                            <select class="form-select" id="eventType" name="eventType">
-                                <option th:each="t:${types}" th:text="${t.label}" th:value="${t}"></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="startDate" class="col-sm-2 col-form-label">Start-Datum</label>
-                        <div class="col-sm-10">
-                            <input type="datetime-local" class="form-control" id="startDate"
-                                   name="startDate">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="endDatum" class="col-sm-2 col-form-label">End-Datum</label>
-                        <div class="col-sm-10">
-                            <input type="datetime-local" class="form-control" id="endDatum"
-                                   name="endDate">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3 align-items-center">
-                        <label for="deadline" class="col-sm-2 col-form-label">Anmelde-Schluss</label>
-                        <div class="col-sm-10">
-                            <input type="date" class="form-control" id="deadline" name="deadline">
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="submit" class="btn btn-success">Speichern</button>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-</form>
-
-<link th:href="@{/css/main.css}" rel="stylesheet"/>
-<script th:src="@{/js/main.js}"></script>
 <div th:insert="~{fragments :: script}"></div>
-</html>
+</body>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/jquery.dataTables.min.js}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
+<script>
+
+
+    $(document).ready(function () {
+        $('#table_id').DataTable({
+            "columnDefs": [
+                {
+                    "targets": [0],
+                    "visible": false
+
+                },
+            ],
+            language: {
+                "decimal": ",",
+                "thousands": ".",
+                "infoPostFix": "",
+                "infoFiltered": "(gefiltert aus insgesamt _MAX_ Einträgen)",
+                "loadingRecords": "Bitte warten Sie - Daten werden geladen ...",
+                "lengthMenu": "Anzeigen von _MENU_ Einträgen",
+                "paginate": {
+                    "first": "Erste",
+                    "last": "Letzte",
+                    "next": "Nächste",
+                    "previous": "Zurück"
+                },
+                "processing": "Verarbeitung läuft ...",
+                "search": "Suche:",
+                "searchPlaceholder": "Suchbegriff",
+                "zeroRecords": "Keine Daten! Bitte ändern Sie Ihren Suchbegriff.",
+                "emptyTable": "Keine Einträge zum Anzeigen vorhanden",
+                "aria": {
+                    "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                    "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                },
+                "info": "Zeigt _START_ bis _END_  von _TOTAL_ Einträgen",
+                "infoEmpty": "Keine Einträge zum Anzeigen vorhanden",
+                "select": {
+                    "rows": {
+                        _: '%d Zeilen ausgewählt',
+                        0: 'Zeile anklicken um auszuwählen',
+                        1: 'Eine Zeile ausgewählt'
+                    }
+                }
+            }, paging: true,
+        });
+
+        // Set new default font family and font color to mimic Bootstrap's default styling
+        (Chart.defaults.global.defaultFontFamily = "Metropolis"),
+            '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+        Chart.defaults.global.defaultFontColor = "#858796";
+
+        // Pie Chart Example
+        // Werte aus dem DOM lesen
+        const active = parseInt(document.getElementById('active').innerText) || 0;
+        const completed = parseInt(document.getElementById('completed').innerText) || 0;
+        const cancelled = parseInt(document.getElementById('cancelled').innerText) || 0;
+
+        var ctx = document.getElementById("myPieChart").getContext('2d');
+        var myPieChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: ["Aktiv", "Abgeschlossen", "Verworfen"],
+                datasets: [{
+                    data: [active, completed, cancelled],
+                    backgroundColor: [
+                        "#f4a100",
+                        "#00ac69",
+                        "#e81500"
+                    ],
+                    hoverBackgroundColor: [
+                        "#f4a100",
+                        "#00ac69",
+                        "#e81500"
+                    ],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)"
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: "#dddfeb",
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10
+                },
+                legend: {
+                    display: false
+                },
+                cutoutPercentage: 80
+            }
+        });
+
+
+
+        setTimeout(function () {
+            document.getElementById("content").classList.remove("d-none");
+            document.getElementById("load").classList.add("d-none");
+        }, 0.1);
+    });
+
+
+
+</script>

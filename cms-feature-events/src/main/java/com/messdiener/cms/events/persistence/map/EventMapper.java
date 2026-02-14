@@ -42,7 +42,8 @@ public final class EventMapper {
                 e.getPressRelease(),
                 e.getPreventionConcept(),
                 e.getNotes(),
-                e.getApplication()
+                e.getApplication(),
+                e.getForms()
         );
     }
 
@@ -77,6 +78,7 @@ public final class EventMapper {
                 .preventionConcept(d.getPreventionConcept())
                 .notes(d.getNotes())
                 .application(d.getApplication())
+                .forms(d.getForms())
                 .build();
     }
 

@@ -1,0 +1,59 @@
+<div th:fragment="mainCard(event, name1, name3, name4)" class="card card-limit-height h-100 mb-4">
+    <div class="card-header">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-start gap-3">
+                <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+                    <i data-feather="framer" class="text-success fs-4"></i>
+                </div>
+                <div>
+                    <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
+                    <div class="d-flex flex-wrap gap-3 small text-muted">
+                        <div>
+                            <span th:class="'badge ' + ${event.getState().getColors()}" th:text="${event.getState().getLabel()}"></span>
+                        </div>
+                        <div>
+                            <span class="mdi mdi-circle text-green"></span>
+                            <span th:text="'Letztes Update: ' + ${event.getLastUpdate().getGermanTime() + ' Uhr'}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+
+            </div>
+        </div>
+    </div>
+    <div class="card-body clamp-description">
+        <table class="table table-sm table-hover mb-0">
+            <thead>
+            <tr>
+                <th>Typ</th>
+                <th>Aktueller Bearbeiter</th>
+                <th>Verantwortlich</th>
+                <th>PV Beauftragte*r</th>
+                <th>Start</th>
+                <th>Ende</th>
+                <th>Anmeldeschluss</th>
+                <th>Ort</th>
+                <th>Risiko-Index</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <span th:text="${event.getType().getLabel()}"></span>
+                    (<span th:text="${event.getTargetGroup()}"></span>)
+                </td>
+                <td th:text="${name1}"></td>
+                <td th:text="${name3}"></td>
+                <td th:text="${name4}"></td>
+                <td th:text="${event.getStartDate().getGermanTime()}"></td>
+                <td th:text="${event.getEndDate().getGermanTime()}"></td>
+                <td th:text="${event.getDeadline().getGermanDate()}"></td>
+                <td th:text="${event.getLocation()}"></td>
+                <td th:text="${event.getRiskIndex()}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

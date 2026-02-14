@@ -1,0 +1,177 @@
+<!-- personDocumentsFragment.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<body>
+<th:block th:fragment="documents(person, files, personHelper)">
+    <div class="card card-collapsable mb-3">
+        <a class="card-header" href="#collapse-documents" data-bs-toggle="collapse" role="button"
+           aria-expanded="false" aria-controls="collapse-documents">
+            <div>
+                <span class="mdi mdi-file-document text-info"></span>
+                Dokumentenablage
+            </div>
+            <div class="card-collapsable-arrow"></div>
+        </a>
+        <div class="collapse" id="collapse-documents">
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-xl-2">
+                        <style>
+                            .border-dashed { border-style: dashed !important; }
+                            #drop-zone.dragover { background-color:#e9f7fe; border-color:#0d6efd !important; color:#0d6efd; }
+                        </style>
+                        <div id="drop-zone" class="border border-info border-dashed rounded p-5 text-center text-info">
+                            <meta name="_csrf" th:content="${_csrf.token}" />
+                            <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+                            <div id="person-drop-zone" class="drop-zone">Dateien hier ablegen</div>
+                            <button id="person-browse-btn" class="btn btn-sm btn-primary">Durchsuchen</button>
+                            <input id="person-file-input" type="file" multiple hidden>
+                            <input type="hidden" id="target" th:value="${person.id}">
+                            <input type="hidden" id="type" value="PERSONAL">
+                            <div id="person-files-container"></div>
+
+                        </div>
+                        <ul id="upload-list" class="d-none"></ul>
+                    </div>
+
+                    <div class="col-xl-10">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                            <tr>
+                                <th>Nummer</th>
+                                <th>Name</th>
+                                <th>Hochgeladen am</th>
+                                <th>Hinzugefügt von</th>
+                                <th>Schlagworte</th>
+                                <th>Leserecht</th>
+                                <th>Aktion</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- files kann List<StorageFileView> ODER List<Pair<StorageFileView, ?>> sein -->
+                            <tr th:each="file : ${files}"
+                                th:with="sf=${file instanceof T(com.messdiener.cms.utils.other.Pair)} ? ${file.getFirst()} : ${file}">
+                                <td th:text="${sf.tag}"></td>
+                                <td>
+                                    <a th:text="${sf.title}"
+                                       th:href="@{/file(id=${sf.id})}"
+                                       target="_blank" rel="noopener noreferrer"></a>
+                                </td>
+                                <td th:text="${sf.date.germanDate}"></td>
+                                <td th:text="${personHelper.getName(sf.owner)}"></td>
+                                <td></td>
+                                <td>
+                                    <input class="form-check-input" type="checkbox" checked>
+                                </td>
+                                <td></td>
+                            </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Minimaler Upload-Hook (optional) -->
+    <script>
+        (function () {
+            const dropZone = document.getElementById("person-drop-zone");
+            const browseBtn = document.getElementById("person-browse-btn");
+            const fileInput = document.getElementById("person-file-input");
+            const personIdInput = document.getElementById("target");
+            const typeInput = document.getElementById("type");
+            const filesContainerSelector = "#person-files-container";
+
+            if (!dropZone || !browseBtn || !fileInput || !personIdInput || !typeInput) return;
+
+            const uploadEndpoint = "/upload"; // <-- UploadController erwartet POST /upload
+            const filesFragmentEndpoint = "/person/fragment/files"; // <-- dein Fragment-Controller für Personen-Dateien
+
+            // CSRF aus Meta-Tags (wird von Thymeleaf standardmäßig gesetzt)
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content || "X-CSRF-TOKEN";
+
+            const refreshFiles = async () => {
+                const personId = personIdInput.value;
+                if (!personId) return;
+                const container = document.querySelector(filesContainerSelector);
+                if (!container) return;
+                try {
+                    const html = await fetch(`${filesFragmentEndpoint}?id=${encodeURIComponent(personId)}`).then(r => r.text());
+                    container.innerHTML = html;
+                    showToast("Dateiliste aktualisiert.", "success");
+                } catch (e) {
+                    console.error(e);
+                    showToast("Fehler beim Aktualisieren der Dateiliste.", "error");
+                }
+            };
+
+            const uploadFiles = async (files) => {
+                if (!files || files.length === 0) return;
+                const personId = personIdInput.value;
+                const type = typeInput.value || "PERSON";
+
+                const formData = new FormData();
+                formData.append("target", personId);
+                formData.append("type", type);
+                Array.from(files).forEach(f => formData.append("files", f));
+
+                try {
+                    const headers = csrfToken ? { [csrfHeader]: csrfToken } : {};
+                    const res = await fetch(uploadEndpoint, {
+                        method: "POST",
+                        body: formData,
+                        headers
+                    });
+                    if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
+                    showToast("Upload abgeschlossen.", "success");
+                    await refreshFiles();
+                } catch (e) {
+                    console.error(e);
+                    showToast("Upload fehlgeschlagen.", "error");
+                }
+            };
+
+            // Drag&Drop-Zone
+            ["dragenter", "dragover"].forEach(ev =>
+                dropZone.addEventListener(ev, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropZone.classList.add("dragover");
+                })
+            );
+            ["dragleave", "drop"].forEach(ev =>
+                dropZone.addEventListener(ev, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropZone.classList.remove("dragover");
+                })
+            );
+            dropZone.addEventListener("drop", (e) => {
+                const dt = e.dataTransfer;
+                const files = dt?.files;
+                uploadFiles(files);
+            });
+
+            // Button "Durchsuchen"
+            browseBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                fileInput.click();
+            });
+
+            // Auswahl über Dialog
+            fileInput.addEventListener("change", () => {
+                if (fileInput.files?.length) uploadFiles(fileInput.files);
+                fileInput.value = ""; // Reset
+            });
+        })();
+
+    </script>
+</th:block>
+</body>
+</html>

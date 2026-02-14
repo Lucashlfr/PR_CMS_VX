@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<div th:fragment="eventScripts">
+    <script th:src="@{/js/jquery.min.js}"></script>
+
+    <!-- DOM-Container -->
+    <div th:insert="~{fragments :: script}"></div>
+    <div th:replace="~{fragments/toast :: toasts}"></div>
+    <div th:replace="~{event/fragments/modals :: modals(${event}, ${files}, ${personHelper}, ${eventMessageTypes}, ${imgUtils})}"></div>
+
+
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.29.2/dist/feather.min.js"></script>
+    <!-- Chart.js 2.9.4 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <!-- TinyMCE -->
+    <script src="https://cdn.tiny.cloud/1/cffl90sfi2w6v9p7qf819uqgaookf9q7jqhf5e83m8g0rbb5/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <!-- Base JS -->
+    <script th:src="@{/js/event/base/cms-toast.js}"></script>
+    <script th:src="@{/js/event/base/cms-ajax.js}"></script>
+    <script th:src="@{/js/event/base/cms-collapse.js}"></script>
+    <script th:src="@{/js/event/base/cms-modal.js}"></script>
+    <script th:src="@{/js/event/base/cms-editors.js}"></script>
+    <script th:src="@{/js/event/base/cms-charts.js}"></script> <!-- NEU -->
+
+    <!-- Feature JS -->
+    <script th:src="@{/js/event/features/event-files.js}"></script>
+    <script th:src="@{/js/event/features/event-responses.js}"></script>
+    <script th:src="@{/js/event/features/event-messages.js}"></script>
+    <script th:src="@{/js/event/features/event-risk.js}"></script>
+    <script th:src="@{/js/event/features/event-application.js}"></script>
+    <script th:src="@{/js/event/features/event-press.js}"></script>
+    <script th:src="@{/js/event/features/event-settings.js}"></script>
+
+    <!-- Init -->
+    <script th:src="@{/js/event/main.js}"></script>
+
+    <script>
+        if (!window.bootstrap || !bootstrap.Collapse) {
+            console.error("[bootstrap] bundle nicht geladen.");
+        } else {
+            console.debug("[bootstrap] ok – Collapse API verfügbar.");
+        }
+    </script>
+
+
+</div>
+</html>

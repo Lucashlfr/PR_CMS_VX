@@ -1,0 +1,77 @@
+<!-- personLiturgyFragment.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<body>
+<th:block th:fragment="liturgy(person, now, persons, liturgieViews, startDate, endDate)">
+    <div class="card card-collapsable mb-3">
+        <a class="card-header" href="#collapse-liturgy" data-bs-toggle="collapse" role="button"
+           aria-expanded="false" aria-controls="collapse-liturgy">
+            <div>
+                <span class="mdi mdi-church text-info"></span>
+                Gottesdienste
+            </div>
+            <div class="card-collapsable-arrow"></div>
+        </a>
+        <div class="collapse" id="collapse-liturgy">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-sm-center flex-column flex-sm-row mb-4">
+                    <div class="me-4 mb-3 mb-sm-0">
+                        <h1 class="mb-0">Gottesdienst / Person</h1>
+                        <div class="small">
+                            <span class="fw-500 text-primary" th:text="${now.getDay()}"></span>
+                            &middot;
+                            <span th:text="${now.getGt()}"></span>
+                        </div>
+                    </div>
+                    <form id="dateRangeForm" th:action="@{/personal}" method="get" class="d-flex">
+                        <div class="input-group input-group-joined border-0 shadow" style="width: 16.5rem">
+                            <span class="input-group-text"><i data-feather="calendar"></i></span>
+                            <input type="text" class="form-control ps-0 pointer bg-white" id="daterange"
+                                   placeholder="Zeitraum auswählen" readonly />
+                        </div>
+                        <span class="d-none" id="startDateSpan" th:text="${startDate}"></span>
+                        <span class="d-none" id="endDateSpan" th:text="${endDate}"></span>
+                        <input class="d-none" type="text" readonly id="startDate" name="startDate"/>
+                        <input class="d-none" type="text" readonly id="endDate"   name="endDate"/>
+                        <input class="d-none" type="text" readonly id="q"         name="q" value="profil"/>
+                        <input class="d-none" type="text" readonly id="s"         name="s" value="4"/>
+                        <input class="d-none" type="text" readonly id="id"        name="id" th:value="${person.getId()}"/>
+                    </form>
+                </div>
+
+                <div class="overflow-scroll">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Bezeichnung</th>
+                                <th>Datum</th>
+                                <th th:each="p:${persons}" th:text="${p.firstName}"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="v : ${liturgieViews}">
+                                <td th:text="${v.typeLabel}"></td>
+                                <td th:text="${v.date.germanLongDate}"></td>
+                                <td th:each="p : ${persons}">
+                                    <span th:if="${v.personStates[p.id].toString().equals('DUTY')}" class="btn btn-sm btn-success">
+                                        <i class="mdi mdi-check-circle"></i>
+                                    </span>
+                                    <span th:if="${v.personStates[p.id].toString().equals('AVAILABLE')}" class="btn btn-sm btn-yellow">
+                                        <i class="mdi mdi-calendar"></i>
+                                    </span>
+                                    <span th:if="${v.personStates[p.id].toString().equals('UNAVAILABLE')}" class="btn btn-sm btn-danger mdi mdi-calendar-lock"></span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

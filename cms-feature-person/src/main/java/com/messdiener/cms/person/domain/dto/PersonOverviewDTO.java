@@ -20,4 +20,9 @@ public class PersonOverviewDTO {
     private String imgUrl;
     private String username;
     private String password;
+
+    public String getReadName() {
+        return firstName + " " + lastName;
+    }
+
 }

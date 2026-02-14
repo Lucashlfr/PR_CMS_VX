@@ -5,10 +5,10 @@ import lombok.Value;
 
 import java.util.UUID;
 
-@Value
-public class LiturgyView {
-    UUID id;
-    String typeLabel;
-    CMSDate date;
-    boolean local;
+public record LiturgyView(
+        UUID id,
+        String typeLabel,
+        CMSDate date,
+        boolean local
+) {
 }

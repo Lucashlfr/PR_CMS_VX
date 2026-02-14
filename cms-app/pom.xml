@@ -37,7 +37,11 @@
         </dependency>
         <dependency>
             <groupId>com.messdiener</groupId>
-            <artifactId>cms-feature-documents</artifactId>
+            <artifactId>cms-feature-article</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-files</artifactId>
         </dependency>
         <dependency>
             <groupId>com.messdiener</groupId>
@@ -74,6 +78,12 @@
         <dependency>
             <groupId>com.messdiener</groupId>
             <artifactId>cms-feature-homepage</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.messdiener</groupId>
+            <artifactId>cms-feature-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- Templates-Bundle -->
@@ -148,6 +158,19 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>

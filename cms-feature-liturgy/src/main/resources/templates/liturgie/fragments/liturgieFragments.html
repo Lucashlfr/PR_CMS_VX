@@ -7,6 +7,10 @@
            th:href="@{/liturgie(q='list')}">
             <i class="mdi mdi-home me-1"></i>
             Übersicht</a>
+        <a th:class="${q == 'statistic'} ? 'nav-link active bg-pink' : 'nav-link text-pink'"
+           th:href="@{/liturgie(q='statistic')}">
+            <i class="mdi mdi-chart-bar me-1"></i>
+            Statistik</a>
         <a th:class="${q == 'request'} ? 'nav-link active bg-pink' : 'nav-link text-pink'"
            th:href="@{/liturgie(q='request')}">
             <i class="mdi mdi-account-plus-outline me-1"></i>

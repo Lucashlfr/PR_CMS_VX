@@ -24,9 +24,10 @@ public class PersonLookupAdapter implements PersonLookupPort {
         Optional<Person> personOpt = personService.getPersonByUsername(username);
         return personOpt.map(p -> new PersonSessionView(
                 p.getId(),
-                p.getFirstname(),                 // <- neu
-                p.getLastname(),                  // <- neu
+                p.getFirstName(),                 // <- neu
+                p.getLastName(),                  // <- neu
                 p.getTenant().getName(),
+                p.getTenant(),
                 p.getFRank(),
                 personHelper.getImgAddress(p)
         ));

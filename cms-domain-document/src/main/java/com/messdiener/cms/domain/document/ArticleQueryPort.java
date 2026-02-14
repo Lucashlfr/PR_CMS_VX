@@ -16,4 +16,5 @@ public interface ArticleQueryPort {
     Optional<ArticleView> getArticleByType(ArticleType type) throws SQLException;
 
     Optional<ArticleView> getArticleById(UUID id) throws SQLException;
+
 }

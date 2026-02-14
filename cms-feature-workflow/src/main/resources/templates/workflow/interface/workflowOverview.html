@@ -147,57 +147,29 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <tr th:each="w : ${workflows}">
-                                            <!-- versteckte Sortierspalte: Creation timestamp -->
-                                            <td th:text="${w.creationDate() != null ? w.creationDate().toLong() : 0}"></td>
 
-                                            <!-- Icon/Statusindikator -->
+                                        <tr th:each="w:${workflows}">
+                                            <td th:text="${w.getCreationDate().toLong()}"></td>
                                             <td class="text-center">
-        <span th:class="'mdi ' + (
-                ${w.state() != null && w.state().name() == 'COMPLETED'} ? 'mdi-check-circle text-green' :
-                (${w.state() != null && w.state().name() == 'CANCELLED'} ? 'mdi-close-circle text-red' :
-                'mdi-lightning-bolt text-yellow')
-            )"></span>
+                                                <span class="text-green mdi mdi-lightning-bolt"></span>
                                             </td>
-
-                                            <!-- Name (+ Kurzbeschreibung) -->
                                             <td>
-                                                <a th:href="'/workflow?q=info&id=' + ${w.workflowId()}"
-                                                   th:text="${w.title()}"></a>
-                                                <div class="small text-muted" th:if="${w.description() != null}"
-                                                     th:text="${w.description()}"></div>
+                                                <a th:href="'/workflow?q=info&id=' + ${w.getWorkflowId()}"
+                                                   th:text="${w.getWorkflowName()}"></a>
                                             </td>
-
-                                            <!-- Kategorie -->
                                             <td></td>
-
-                                            <!-- Status -->
-                                            <td th:text="${w.state() != null ? w.state().getLabel() : '—'}"></td>
-
-                                            <!-- Bearbeiter -->
-                                            <td th:text="${w.assigneeId() != null ? w.assigneeId() : '—'}"></td>
-
-                                            <!-- Erstellt von -->
+                                            <td th:text="${w.getState().getLabel()}"></td>
+                                            <td th:text="${personHelper.getName(w.getEditor())}"></td>
                                             <td></td>
-
-                                            <!-- Manager*in -->
-                                            <td th:text="${w.manager() != null ? w.manager() : '—'}"></td>
-
-                                            <!-- Anhänge -->
-                                            <td th:text="${w.attachments()}"></td>
-
-                                            <!-- Vermerke -->
-                                            <td th:text="${w.notes()}"></td>
-
-                                            <!-- Datum -->
-                                            <td th:text="${w.creationDate() != null ? w.creationDate().getGermanDate() : '—'}"></td>
-
-                                            <!-- Letztes Update -->
-                                            <td th:text="${w.modificationDate() != null ? w.modificationDate().getGermanDate() : '—'}"></td>
-
-                                            <!-- Frist -->
-                                            <td th:text="${w.endDate() != null ? w.endDate().getGermanDate() : '—'}"></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td th:text="${w.getCreationDate().getGermanDate()}"></td>
+                                            <td></td>
+                                            <td th:text="${w.getEndDate().getGermanDate()}"></td>
                                         </tr>
+
+
                                         </tbody>
                                     </table>
                                 </div>

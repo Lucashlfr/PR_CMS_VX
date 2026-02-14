@@ -13,7 +13,7 @@ public enum EventState {
     EXECUTION("Durchführung",  "bg-orange-soft", "text-orange", "Gold"),
     FOLLOWUP("Nachbereitung",  "bg-teal-soft", "text-teal", "Orange"),
     COMPLETED("Abgeschlossen", "bg-green-soft", "text-green", "YellowGreen"),
-    REJECTED("Verworfen", "bg-red-soft", "text-red", "Tomato"),
+    CANCELED("Verworfen", "bg-red-soft", "text-red", "Tomato"),
     ARCHIVED("Archiviert","bg-gray-600", "text-white", "gray");
 
     private final String label;

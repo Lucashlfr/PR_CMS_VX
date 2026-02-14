@@ -11,7 +11,7 @@ public enum EventMessageType {
     EXTERN("Externe Kommunikation", "EX", "text-pink", "bg-pink"),
     PREVENTION_CASE("Präventionsfall", "PV", "text-purple", "bg-purple"),
     VOTING("Abstimmung", "VT", "text-yellow", "bg-yellow"),
-    DOCUMENTATION("Dokumentation", "DC", "bg-blue", "text-blue");
+    DOCUMENTATION("Dokumentation", "DC", "text-blue", "bg-blue");
 
     private final String label;
     private final String code;

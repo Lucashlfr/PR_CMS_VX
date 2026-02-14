@@ -1,0 +1,40 @@
+<div th:fragment="messages(messages, personHelper)" class="card card-collapsable mb-3">
+    <a class="card-header d-flex justify-content-between align-items-center py-2"
+       role="button"
+       data-bs-toggle="collapse"
+       data-bs-target="#collapse-messages"
+       aria-controls="collapse-messages"
+       aria-expanded="false">
+        <span><i class="mdi mdi-message-text-outline text-yellow"></i> Meldungen</span>
+        <i class="mdi mdi-chevron-down card-collapsable-arrow"></i>
+    </a>
+
+    <div class="collapse" id="collapse-messages">
+
+    <div class="card-body">
+            <a class="btn btn-yellow btn-sm mdi mdi-plus" data-bs-toggle="modal" data-bs-target="#edit" title="Meldung anlegen"></a>
+            <table class="table table-sm table-hover">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Titel</th>
+                    <th>Datum</th>
+                    <th>Name</th>
+                    <th>Typ</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="m : ${messages}">
+                    <td th:class="'mdi mdi-circle ' + ${m.getMessageType().getTextColor()}"></td>
+                    <td th:text="${m.getMessageType().getCode()} + '-' + ${m.getNumber()}"></td>
+                    <td th:text="${m.getTitle()}"></td>
+                    <td th:text="${m.getDate().getGermanTime()} + ' Uhr'"></td>
+                    <td th:text="${personHelper.getName(m.getUserId())}"></td>
+                    <td th:text="${m.getMessageType().getLabel()}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

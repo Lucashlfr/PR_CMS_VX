@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum FileType {
 
-    ONBOARDING("Onboarding"), TRAINING("Schulungen"), ACCOUNTING("Abrechnung"), OTHER("Sonstiges"), NULL("Kein Typ"), EVENT("Event"), WEBSITE("Website"), TRANSACTION("Beleg zur Transaktion");
+    ONBOARDING("Onboarding"), TRAINING("Schulungen"), ACCOUNTING("Abrechnung"), OTHER("Sonstiges"), NULL("Kein Typ"), EVENT("Event"), WEBSITE("Website"), TRANSACTION("Beleg zur Transaktion"), PERSONAL("Personal");
 
     private final String label;
 

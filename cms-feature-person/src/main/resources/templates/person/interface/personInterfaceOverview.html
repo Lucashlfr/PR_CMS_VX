@@ -10,11 +10,10 @@
 
             <div th:replace="~{person/fragments/personFragments :: header (${person.getName()})}"></div>
 
-
             <div class="container-fluid">
-                <div class="row g-3 align-items-stretch">
+                <div class="row g-3 align-items-stretch mb-3">
 
-                    <!-- LINKER BEREICH -->
+                    <!-- LINKER BEREICH (unverändert, Fachlichkeit bleibt erhalten) -->
                     <aside class="col-lg-2">
                         <div class="card h-100">
                             <div class="card-body">
@@ -24,8 +23,10 @@
                                          width="64" height="64">
                                     <div>
                                         <h5 class="card-title mb-0" th:text="${person.getName()}"></h5>
-                                        <div class="text-warning small"><i class="bi bi-star-fill"></i> <span
-                                                th:text="${person.getRank().getName()}"></span></div>
+                                        <div class="text-warning small">
+                                            <i class="bi bi-star-fill"></i>
+                                            <span th:text="${person.getRank().getName()}"></span>
+                                        </div>
                                         <div class="text-muted small" th:text="${person.getTenant().getName()}"></div>
                                     </div>
                                 </div>
@@ -51,7 +52,7 @@
                                     <button class="btn btn-outline-black"><i data-feather="clock"></i></button>
                                 </div>
 
-                                <!-- Kontakt -->
+                                <!-- Person -->
                                 <div class="mt-4">
                                     <div class="text-uppercase small fw-bold text-muted mb-2">Person</div>
                                     <ul class="list-unstyled mb-0">
@@ -76,22 +77,22 @@
                                                   th:text="'Nicht gesetzt'" class="text-red"></span>
                                         </li>
                                         <li class="mb-2"><i class="text-muted me-2 mdi mdi-email"></i>
-                                            <a th:unless="${person.getEmail().isEmpty()}"
+                                            <a th:unless="${person.getEmail() == null}"
                                                th:href="'mailto:'+${person.getEmail()}"
                                                th:text="${person.getEmail()}"></a>
-                                            <span th:if="${person.getEmail().isEmpty()}" th:text="'Nicht gesetzt'"
+                                            <span th:if="${person.getEmail() == null}" th:text="'Nicht gesetzt'"
                                                   class="text-red"></span>
                                         </li>
                                         <li class="mb-2"><i class="text-muted me-2 mdi mdi-phone-classic"></i>
                                             <a th:href="'tel:' + ${person.getPhone()}"
                                                th:text="${person.getPhone()}"></a>
-                                            <span th:if="${person.getPhone().isEmpty()}" th:text="'Nicht gesetzt'"
+                                            <span th:if="${person.getPhone() == null}" th:text="'Nicht gesetzt'"
                                                   class="text-red"></span>
                                         </li>
                                         <li class="mb-2"><i class="text-muted me-2 mdi mdi-phone"></i>
                                             <a th:href="'tel:' + ${person.getMobile()}"
                                                th:text="${person.getMobile()}"></a>
-                                            <span th:if="${person.getMobile().isEmpty()}" th:text="'Nicht gesetzt'"
+                                            <span th:if="${person.getMobile() == null}" th:text="'Nicht gesetzt'"
                                                   class="text-red"></span>
                                         </li>
                                     </ul>
@@ -108,11 +109,10 @@
                             </div>
                             <div class="card-body">
 
-                                <!-- Infos -->
+                                <!-- Bestehende Infos/Workflow-Tabelle (unverändert) -->
                                 <div class="mb-3">
-                                    <h5 class="text-uppercase text-muted small fw-bold mb-0">Verwaltungsvorgänge</h5>
                                     <div class="overflow-auto" style="max-height: 500px!important;">
-                                        <table class="table table-sm table-hover">
+                                        <table class="table table-sm table-hover table-bordered">
                                             <thead>
                                             <tr>
                                                 <th></th>
@@ -131,14 +131,9 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            <tr th:each="w : ${workflows}" th:class="${w.state().bg}">
-                                                <td class="text-center">
-                                                    <span class="text-green mdi mdi-lightning-bolt"></span>
-                                                </td>
-                                                <td>
-                                                    <a th:text="${w.workflowName()}"
-                                                       th:href="'/workflow?q=info&id=' + ${w.workflowId()}"></a>
-                                                </td>
+                                            <tr th:each="w : ${workflows}" th:class="${w.state().getBgColor()}">
+                                                <td class="text-center"><span class="text-green mdi mdi-lightning-bolt"></span></td>
+                                                <td><a th:text="${w.workflowName()}" th:href="'/workflow?q=info&id=' + ${w.workflowId()}"></a></td>
                                                 <td th:text="${w.category().label}"></td>
                                                 <td th:text="${w.state().label}"></td>
                                                 <td th:text="${w.editor()}"></td>
@@ -158,7 +153,6 @@
                                             </tr>
                                             </tbody>
                                         </table>
-                                        <!-- Weitere Timeline-Items -->
                                     </div>
                                 </div>
                             </div>
@@ -166,13 +160,27 @@
                     </main>
 
                 </div>
-            </div>
 
+                <div th:replace="~{person/fragments/personDocumentsFragment :: documents(${person}, ${files}, ${personHelper})}"></div>
+                <div th:replace="~{person/fragments/personLiturgyFragment :: liturgy(${person}, ${now}, ${persons}, ${liturgieViews}, ${startDate}, ${endDate})}"></div>
+                <div th:replace="~{person/fragments/personSettingsFragment :: settings(${person})}"></div>
+
+            </div>
 
         </main>
         <footer th:insert="~{fragments :: footer}"></footer>
     </div>
 </div>
 <div th:insert="~{fragments :: script}"></div>
+
+<!-- Lokale Person-JS (falls bereits angelegt: Toast/Collapses/Ajax) -->
+<script src="/js/person/base/person-toast.js"></script>
+<script src="/js/person/base/person-collapses.js"></script>
+<script src="/js/person/base/person-ajax.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.initPersonAjaxForms) initPersonAjaxForms();
+    });
+</script>
 </body>
 </html>

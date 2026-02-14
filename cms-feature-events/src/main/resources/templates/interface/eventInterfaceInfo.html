@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
-<head th:insert="~{fragments :: html_head}"></head>
+<head th:replace="~{fragments :: html_head}"></head>
 <body class="nav-fixed">
-<nav th:insert="~{fragments :: topnav}"></nav>
+<nav th:replace="~{fragments :: topnav}"></nav>
 <div id="layoutSidenav">
-    <div th:insert="~{fragments :: sidebar}" id="layoutSidenav_nav"></div>
+    <div id="layoutSidenav_nav" th:replace="~{fragments :: sidebar}"></div>
     <div id="layoutSidenav_content">
         <main>
             <header class="page-header page-header-dark bg-yellow mb-4">
@@ -12,312 +12,65 @@
                     <div class="page-header-content pt-4">
                         <div class="row align-items-center justify-content-between">
                             <div class="col-auto mt-4">
-                                <h1 class="page-header-title" th:text="'Termine / ' + ${event.getTitle()}">
-                                </h1>
-                                <div class="page-header-subtitle">Plane deine Aktionen für deine Messdienergruppe.
-                                </div>
+                                <h1 class="page-header-title" th:text="'Termine / ' + ${event.getTitle()}"></h1>
+                                <div class="page-header-subtitle">Plane deine Aktionen für deine Messdienergruppe.</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </header>
-            <!-- Main page content-->
-            <form th:action="@{/event/edit}" th:method="post">
-                <input type="hidden" name="id" th:value="${event.getEventId()}">
-                <div class="container-fluid px-4 mt-4">
 
-                    <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event.getEventId()})}"></div>
+            <div class="container-fluid px-4 mt-4">
+<!--                <div th:replace="~{calendar/fragments/eventFragments :: eventNav(${s}, ${event.getEventId()})}"></div>-->
 
-                    <div class="card card-limit-height h-100 mb-4">
-                        <div class="card-header">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div class="d-flex align-items-start gap-3">
-                                    <!-- Icon -->
-                                    <div class="bg-success-soft rounded-3 d-flex align-items-center justify-content-center"
-                                         style="width: 48px; height: 48px;">
-                                        <i data-feather="framer" class="text-success fs-4"></i>
-                                    </div>
+                <div th:replace="~{event/fragments/mainCard :: mainCard(${event}, ${name1}, ${name3}, ${name4})}"></div>
 
-                                    <!-- Text content -->
-                                    <div>
-                                        <h5 class="mb-1 fw-semibold" th:text="${event.getTitle()}"></h5>
-                                        <div class="d-flex flex-wrap gap-3 small text-muted">
-                                            <div><span
-                                                    th:class="'badge ' + ${event.getState().getColors()}"
-                                                    th:text="${event.getState().getLabel()}"></span></div>
-                                            <div><span class="mdi mdi-circle text-green"></span>
-                                                <span th:text="'Letztes Update: ' + ${event.getLastUpdate().getGermanTime() + ' Uhr'}"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <a class="btn btn-yellow btn-sm mdi mdi-plus" data-bs-toggle="modal" data-bs-target="#edit"></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body clamp-description">
-
-                            <div class="row">
-
-                                <div class="col-xl-2">
-
-                                    <div class="chart-pie mb-4">
-                                        <canvas id="myPieChart" width="100%" height="25"></canvas></div>
-                                    <div class="list-group list-group-flush">
-                                        <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
-                                            <div class="me-3">
-                                                <i class="mdi mdi-circle me-1 text-yellow"></i>
-                                                Personen ohne Mapping
-                                            </div>
-                                            <div class="fw-500 text-dark" id="mapping" th:text="${mapping}"></div>
-                                        </div>
-                                        <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
-                                            <div class="me-3">
-                                                <i class="mdi mdi-circle me-1 text-green"></i>
-                                                Angemeldet
-                                            </div>
-                                            <div class="fw-500 text-dark" id="register" th:text="${active}"></div>
-                                        </div>
-                                        <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
-                                            <div class="me-3">
-                                                <i class="mdi mdi-circle me-1 text-red"></i>
-                                                Abgemeldet
-                                            </div>
-                                            <div class="fw-500 text-dark" id="cancelled" th:text="'0'"></div>
-                                        </div>
-                                        <div class="list-group-item d-flex align-items-center justify-content-between small px-0 py-2">
-                                            <div class="me-3">
-                                                <i class="mdi mdi-circle me-1 text-gray-400"></i>
-                                                Keine Rückmeldung
-                                            </div>
-                                            <div class="fw-500 text-dark" id="noFeedback" th:text="${noFeedback}"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-xl-7">
-                                    <table class="table table-sm table-hover">
-                                        <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Id</th>
-                                            <th>Titel</th>
-                                            <th>Datum</th>
-                                            <th>Name</th>
-                                            <th>Typ</th>
-                                        </tr>
-                                        </thead>
-                                        <tr th:each="m : ${messages}">
-                                            <td th:class="'mdi mdi-circle ' + ${m.getMessageType().getTextColor()}"></td>
-                                            <td th:text="${m.getMessageType().getCode()} + '-' + ${m.getNumber()}"></td>
-                                            <td th:text="${m.getTitle()}"></td>
-                                            <td th:text="${m.getDate().getGermanTime()} + ' Uhr'"></td>
-                                            <td th:text="${personHelper.getName(m.getUserId())}"></td>
-                                            <td th:text="${m.getMessageType().getLabel()}"></td>
-                                        </tr>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-
-
-                                </div>
-
-                                <div class="col-xl-3">
-                                    <table class="table table-sm table-hover">
-                                        <tbody>
-                                        <tr>
-                                            <td>Beschreibung</td>
-                                            <td th:text="${event.getDescription()}"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Typ</td>
-                                            <td>
-                                                <span th:text="${event.getType().getLabel()}"></span>
-                                                (<span th:text="${event.getTargetGroup()}"></span>)
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Aktueller Bearbeiter</td>
-                                            <td th:text="${name1}"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Verantwortlich</td>
-                                            <td th:text="${name3}"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>PV Beauftragte*r</td>
-                                            <td th:text="${name4}"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Timeline</td>
-                                            <td>
-                                                <span th:text="${event.getStartDate().getGermanTime()}"></span><br>
-                                                <span th:text="${event.getEndDate().getGermanTime()}"></span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>Anmeldeschluss</td>
-                                            <td th:text="${event.getDeadline().getGermanDate()}"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Ort</td>
-                                            <td th:text="${event.getLocation()}"></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Risiko-Index</td>
-                                            <td th:text="${event.getRiskIndex()}"></td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </form>
-        </main>
-        <footer th:insert="~{fragments :: footer}"></footer>
-    </div>
-</div>
-<div th:insert="~{fragments :: script}"></div>
-</body>
-<form th:method="post" th:action="@{/event/message}">
-    <input type="hidden" id="eventId" name="eventId" th:value="${event.getEventId()}" />
-
-    <div class="modal fade" id="edit">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">Meldung anlegen</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <!-- messages -->
+                <div id="messages-container">
+                    <div th:replace="~{event/fragments/messages :: messages(${messages}, ${personHelper})}"></div>
                 </div>
 
-                <!-- Modal body -->
-                <div class="modal-body">
-
-                    <div class="row align-items-start">
-                        <label for="title" class="col-sm-2 col-form-label">Titel</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control form-control-sm" id="title" name="title" required>
-                        </div>
-                    </div>
-
-                    <div class="row align-items-start">
-                        <label for="eventMessageType" class="col-sm-2 col-form-label">Type</label>
-                        <div class="col-sm-10">
-                            <select class="form-select form-select-sm" id="eventMessageType" name="eventMessageType">
-                                <option th:each="t:${eventMessageTypes}" th:text="${t.label}" th:value="${t}"
-                                        th:selected="${t.name() == event.getType().name()}"></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row align-items-start">
-                        <label for="description" class="col-sm-2 col-form-label">Beschreibung</label>
-                        <div class="col-sm-10">
-                            <textarea class="form-control form-control-sm" id="description" name="description" rows="8"></textarea>
-                        </div>
-                    </div>
-
+                <!-- settings (bleibt Full-Reload, wie besprochen) -->
+                <div id="settings-container">
+                    <div th:replace="~{event/fragments/settings :: settings(${event}, ${types}, ${states})}"></div>
                 </div>
 
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                    <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="submit" class="btn btn-success">Speichern</button>
+                <!-- files -->
+                <div id="files-container">
+                    <div th:replace="~{event/fragments/files :: files(${event}, ${files}, ${personHelper}, ${imgUtils})}"></div>
+                </div>
 
+                <!-- application -->
+                <div id="application-container">
+                    <div th:replace="~{event/fragments/application :: application(${event})}"></div>
+                </div>
+
+                <!-- responses -->
+                <div id="responses-container">
+                    <div th:replace="~{event/fragments/responses :: responses(${exportRows}, ${mapping}, ${active}, ${noFeedback})}"></div>
+                </div>
+
+                <!-- notes -->
+                <div id="notes-container">
+                    <div th:replace="~{event/fragments/notes :: notes(${event})}"></div>
+                </div>
+
+                <!-- press -->
+                <div id="press-container">
+                    <div th:replace="~{event/fragments/press :: press(${event})}"></div>
+                </div>
+
+                <!-- risk -->
+                <div id="risk-container">
+                    <div th:replace="~{event/fragments/risk :: risk(${event}, ${preventionForm})}"></div>
                 </div>
 
             </div>
-        </div>
+        </main>
+
+        <footer th:replace="~{fragments :: footer}"></footer>
     </div>
-</form>
-
+</div>
+<div th:replace="~{common/scripts-event :: eventScripts}"></div>
+</body>
 </html>
-
-<script th:src="@{/js/jquery.min.js}"></script>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.edit-timeline').forEach(link => {
-            link.addEventListener('click', () => {
-                document.getElementById('timelineId').value = link.getAttribute('data-id');
-                document.getElementById('title').value = link.getAttribute('data-title');
-                document.getElementById('description').value = link.getAttribute('data-description');
-                document.getElementById('date').value = link.getAttribute('data-date');
-            });
-        });
-    });
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
-<script>
-
-
-    $(document).ready(function () {
-        // Set new default font family and font color to mimic Bootstrap's default styling
-        (Chart.defaults.global.defaultFontFamily = "Metropolis"),
-            '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-        Chart.defaults.global.defaultFontColor = "#858796";
-
-        // Pie Chart Example
-        // Werte aus dem DOM lesen
-        const mapping = parseInt(document.getElementById('mapping').innerText) || 0;
-        const register = parseInt(document.getElementById('register').innerText) || 0;
-        const cancelled = parseInt(document.getElementById('cancelled').innerText) || 0;
-        const noFeedback = parseInt(document.getElementById('noFeedback').innerText) || 0;
-
-        var ctx = document.getElementById("myPieChart").getContext('2d');
-        var myPieChart = new Chart(ctx, {
-            type: "doughnut",
-            data: {
-                labels: ["Personen ohne Mapping", "Angemeldet", "Abgemeldet", "keine Rückmeldung"],
-                datasets: [{
-                    data: [mapping, register, cancelled, noFeedback],
-                    backgroundColor: [
-                        "#f4a100",
-                        "#00ac69",
-                        "#e81500",
-                        "#69707a"
-                    ],
-                    hoverBackgroundColor: [
-                        "#f4a100",
-                        "#00ac69",
-                        "#e81500",
-                        "#69707a"
-                    ],
-                    hoverBorderColor: "rgba(234, 236, 244, 1)"
-                }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                tooltips: {
-                    backgroundColor: "rgb(255,255,255)",
-                    bodyFontColor: "#858796",
-                    borderColor: "#dddfeb",
-                    borderWidth: 1,
-                    xPadding: 15,
-                    yPadding: 15,
-                    displayColors: false,
-                    caretPadding: 10
-                },
-                legend: {
-                    display: false
-                },
-                cutoutPercentage: 80
-            }
-        });
-
-        setTimeout(function () {
-            document.getElementById("content").classList.remove("d-none");
-            document.getElementById("load").classList.add("d-none");
-        }, 0.1);
-    });
-
-
-
-</script>

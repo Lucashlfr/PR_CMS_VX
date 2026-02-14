@@ -24,8 +24,8 @@ public class Person {
     private int fRank;
 
     private PersonAttributes.Salutation salutation;
-    private String firstname;
-    private String lastname;
+    private String firstName;
+    private String lastName;
 
     private PersonAttributes.Gender gender;
     private Optional<CMSDate> birthdate;
@@ -68,11 +68,11 @@ public class Person {
     }
 
     public String getReadName() {
-        return lastname + ", " + firstname;
+        return lastName + ", " + firstName;
     }
 
     public String getName() {
-        return firstname + " " + lastname;
+        return firstName + " " + lastName;
     }
 
     public String getAddress() {
@@ -89,7 +89,7 @@ public class Person {
     }
 
     public PersonOverviewDTO toPersonOverviewDTO() {
-        return new PersonOverviewDTO(id, firstname, lastname, Tenant.MSNN, rank.getName(), CMSDate.current().getGermanDate(), new double[0], "", username, password);
+        return new PersonOverviewDTO(id, firstName, lastName, Tenant.MSNN, rank.getName(), CMSDate.current().getGermanDate(), new double[0], "", username, password);
     }
 
     public String getImgAddress(){

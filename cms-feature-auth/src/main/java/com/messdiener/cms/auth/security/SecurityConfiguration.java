@@ -68,34 +68,36 @@ public class SecurityConfiguration {
     }
 
 
+    // ===== API-CHAIN ===========================================================
     @Bean
     @Order(1)
-    public SecurityFilterChain apiAuthChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
+    public SecurityFilterChain apiChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
         HttpSessionSecurityContextRepository sessionRepo = new HttpSessionSecurityContextRepository();
 
         http
-                .securityMatcher("/api/auth/**")
+                .securityMatcher("/api/**")
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/sso/link").authenticated()
                         .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.ignoringRequestMatchers(req ->
-                        req.getRequestURI() != null && req.getRequestURI().startsWith("/api/auth/")
+                // >>> WICHTIG: CSRF für Auth & SSO-API ausschalten (DEV)
+                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        req -> {
+                            String uri = req.getRequestURI();
+                            return uri != null && (uri.startsWith("/api/auth/") || uri.startsWith("/api/sso/"));
+                        }
                 ))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .securityContext(sc -> sc.securityContextRepository(sessionRepo))
-
-                // Remember-Me auch für die API-Kette aktivieren
                 .rememberMe(r -> r.rememberMeServices(rememberMeServices))
-
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .addLogoutHandler((request, response, authentication) -> {
                             var session = request.getSession(false);
                             if (session != null) session.invalidate();
 
-                            // Remember-Me-Cookie löschen (cmslogin)
                             Cookie rm = new Cookie("cmslogin", "");
                             rm.setPath("/");
                             rm.setMaxAge(0);
@@ -103,30 +105,26 @@ public class SecurityConfiguration {
                             rm.setSecure(true);
                             response.addCookie(rm);
 
-                            // Bestehendes App-Session-Cookie löschen
-                            Cookie cookie = new Cookie("CentralManagementSystem_vX", "");
-                            cookie.setPath("/");
-                            cookie.setMaxAge(0);
-                            cookie.setHttpOnly(true);
-                            cookie.setSecure(true);
-                            response.addCookie(cookie);
+                            Cookie app = new Cookie("CentralManagementSystem_vX", "");
+                            app.setPath("/");
+                            app.setMaxAge(0);
+                            app.setHttpOnly(true);
+                            app.setSecure(true);
+                            response.addCookie(app);
                         })
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            response.setStatus(HttpServletResponse.SC_NO_CONTENT); // 204
-                        })
+                        .logoutSuccessHandler((request, response, authentication) -> response.setStatus(HttpServletResponse.SC_NO_CONTENT))
                         .deleteCookies("CentralManagementSystem_vX", "cmslogin")
                 )
-
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable);
 
         return http.build();
     }
 
+    // ===== WEB-CHAIN ===========================================================
     @Bean
     @Order(2)
-    SecurityFilterChain webSecurity(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
-
+    public SecurityFilterChain webChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
         http
                 .sessionManagement(session -> session
                         .sessionFixation().migrateSession()
@@ -135,32 +133,32 @@ public class SecurityConfiguration {
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .requiresChannel(channel -> channel.anyRequest().requiresSecure())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.GET, "/", "/update", "/go/**", "/storage/file/**", "/infos", "/about", "/contact", "/impressum",
-                                "/static/**", "/dist/**", "/img/**", "/file/**", "/css/**", "/script/**", "/download", "/output", "/public/**", "/health",
-                                "/js/**", "/fonts/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/", "/update", "/go/**", "/storage/file/**", "/infos", "/about", "/contact", "/impressum",
+                                "/static/**", "/dist/**", "/img/**", "/file/**", "/css/**", "/script/**", "/download", "/output",
+                                "/public/**", "/health", "/js/**", "/fonts/**"
+                        ).permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/finance/file", "/public/**", "/register/**", "/error", "/favicon.ico").permitAll()
-                        .requestMatchers("/application/save").permitAll()
-                        .anyRequest().authenticated())
+                        // SSO-Einstieg (HTML-GET) muss offen sein
+                        .requestMatchers("/sso").permitAll()
+                        .anyRequest().authenticated()
+                )
                 .formLogin(form -> form
                         .usernameParameter("username")
                         .passwordParameter("password")
                         .failureUrl("/login?error")
                         .loginPage("/login")
                         .defaultSuccessUrl("/dashboard")
-                        .permitAll())
-
-                // Persistent Remember-Me ohne Checkbox (alwaysRemember)
+                        .permitAll()
+                )
                 .rememberMe(r -> r.rememberMeServices(rememberMeServices))
-
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?success")
                         .addLogoutHandler(new SecurityContextLogoutHandler())
-                        .deleteCookies("cmslogin") // Remember-Me-Cookie bei Logout löschen
-                );
-               // .csrf(AbstractHttpConfigurer::disable);
-
+                        .deleteCookies("cmslogin")
+                ); // nur wenn wirklich nötig
         return http.build();
     }
 }

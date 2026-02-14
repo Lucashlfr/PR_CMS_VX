@@ -36,7 +36,7 @@ public class PersonService {
             Person sys = Person.empty(Tenant.MSTM);
             sys.setId(Cache.SYSTEM_USER);
             sys.setActive(true);
-            sys.setFirstname("System");
+            sys.setFirstName("System");
             updatePerson(sys);
             LOGGER.info("PersonService initialized and system user ensured.");
         }
@@ -177,8 +177,8 @@ public class PersonService {
 
             return new PersonOverviewDTO(
                     p.getId(),
-                    p.getFirstname(),
-                    p.getLastname(),
+                    p.getFirstName(),
+                    p.getLastName(),
                     p.getTenant(),
                     rankName,
                     birth,
